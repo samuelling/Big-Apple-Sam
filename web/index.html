@@ -24,11 +24,13 @@ html,body{margin:0;height:100%;background:#808080;font:13px Arial,sans-serif}
 'use strict';
 /* HomeBlocks on its own: loads the Big Apple Sam engine from the app's page, rebuilds the city named in the
    address (or the one saved in this browser), and shows its homepages full-window. Addresses look like
-   #<city code>/<Neighborhood>/<Suburb>/<number>/<page>, so Back/Forward, bookmarks and shared links work. */
-const W$={code:null,sim0:0,t0:0,cur:null,doc:null,imgs:[]};
+   #<city code>/<Neighborhood>/<Suburb>/<number>/<page>, so Back/Forward, bookmarks and shared links work.
+   A shared link can pin the day in the city (#<code>~<day>/...): it then opens that city on that day, so the
+   friend sees the page as the sender did, and it leaves this browser's own saved city alone. */
+const W$={code:null,pin:null,sim0:0,t0:0,cur:null,doc:null,imgs:[]};
 const $=id=>document.getElementById(id);
 function step(t,p){$('msg').textContent=t;$('prog').style.width=p+'%'}
-function toHash(url){const m=String(url).match(/^https?:\/\/(?:www\.)?homeblocks\.com(\/[^#]*)?/i);return'#'+W$.code+(m?(m[1]||'/'):'!'+url)}
+function toHash(url){const m=String(url).match(/^https?:\/\/(?:www\.)?homeblocks\.com(\/[^#]*)?/i);return'#'+W$.code+(W$.pin!=null?'~'+W$.pin:'')+(m?(m[1]||'/'):'!'+url)}
 function fromHash(){const h=decodeURIComponent(location.hash.slice(1)),i=h.search(/[\/!]/);const rest=i<0?'/':h.slice(i);
   return rest[0]==='!'?rest.slice(1):'http://www.homeblocks.com'+rest}
 function liveSim(){return W$.sim0+(Date.now()-W$.t0)/60000}
@@ -49,8 +51,9 @@ function hook(){
   const doc=$('f').contentDocument;if(!doc||!doc.body)return;W$.doc=doc;W$.imgs=[...doc.querySelectorAll('img[data-s]')];
   doc.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented)return;const h=a.getAttribute('href');if(h.startsWith('#')){e.preventDefault();hbJump(doc,h);return}
     if(e.metaKey||e.ctrlKey||e.shiftKey){if(/homeblocks\.com/i.test(h)){e.preventDefault();window.open(location.pathname+toHash(h),'_blank','noopener')}return}
-    e.preventDefault();if(h==='midi:play'){if(W$.cur.res.s)hbMidiPlay(W$.cur.res.s);return}if(h==='midi:stop'){hbMidiStop();return}go(h)});
+    e.preventDefault();if(h==='midi:play'){if(W$.cur.res.s)hbMidiPlay(W$.cur.res.s);return}if(h==='midi:stop'){hbMidiStop();return}if(h.startsWith('share:')){hbShareDo(h.slice(6),doc);return}go(h)});
   doc.addEventListener('submit',e=>{e.preventDefault();const f=e.target,fd=new FormData(f);
+    if(f.dataset.send)return hbShareDo('mail',doc,fd);
     if(f.dataset.search)return go(HBROOT+'search?q='+encodeURIComponent(String(fd.get('q')||'').trim()));
     if(f.dataset.mail){$('f').srcdoc=hbDoc('Sent','<center><br><br><font face="Arial">Your message was sent.<br><br><font size="1">(Probably.)</font></font></center>');return}
     if(f.dataset.gb){const n=String(fd.get('n')||'').trim().slice(0,40),m=String(fd.get('m')||'').trim().slice(0,400),w=String(fd.get('w')||'').trim().slice(0,40);if(!n||!m)return;
@@ -67,19 +70,20 @@ async function start(){
   let txt;try{txt=await(await fetch('../index.html',{cache:'no-cache'})).text()}catch(e){step('NetSurfer is unable to locate the server. Try again later.',0);return}
   step('Transferring data from www.homeblocks.com...',40);await new Promise(r=>setTimeout(r,30));
   const m=txt.match(/<script>([\s\S]*?)<\/script>/);const sc=document.createElement('script');sc.textContent=m[1];document.head.appendChild(sc);
-  const h=decodeURIComponent(location.hash.slice(1));let want=parseCode(h.split(/[\/!]/)[0]);const st=loadState();
+  const h=decodeURIComponent(location.hash.slice(1)),head=h.split(/[\/!]/)[0].split('~');let want=parseCode(head[0]);const st=loadState();
+  W$.pin=want&&/^\d{1,6}$/.test(head[1]||'')&&+head[1]>=want.born?+head[1]:null;
   if(!want)want=st?{seed:st.seed,born:st.born}:{seed:(Math.random()*2e9)|0,born:Math.floor(localNow()/1440)};
   const mine=st&&st.seed===want.seed&&st.born===want.born;
-  W$.sim0=mine?st.sim+(st.paused?0:(Date.now()-st.at)/60000):localNow();W$.t0=Date.now();simMin=W$.sim0;
+  W$.sim0=W$.pin!=null?W$.pin*1440+13*60:mine?st.sim+(st.paused?0:(Date.now()-st.at)/60000):localNow();W$.t0=Date.now();simMin=W$.sim0;
   step('Building the city...',60);await new Promise(r=>setTimeout(r,30));
   city=genCity(want.seed,want.born);markParlors(city);addFrontage(city);pickKevin(city);addMega(city);samFamily(city);
   const L=Math.floor(simMin/1440);for(const u of city.units)if(u.eras&&!u.mega)syncEra(u,L);refreshAges(L);kevinCheck();
-  if(!st){try{localStorage.setItem(STORE,JSON.stringify({seed:city.seed,born:city.born,sim:simMin,at:Date.now(),speed:1,paused:false}))}catch(e){}}
+  if(!st&&W$.pin==null){try{localStorage.setItem(STORE,JSON.stringify({seed:city.seed,born:city.born,sim:simMin,at:Date.now(),speed:1,paused:false}))}catch(e){}}
   W$.code=cityCode();HB.standalone=W$.code;hbBuzzFetch();
   step('Document: Done',100);
   $('f').addEventListener('load',hook);$('load').hidden=true;$('f').hidden=false;
   show(fromHash(),false);
-  addEventListener('popstate',()=>{const c=decodeURIComponent(location.hash.slice(1)).split(/[\/!]/)[0];if(c&&c!==W$.code&&parseCode(c)){location.reload();return}show(fromHash(),false)});
+  addEventListener('popstate',()=>{const c=decodeURIComponent(location.hash.slice(1)).split(/[\/!]/)[0],cur=W$.code+(W$.pin!=null?'~'+W$.pin:'');if(c&&c!==cur&&parseCode(c.split('~')[0])){location.reload();return}show(fromHash(),false)});
   setInterval(animate,80);
 }
 start();

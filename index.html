@@ -420,11 +420,16 @@ function mkLook(r,o={}){
     cF:pk(['#1c1c1c','#3a2a1c','#e8e8e8','#5a2a1a']),skirt:fem&&!o.kid&&r()<.3,cK:pk(SHIRT),longHair:fem?r()<.75:r()<.1,kid:!!o.kid};
 }
 function mkGuest(r,rel,age,k){const g=Object.assign({k,id:900000+Math.floor(r()*99999),first:FIRST[Math.floor(r()*FIRST.length)],rel,traits:[],x:DOOR,tx:DOOR,face:1,row:8,pose:'stand'},mkLook(r,{age}));return g}
+/* nobody shares a first name with someone in their own household (picked without touching the generator's
+   random stream, so only the clashing name changes) */
+function uniqName(nm,list,taken,s){if(!taken.includes(nm))return nm;for(let k=0;k<list.length;k++){const c=list[(hash(s,k,991,7)>>>0)%list.length];if(!taken.includes(c))return c}return nm}
+const famNames=(u,x)=>u.people.filter(q=>q!==x).map(q=>q.first).concat(u.babyName?[u.babyName]:[]);
 function mkPerson(C,u,arch,r,o={}){
   const pk=a=>a[Math.floor(r()*a.length)],ri=(a,b)=>a+Math.floor(r()*(b-a+1));
   const kid=arch==='kid';const rg=AGES[arch];const age=ri(rg[0],rg[1]);
   const shirt=arch==='janitor'?'#5a6a7a':arch==='office'?pk(['#e8e8e8','#c8d8ec','#9ab0d0','#e8e0d0','#3a4a6a','#7a2a3a']):undefined;
   const p=Object.assign({id:GEN.base!=null?GEN.base+(GEN.n++):C.people.length+1,u,arch,kid,age,first:pk(kid?KIDN:FIRST),last:o.last||pk(LAST)},mkLook(r,{age,kid,shirt}));
+  p.first=uniqName(p.first,kid?KIDN:FIRST,famNames(u),p.id);
   p.job=JOBS[arch]?pk(JOBS[arch]):'';
   p.anchor=ANCHOR[arch];
   p.hobbies=kid?['tv','game','play','read','tv']:[...pickN(r,HOB[arch],3),'tv',...(r()<.4?['phone']:[]),...(r()<.25?['vacuum']:[])];
@@ -462,6 +467,7 @@ function setupArcs(C,u,ppl,r,mates){
     u.rel=u.baby?'parents':old?'steady':pk(['newlyweds','steady','steady','rocky',(u.n===3&&ad.every(p=>p.age<44))?'expecting':'newlyweds']);
     const yrs=u.rel==='newlyweds'?ri(0,1):old?ri(30,55):ri(3,22);u.relSince=B-Math.round(yrs*YR)-ri(0,200);
     if(u.rel==='expecting'){u.due=B+ri(5,40);ad[ri(0,1)].preg=true;u.babyName=pk(KIDN)}
+    if(u.babyName)u.babyName=uniqName(u.babyName,KIDN,u.people.map(q=>q.first),u.id)
   }
   for(const p of ad){if(r()>.6)continue;rollArc(C,p,u,r,B,ad.length===1||mates)}
 }
@@ -485,7 +491,7 @@ function setupRes(C,u,r){
   for(const a of spec){const same=!mates&&(a==='kid'||ppl.length===0||r()<.6);ppl.push(mkPerson(C,u,a,r,{last:same?fam:undefined}))}
   u.baby=baby;u.mates=mates;u.fam=fam;
   setupArcs(C,u,ppl,r,mates);
-  if(baby){u.due=GEN.day-ri(20,700);u.babyName=pk(KIDN)}
+  if(baby){u.due=GEN.day-ri(20,700);u.babyName=uniqName(pk(KIDN),KIDN,u.people.map(q=>q.first),u.id)}
   const needDesk=ppl.some(p=>p.hobbies.includes('computer')||p.workAct==='computer');
   const bv=baby||u.rel==='expecting'?'dresser':needDesk?'desk':pk(['dresser','dresser','desk']);
   u.rooms=types.map(t=>mkRoom(t,r,t==='bedroom'?bv:t==='living'?pk(['lamp','shelf']):null));
@@ -672,7 +678,7 @@ function rollArc(C,p,u,r,B,single){
   const ri=(a,b)=>a+Math.floor(r()*(b-a+1)),pk=a=>a[Math.floor(r()*a.length)];
   const a=pickArc(p,r,single);p.arc=a;p.arcS=B+ri(-12,12);
   if(a==='heartbreak'){p.arcS=B-ri(0,6);p.ex=pk(FIRST)}
-  if(a==='dating'||a==='heartbreak'){p.dateG=mkGuest(mulberry32(hash(p.id,77,C.seed,B)),'date',p.age+ri(-4,4),'d')}
+  if(a==='dating'||a==='heartbreak'){p.dateG=mkGuest(mulberry32(hash(p.id,77,C.seed,B)),'date',p.age+ri(-4,4),'d');p.dateG.first=uniqName(p.dateG.first,FIRST,u.people.map(q=>q.first),p.id)}
   if(a==='learning'){p.learn=pk(['guitar','paint']);if(!p.hobbies.includes(p.learn))p.hobbies.push(p.learn);p.arcS=B-ri(0,25)}
   if(a==='novel'){p.arcS=B-ri(10,60);p.finish=B+ri(5,45);if(!p.hobbies.includes('computer'))p.hobbies.push('computer')}
   if(a==='jobhunt'){p.arcS=B-ri(0,10);p.hired=B+ri(4,22)}
@@ -703,6 +709,7 @@ function snapP(p){const o={};for(const k in p)if(!RUNTIME.has(k))o[k]=p[k];
   o.hobbies=p.hobbies?p.hobbies.slice():[];o.preg=!!p.preg;o.arc=p.arc||null;o.sleepSofa=!!p.sleepSofa;o.babyParent=!!p.babyParent;o.dateG=p.dateG||null;return o}
 const UF=['rel','relSince','baby','due','babyName','mates','fam','vacant','rooms','ri','bulb','bulbO','leaveRoom','partyRoom','babySkin','tank','tankRoom','plants','spooky','xmas','bike','slides','hanuk','tree','candles','wreath','treeRoom'];
 function snapEra(C,u,k,s,kind){
+  for(const p of u.people)hbFoundAt(p,u,s);
   const e={k,s,kind,people:u.people.slice(),ps:u.people.map(snapP),pets:u.pets.map(x=>Object.assign({},x))};
   for(const f of UF)e[f]=u[f];
   e.end=eraEnd(C,u,e);e.e=e.end.t;return e;
@@ -782,10 +789,10 @@ function buildNext(C,u,era){
       q.first=u.babyName||q.first;q.bd=u.due;q.bday=doyOf(q.bd);q.age=4;q.cS=u.babySkin||q.cS;
       u.due=undefined;u.baby=false;u.babyName=undefined;if(u.rel==='expecting'||u.rel==='parents')u.rel='steady';
       for(const a of ad)a.preg=false;H(`${q.first} turned four and got a bed of their own.`);break}
-    case 'expecting':{const a=ad[hash(u.id,k)&1]||ad[0];u.due=t+ri(150,250);u.babyName=pk(KIDN);u.rel='expecting';a.preg=true;u.babySkin=pk(ad).cS;
+    case 'expecting':{const a=ad[hash(u.id,k)&1]||ad[0];u.due=t+ri(150,250);u.babyName=uniqName(pk(KIDN),KIDN,u.people.map(q=>q.first),u.id+k);u.rel='expecting';a.preg=true;u.babySkin=pk(ad).cS;
       H(`${ad.map(x=>x.first).join(' and ')} found out they're expecting.`);H(`Baby ${u.babyName} was born.`,u.due);break}
     case 'breakup':{const lv=r()<.5?ad[0]:ad[1],st=lv===ad[0]?ad[1]:ad[0];drop(lv);
-      st.arc='heartbreak';st.arcS=t;st.ex=lv.first;st.dateG=mkGuest(mulberry32(hash(st.id,78,C.seed,t)),'date',Math.floor(ageAt(st,t))+ri(-4,4),'d');
+      st.arc='heartbreak';st.arcS=t;st.ex=lv.first;st.dateG=mkGuest(mulberry32(hash(st.id,78,C.seed,t)),'date',Math.floor(ageAt(st,t))+ri(-4,4),'d');st.dateG.first=uniqName(st.dateG.first,FIRST,u.people.map(q=>q.first).concat(lv.first),st.id);
       u.rel=undefined;u.relSince=undefined;H(`${lv.first} and ${st.first} split up. ${lv.first} moved out.`);break}
     case 'reconcile':u.rel='steady';H(`${ad[0].first} and ${ad[1].first} patched things up.`);break;
     case 'rough':u.rel='rocky';H(`${ad[0].first} and ${ad[1].first} hit a rough patch.`);break;
@@ -3288,23 +3295,29 @@ function hbR(p,k){return srng(p.id,city.seed,4242,k)}
 function hbEligible(p,u){return u&&u.kind==='res'&&!u.mega&&!u.vacant&&(!p.kid||p.age>=8)}
 function hbSite(p,u,L){
   const r=hbR(p,1),tags=hbTags(p,u,L),sc={};const zine=!p.kid&&hash(p.id,city.seed,4290)%1000<HB.buzz.z*10,bbs=!p.kid&&(hbIsSam(p)||hash(p.id,city.seed,4291)%1000<HB.buzz.b*10);if(zine)tags.add('zine');if(bbs)tags.add('bbs');
-  for(const nb of HBNB){let s=r()*1.4;for(const[k,v]of Object.entries(nb.w))if(tags.has(k))s+=v;sc[nb.id]=s}
+  const ft=new Set(p.found||[...tags]);for(const k of ['zine','bbs'])ft.delete(k);
+  for(const nb of HBNB){let s=r()*1.4;for(const[k,v]of Object.entries(nb.w))if(ft.has(k))s+=v;sc[nb.id]=s}
   let nb=HBNB[0];for(const n of HBNB)if(sc[n.id]>sc[nb.id])nb=n;
   const kev=hbIsKev(p),sam=hbIsSam(p);if(kev)nb=HBNBI.SunsetStrip;if(sam)nb=HBNBI.SiliconAlley;
   const sub=kev?'Amplifier':sam?'Modem':nb.subs[Math.floor(r()*nb.subs.length)],num=1000+hash(p.id,city.seed,4243)%9000;
-  const v=hbVoice(p,u,tags,hbR(p,2));
+  const created=hbCreated(p,u,L),arch0=['retiree','student','night','baker','creative','worker'].find(a=>ft.has(a))||p.arch;
+  const v=hbVoice(p.kid?p:Object.assign(Object.create(p),{age:Math.floor(ageAt(p,created)),arch:arch0}),u,p.kid?tags:ft,hbR(p,2));
   const rings=[];for(const k of ['zine','spooky','novel','marathon','grief','homesick','heartbreak','dating','insomnia','theremin','newlywed','baby','kid','cat','dog','guitar','synth','fish','film','retro','stargaze','carni','knit','coffee','paint','yoga','computer','science','night','parent','retiree','student','a foodie','food','plants','cycle','lonely','music'])
     if(tags.has(k)&&HBRINGS[k]&&!rings.includes(HBRINGS[k])&&rings.length<2)rings.push(HBRINGS[k]);
-  const site={zine,bbs,p,u,nb,sub,num,tags,v,rings,path:`/${nb.id}/${sub}/${num}/`,id:p.id};site.kind=hbKind(site);return site;
+  const site={zine,bbs,p,u,nb,sub,num,tags,ftags:ft,v,rings,path:`/${nb.id}/${sub}/${num}/`,id:p.id};site.kind=hbKind(site);site.kind0=site.kind;site.created=created;
+  if(site.kind==='construction'){site.finishDay=hash(p.id,city.seed,4310)%100<35?site.created+60+hash(p.id,4311)%340:Infinity;if(L>=site.finishDay){site.finished=true;site.kind='about'}}
+  return site;
 }
 const HB={open:false,hist:[],hi:-1,cur:null,idx:null,idxL:-1,idxSeed:-1,anim:0,midi:null,trail:[],loadT:0};
 function hbIndex(){
   const L=Math.floor(simMin/1440);if(HB.idx&&HB.idxL===L&&HB.idxSeed===city.seed)return HB.idx;
   const byUrl=new Map(),byId=new Map(),list=[],nb={},rings={};
   for(const u of city.units){if(u.kind!=='res'||u.mega||u.vacant)continue;
-    for(const p of u.people){if(!hbEligible(p,u)||(p.samFam&&!hbIsSam(p)))continue;const s=hbSite(p,u,L);
-      while(byUrl.has(s.path)){s.num=s.num>=9999?1000:s.num+1;s.path=`/${s.nb.id}/${s.sub}/${s.num}/`}
-      byUrl.set(s.path,s);byId.set(p.id,s);list.push(s);(nb[s.nb.id]=nb[s.nb.id]||[]).push(s);for(const g of s.rings)(rings[g]=rings[g]||[]).push(s)}}
+    for(const p of u.people){if(!hbEligible(p,u)||(p.samFam&&!hbIsSam(p)))continue;list.push(hbSite(p,u,L))}}
+  /* the older homestead keeps its number when two want the same one */
+  list.sort((a,b)=>a.created-b.created||a.id-b.id);
+  for(const s of list){while(byUrl.has(s.path)){s.num=s.num>=9999?1000:s.num+1;s.path=`/${s.nb.id}/${s.sub}/${s.num}/`}
+    byUrl.set(s.path,s);byId.set(s.id,s);(nb[s.nb.id]=nb[s.nb.id]||[]).push(s);for(const g of s.rings)(rings[g]=rings[g]||[]).push(s)}
   for(const k in rings)rings[k].sort((a,b)=>a.num-b.num||a.id-b.id);
   HB.idx={byUrl,byId,list,nb,rings,L};HB.idxL=L;HB.idxSeed=city.seed;return HB.idx;
 }
@@ -3340,7 +3353,7 @@ const hbCap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 const HBPAL=[['#ff0000','#00ff00','#ffff00'],['#00ffff','#ff00ff','#ffffff'],['#ffff00','#00ffff','#ff80ff'],['#00ff00','#ffff00','#ff8000'],['#ffffff','#80c0ff','#c0a0ff'],['#ff80c0','#ffff80','#80ffff'],['#c0c0ff','#ffd080','#ff8080']];
 const HBPALL=[['#800000','#0000ff','#008000'],['#000080','#ff0000','#800080'],['#000000','#0000ee','#551a8b'],['#202060','#a00000','#600060'],['#3a1a00','#006000','#804000'],['#400040','#0000c0','#800080'],['#003030','#a03000','#205050']];
 function hbTheme(s){
-  const r=hbR(s.p,3),v=s.v,nb=s.nb,T=k=>s.tags.has(k);
+  const r=hbR(s.p,3),v=s.v,nb=s.nb,T=k=>(s.ftags||s.tags).has(k);
   let tile=hbPick(r,nb.t);if(v.old&&r()<.6)tile=hbPick(r,['lace','parchment','clouds','marble']);if(v.quiet&&r()<.5)tile=hbPick(r,['stars','galaxy','denim','stucco']);
   if(v.kid)tile=hbPick(r,['confetti','checker','clouds','stars','tiedye']);
   const tcol=T('cat')||T('dog')?hbPick(r,['#c8a070','#a0a0a0','#e0a0c0']):hbPick(r,['#d03030','#3050c0','#30a050','#a040c0','#c08020']);
@@ -3363,12 +3376,70 @@ function hbTheme(s){
   if(r()<.28&&!v.old)th.font=hbPick(r,['Trebuchet MS','Arial Narrow','Monotype Corsiva','Brush Script MT','Courier New','Lucida Console','Tahoma','Century Gothic','Verdana']);
   if(s.kind==='construction'){th.cons=true;th.awards=false;th.music=r()<.3}
   if(s.kind==='hobby'&&HBHOB[s.hob]&&r()<.6){const t2=hbTile(hbPick(r,HBHOB[s.hob].tile),null,s.num%5+1);th.tile='x';th.tl=t2;th.dark=t2.dark;const pl=t2.dark?hbPick(r,HBPAL):hbPick(r,HBPALL);th.ink=pl[0];th.link=pl[1];th.vlink=pl[2];if(th.layout==='side')th.layout='center'}
+  if(s.finished)th.cons=false;
   if(s.kind==='business'){th.marquee=false;th.cons=false;th.trail=false}
   if(s.kind==='gk'){const c=hbCv(2,2),x=c.getContext('2d');x.fillStyle='#c0c0c0';x.fillRect(0,0,2,2);Object.assign(th,{tile:'gray',tl:{url:c.toDataURL(),base:'#c0c0c0',dark:false,side:0},dark:false,ink:'#000000',link:'#0000ee',vlink:'#551a8b',font:'Times New Roman',head:'plain',layout:'plain',panel:'',music:false,marquee:false,cons:false,splash:false,awards:false,counter:true,trail:false,gfx:null,align:'left',bullet:null,hr:'hr',mail:true})}
   if(s.kind==='positron'){const t2=hbTile('flames',null,2);Object.assign(th,{tile:'flames',tl:t2,dark:true,ink:'#ffffff',link:'#ffff00',vlink:'#ff8000',font:'Arial Black',head:'big',layout:'table',panel:'#000000',music:true,marquee:false,cons:false,splash:false,awards:true,counter:true,trail:true,gfx:['#ffff00','#ff2000','#400000'],align:'left',bullet:'#ff2020'})}
   if(th.panel&&th.dark!==(hbLum(th.panel)<.45)){const p2=th.dark?HBPAL:HBPALL;const q=hbLum(th.panel)<.45?hbPick(r,HBPAL):hbPick(r,HBPALL);th.ink=q[0];th.link=q[1];th.vlink=q[2]}
   return th;
 }
+
+/* ---------- pages that keep a history ----------
+   A site's identity (neighborhood, address, look, kind, title) is fixed by who the person was when their
+   household was formed: p.found is captured once, the first time they appear in an era snapshot, so it is
+   the same for every viewer and never moves. After that the site only changes when its owner updates it:
+   real life events turn into dated "What's New" entries, and between them people tinker at their own pace
+   (or let it go stale). The page is written as of its last update, so an abandoned page still says
+   "23 days to go!" long after the race. */
+function hbFoundAt(p,u,s){if(p.found)return;try{p.found=[...hbTags(p,u,s)];p.foundPet=u.pets&&u.pets[0]?u.pets[0].name:null;p.foundJob=p.job||'';p.foundDay=s}catch(e){}}
+function hbMoved(p,u,L){if(p.foundDay!==undefined)return p.kid?Math.max(p.foundDay,p.bd+Math.round(8*YR)):p.foundDay;const hist=(u.hist||[]).filter(h=>h[0]<=L);let mv=hist.length?hist[0][0]:L-400;
+  for(const[d,t]of hist)if(t.includes(p.first)&&/moved in|took the spare room|moved in with/.test(t))mv=d;
+  if(p.kid)mv=Math.max(mv,p.bd+Math.round(8*YR));return mv}
+function hbCreated(p,u,L){return Math.min(L-3,hbMoved(p,u,L)+20+hash(p.id,city.seed,4250)%240)}
+const HBROUT=['Updated my links.','New background!','Fixed some typos.','Added a hit counter!','Added more stuff to my interests.','New MIDI!','Changed the colors (again).','Moved some things around.',
+  'Added NEW pictures!','Fixed the broken links (I think).','Made the title bigger.','Added an animated GIF. Or three.','Cleaned up the guestbook.','Joined a webring!','Spell-checked everything.'];
+/* a household history line, as the page owner would announce it */
+function hbNewsLine(p,u,t){const f=p.first,me=t.includes(f);let m;
+  if((m=t.match(/^(.+?) (\S+) passed away/))&&m[1]!==f)return`Added a page in memory of ${m[1]}.`;
+  if(me&&/ retired after/.test(t))return'I retired! Updated my About Me.';
+  if(me&&/ graduated and started work/.test(t))return'I graduated!!! New job, new page.';
+  if((m=t.match(/^(\S+) moved in with (\S+)\./))&&m[2]===f)return`${m[1]} moved in! Added them to my page.`;
+  if(/found out they're expecting/.test(t)&&me)return'BIG NEWS: we\'re expecting! Added a baby countdown.';
+  if((m=t.match(/^Baby (\S+) was born/)))return`Baby ${m[1]} is here!!! Pictures soon (when we sleep).`;
+  if(/ split up\./.test(t)&&me&&!t.endsWith(f+' moved out.'))return'Took some things down. Added a poems page.';
+  if(/patched things up/.test(t)&&me)return'Things are better. Updated my page. :)';
+  if(t===`${f} signed up for a marathon.`)return'Added my marathon training log!';
+  if(t===`${f} started writing a novel.`)return'New page about my novel!';
+  if(t===`${f} started learning guitar.`)return'New page: learning guitar!';
+  if(t===`${f} started learning to paint.`)return'Added a gallery for my paintings!';
+  if(t===`${f} lost their job.`)return'Posted my resume.';
+  if(t===`${f} started dating again.`)return'Changed my background. No reason. ;-)';
+  if((m=t.match(/^Adopted an? (cat|dog) named (\S+)\./)))return`New page for ${m[2]} the ${m[1]}!`;
+  if((m=t.match(/^(\S+) the (cat|dog) died/)))return`RIP ${m[1]}. Added a tribute.`;
+  if((m=t.match(/moved out; (\S+) (\S+) took the spare room/))&&m[1]!==f)return`New roommate! Say hi to ${m[1]}.`;
+  if((m=t.match(/^(\S+) turned 18 and moved out/)))return`${m[1]} moved out. The house is quiet. Updated the family page.`;
+  return null}
+function hbNews(s,created,L){
+  const p=s.p,u=s.u,v=s.v,out=[{d:created,t:hbPick(hbR(p,4302),['Page created!','Welcome to my new homepage!','My first web page is up!']),ev:1}];
+  if(s.kind0==='construction'&&!s.finished)return out;
+  const H=(u.hist||[]).filter(([d])=>d>created&&d<=L);
+  for(const[d,t]of H){const m=hbNewsLine(p,u,t);if(m){const dd=Math.min(L,d+hash(p.id,d,4303)%5);out.push({d:dd,t:m,ev:1})}}
+  if(s.finished)out.push({d:s.finishDay,t:'Finally finished my page!!! No more Under Construction!',ev:1});
+  const base=v.loud||v.young||v.kid?32:v.quiet||v.old?160:75,mult=p.arch==='night'?1.5:1;
+  const babies=H.filter(([,x])=>/^Baby .* was born/.test(x)).map(([d])=>d),lapse=hash(p.id,city.seed,4304)%100<18?created+200+hash(p.id,4305)%900:Infinity;
+  let t=created;for(let k=1;k<400;k++){let gap=Math.round(base*mult*(.45+hr(p.id,k,4306)*1.6));if(babies.some(b=>t>=b-20&&t<b+240))gap+=220;t+=gap;if(t>L||t>lapse)break;
+    out.push({d:t,t:HBROUT[hash(p.id,k,4307)%HBROUT.length]})}
+  /* big news still gets posted after someone stops tinkering */
+  return out.filter(e=>e.ev||e.d<=lapse).sort((a,b)=>a.d-b.d);
+}
+/* storylines this person has lived through here, so their pages can linger after the story ends */
+function hbPast(p,u,moved,L){const P=new Set();let lost=null;const f=p.first;
+  for(const[d,t]of(u.hist||[])){if(d<moved||d>L)continue;let m;
+    if(t===`${f} signed up for a marathon.`)P.add('marathon');if(t===`${f} started writing a novel.`)P.add('novel');if(t===`${f} started learning guitar.`)P.add('guitar');if(t===`${f} started learning to paint.`)P.add('paint');
+    if(/ split up\./.test(t)&&t.includes(f))P.add('heartbreak');if((m=t.match(/^(.+?) (\S+) passed away/))&&m[1]!==f)lost={name:m[1],d}}
+  return{past:P,lost}}
+function hbNewsBox(s,F,R){const n=F.news.slice(-5).reverse();if(n.length<2)return'';
+  return`${hbH(s,"What's New",R,3)}<table border="1" cellpadding="4" ${s.th.panel?'':`bgcolor="${s.th.dark?'#101028':'#ffffee'}"`}>${n.map(e=>`<tr><td valign="top"><font size="2" color="${s.th.dark&&!s.th.panel?'#ffff80':s.th.ink}"><b>${hbDateS(e.d)}</b></font></td><td><font size="2" color="${s.th.dark&&!s.th.panel?'#ffffff':s.th.ink}">${F.now-e.d<14?hbImg('newb',{sc:1})+' ':''}${hbE(hbSay(s.v,e.t,R))}</font></td></tr>`).join('')}</table>`}
 
 /* ---------- what a resident has to say ---------- */
 const HBTRAIT={cheerful:["I'm pretty much always in a good mood.","My friends call me a ray of sunshine. (Their words!)"],melancholy:["I think too much.","Some days are gray. That's okay."],
@@ -3406,17 +3477,15 @@ const hbE=esc0;
 /* the facts a page is built from */
 function hbFacts(s,L){
   const p=s.p,u=s.u,ad=u.people.filter(x=>!x.kid),ks=u.people.filter(x=>x.kid),others=ad.filter(x=>x!==p);
-  const bn=u.b.name.replace(/^The /,'');const F={p,u,L,first:p.first,last:p.last,age:p.age,rel:relOf(u,L),apt:`${bn}, Apt ${u.f+2}${u.letter}`,aptS:`Apt ${u.f+2}${u.letter}`,bld:bn,
+  const now=L,created=s.created!==undefined?s.created:hbCreated(p,u,L),news=hbNews(s,created,now),upd=news.length?news[news.length-1].d:created;L=upd;
+  const bn=u.b.name.replace(/^The /,'');const F={p,u,L,now,news,first:p.first,last:p.last,age:Math.max(0,Math.floor(ageAt(p,L))),rel:relOf(u,L),apt:`${bn}, Apt ${u.f+2}${u.letter}`,aptS:`Apt ${u.f+2}${u.letter}`,bld:bn,
     partner:null,mates:[],kids:[],parents:[],sibs:[],pets:u.pets||[],tank:u.tank,baby:hasBaby(u,L)?u.babyName:null,due:u.due!==undefined&&L<u.due?u.due-L:null,babyName:u.babyName};
   if(p.kid){F.parents=ad;F.sibs=ks.filter(x=>x!==p)}
   else{if(u.mates)F.mates=others;else if(others.length===1)F.partner=others[0];else F.mates=others;if(!u.mates)F.kids=ks}
   F.since=u.relSince!==undefined?Math.max(1,Math.floor((L-u.relSince)/YR)):null;
-  /* when this person moved in, and so when the page went up */
-  const hist=(u.hist||[]).filter(h=>h[0]<=L);let mv=hist.length?hist[0][0]:L-400;
-  for(const[d,t]of hist)if(t.includes(p.first)&&/moved in|took the spare room|moved in with/.test(t))mv=d;
-  if(p.kid)mv=Math.max(mv,p.bd+Math.round(8*YR));
-  F.moved=mv;F.created=Math.min(L-3,mv+20+hash(p.id,city.seed,4250)%240);
-  F.updated=Math.max(F.created,L-hash(p.id,city.seed,L>>4,4251)%(s.v.old?120:30));
+  const hist=(u.hist||[]).filter(h=>h[0]<=L);
+  F.moved=hbMoved(p,u,now);F.created=created;F.updated=upd;
+  const pa=hbPast(p,u,F.moved,L);F.past=pa.past;F.lost=pa.lost;
   F.hist=hist.filter(([d,t])=>t.includes(p.first)||(F.partner&&t.includes(F.partner.first))||/Baby .* was born|turned four/.test(t)).slice(-8);
   return F;
 }
@@ -3440,6 +3509,7 @@ function hbJob(p,F,v,r){
 }
 function hbArc(p,F,r){
   const L=F.L,d=L-(p.arcS||0);
+  if(!p.arc&&F.lost&&L-F.lost.d<500)return`This year I lost ${F.lost.name}. I made a page for them here.`;
   switch(p.arc){
     case'heartbreak':return d<7?'I just went through a breakup. Please don\'t ask.':d<25?`I'm getting over a breakup. My poems page has more than you want to know.`:`I'm dating again! Things are going well with ${p.dateG.first}.`;
     case'dating':return d<0?'I\'m single, if anyone\'s asking.':`I've been seeing someone new. Their name is ${p.dateG.first}. That's all I'll say for now ;-)`;
@@ -3464,7 +3534,7 @@ function hbHouse(p,F,v){
   if(!F.partner&&!F.mates.length&&F.pets.length)w+=` with my ${F.pets[0].kind} ${hbE(F.pets[0].name)}.`;
   else if(F.pets.length)w+=` Also ${hbE(F.pets[0].name)} the ${F.pets[0].kind}, who thinks it's in charge.`;
   a.push(w);
-  if(F.kids.length)a.push(`${F.kids.length>1?'Our kids are':'Our kid is'} ${hbList(F.kids.map(k=>`${hbWho(k)} (${k.age})`))}.`);
+  if(F.kids.length)a.push(`${F.kids.length>1?'Our kids are':'Our kid is'} ${hbList(F.kids.map(k=>`${hbWho(k)} (${Math.max(0,Math.floor(ageAt(k,F.L)))})`))}.`);
   if(F.due!==null)a.push(`We're expecting a baby! ${F.due} day${F.due===1?'':'s'} to go!`);
   else if(F.baby)a.push(`And baby ${hbE(F.baby)} is here!`);
   return a.join(' ');
@@ -3474,7 +3544,7 @@ function hbTitle(s,F){
   const r=hbR(s.p,4),v=s.v,fn=F.first,ln=F.last,nb=s.nb.id;
   if(v.kid&&s.p.age>=13)return hbPick(r,[`${fn}'s Page`,`${fn.toLowerCase()}'s room. KEEP OUT`,`${fn}'s Zone`,`~*~${fn}~*~`]);
   if(v.kid)return hbPick(r,[`${fn}'s KOOL Page`,`~${fn}'s Page~`,`${fn.toUpperCase()}'S WEB SITE`,`${fn}'s Awesome Page!!!`]);
-  if(nb==='PawPrintPark'&&F.pets.length&&r()<.6)return`${F.pets[0].name}'s Home Page (and ${fn}'s too)`;
+  const pet=s.p.foundPet||(F.pets[0]&&F.pets[0].name);if(nb==='PawPrintPark'&&pet&&r()<.6)return`${pet}'s Home Page (and ${fn}'s too)`;
   if(v.old)return hbPick(r,[`The ${ln} Family Home Page`,`Welcome to the Web Site of ${fn} ${ln}`,`${fn} ${ln}'s Page`]);
   if(v.loud)return hbPick(r,[`${fn.toUpperCase()}'S ${hbPick(r,['AWESOME','KOOL','TOTALLY RAD','OFFICIAL','PARTY'])} HOMEPAGE!!!`,`Welcome to ${fn}'s World!!!`,`${fn}'s Happy Place`]);
   if(v.quiet)return hbPick(r,[`${fn.toLowerCase()}'s corner`,`${fn.toLowerCase()}'s little page`,`a place for ${fn.toLowerCase()}`,`${fn.toLowerCase()}.txt`]);
@@ -3523,18 +3593,18 @@ const HBPOEM={sad:[['rain on the window','your coffee cup still in the sink','I 
 function hbPoems(s,F,r,n){const mood=s.tags.has('heartbreak')||s.tags.has('grief')||s.tags.has('melancholy')?'sad':s.tags.has('dating')||s.tags.has('romantic')?'happy':'calm';
   return hbPickN(r,HBPOEM[mood].concat(HBPOEM.calm),n).map(l=>`<p><i>${l.map(hbE).join('<br>')}</i></p>`).join(`<p>${'&middot; '.repeat(3)}</p>`)}
 const HBMOD=[
-  {k:'memorial',f:'memorial.html',nav:F=>`In Memory of ${F.p.lost}`,pri:10,when:(s,F)=>F.p.arc==='grief',page(s,F,r){const d=F.L-F.p.arcS;
+  {k:'memorial',f:'memorial.html',nav:F=>`In Memory of ${F.p.arc==='grief'?F.p.lost:F.lost.name}`,pri:10,when:(s,F)=>F.p.arc==='grief'||!!F.lost,page(s,F,r){const lostN=F.p.arc==='grief'?F.p.lost:F.lost.name,d=F.L-(F.p.arc==='grief'?F.p.arcS:F.lost.d);F.p=Object.assign(Object.create(F.p),{lost:lostN});
     return`<center>${hbImg('candle',{sc:3})}<h2>In Loving Memory of ${hbE(F.p.lost)}</h2>${hbImg('dove')}<p>It has been ${d<60?'a few weeks':d<365?Math.round(d/30)+' months':'a long time'} now.</p>
     <p>I made this page because I wanted somewhere to put the things I didn't get to say. ${hbE(F.p.lost)} would have laughed at me for making a web page about them. They would have read every word, though.</p>
     <p>If you knew ${hbE(F.p.lost)}, please sign the guestbook and share a memory. If you didn't, thank you for reading this anyway.</p>${hbImg('candle',{sc:2})} ${hbImg('candle',{sc:2})} ${hbImg('candle',{sc:2})}</center>`}},
-  {k:'novel',f:'novel.html',nav:()=>'My Novel',pri:9,when:(s,F)=>F.p.arc==='novel',page(s,F,r){const p=F.p,done=F.L>=p.finish,w=done?Math.max(60,Math.round((p.finish-p.arcS)*1.2)):Math.max(1,Math.round((F.L-p.arcS)*1.2)),goal=80;
+  {k:'novel',f:'novel.html',nav:()=>'My Novel',pri:9,when:(s,F)=>F.p.arc==='novel'||F.past.has('novel'),page(s,F,r){const p=F.p.arc==='novel'?F.p:Object.assign(Object.create(F.p),{arcS:F.L-200,finish:F.L-120}),done=F.L>=p.finish,w=done?Math.max(60,Math.round((p.finish-p.arcS)*1.2)):Math.max(1,Math.round((F.L-p.arcS)*1.2)),goal=80;
     const t=hbBook(r),n1=hbPick(r,FIRST),n2=hbPick(r,FIRST),pl=hbPick(r,['the night ferry','a hotel with no elevator','the last diner on Ninth Street','her uncle\'s pawn shop','a lighthouse that was never lit']);
     const bar=Math.min(100,Math.round(w/goal*100));
     return`<h2>${hbImg('book')} My Novel: <i>${hbE(t)}</i></h2><p><b>Word count:</b> ${w},000 of about ${goal},000</p><table border="1" width="300" cellspacing="0"><tr><td bgcolor="#00a000" width="${bar}%">&nbsp;</td><td>${bar<100?'&nbsp;':''}</td></tr></table>
     <p>${done?'The first draft is DONE. Now I have to read it, which is scary.':'I write every night after work. Some nights it\'s 2,000 words. Some nights it\'s one sentence that I delete.'}</p>
     <h3>Excerpt from Chapter ${1+hash(p.id,F.L>>5)%9}</h3><blockquote><i>${hbE(n1)} had never trusted ${pl}, and tonight was not going to change that. The rain came down the way it always did in this city, sideways and personal. "You're late," said ${hbE(n2)}, without looking up. "I'm exactly on time," ${hbE(n1)} said. "Everyone else is early."</i></blockquote>
     <p><font size="2">&copy; ${new Date(F.L*864e5).getUTCFullYear()} ${hbE(F.first)} ${hbE(F.last)}. Please don't steal my novel. Agents, my email is at the bottom.</font></p>`}},
-  {k:'marathon',f:'marathon.html',nav:()=>'Road to 26.2',pri:9,when:(s,F)=>F.p.arc==='marathon',page(s,F,r){const p=F.p,left=p.race-F.L;let rows='';
+  {k:'marathon',f:'marathon.html',nav:()=>'Road to 26.2',pri:9,when:(s,F)=>F.p.arc==='marathon'||F.past.has('marathon'),page(s,F,r){const p=F.p.arc==='marathon'?F.p:Object.assign(Object.create(F.p),{arcS:F.L-300,race:F.L-200}),left=p.race-F.L;let rows='';
     const end=Math.min(F.L,p.race-1);for(let k=6;k>=0;k--){const d=end-k*3-(hash(p.id,k)%2);if(d<p.arcS)continue;const tt=Math.max(0,Math.min(1,(d-p.arcS)/Math.max(1,p.race-p.arcS)));const mi=k===0&&p.race-d<7?Math.max(3,Math.round(6+hash(p.id,k,2)%4)):3+Math.round(tt*15)+hash(p.id,k,2)%3;
       rows+=`<tr><td>${hbDateS(d)}</td><td align="right">${mi}</td><td>${hbE(hbPick(r,['Felt great!','Knee hurts.','Rained the whole time.','New personal best!!','Had to walk the last mile.','Saw a dog wearing boots.','Ran past my old school.','Too hot. Never again. (Until Thursday.)']))}</td></tr>`}
     return`<h2>${hbImg('runner')} Road to 26.2 ${hbImg('trophy')}</h2>${left>0?`<p><font size="5" color="#ff0000"><b>${left} DAYS TO GO</b></font></p>`:`<p><font size="5"><b>I DID IT!!! I FINISHED A MARATHON!!!</b></font></p>`}
@@ -3550,13 +3620,13 @@ const HBMOD=[
     return`<h2>${hbImg('globe')} ${hbE(pl)}, I Miss You ${hbImg('plane')}</h2>${clock?`<p><b>Right now in ${hbE(pl)} it is ${clock}.</b> I always check.</p>`:''}
     <h3>Things I miss</h3><ul>${hbPickN(r,['My mother\'s cooking','The way the air smells in the morning','Speaking my own language all day without thinking','My friends from school','The street where I grew up','Real fruit','The sound of my grandmother\'s radio','Knowing every shortcut','Being called by my nickname'],5).map(x=>`<li>${hbE(x)}`).join('')}</ul>
     <h3>Things I like about here</h3><ul>${hbPickN(r,['The view from my window','You can get anything at 2 AM','My neighbors','The parks','Nobody knows my business','The subway (sometimes)'],3).map(x=>`<li>${hbE(x)}`).join('')}</ul><p>If you are from ${hbE(pl)} too, PLEASE sign my guestbook!</p>`}},
-  {k:'poems',f:'poems.html',nav:()=>'Poems',pri:7,when:(s,F)=>['heartbreak','dating'].includes(F.p.arc)||s.tags.has('poet'),page(s,F,r){
+  {k:'poems',f:'poems.html',nav:()=>'Poems',pri:7,when:(s,F)=>['heartbreak','dating'].includes(F.p.arc)||F.past.has('heartbreak')||s.tags.has('poet'),page(s,F,r){
     return`<center><h2>${hbImg('heart',{c:'#c02040'})} ${hbSay(s.v,'My Poems',r)} ${hbImg('heart',{c:'#c02040'})}</h2></center>${hbPoems(s,F,r,4)}<p><font size="2">All poems &copy; ${hbE(F.first)} ${hbE(F.last)}. Please ask before using them.</font></p>`}},
-  {k:'guitar',f:'guitar.html',nav:()=>'Learning Guitar',pri:7,when:(s,F)=>F.p.arc==='learning'&&F.p.learn==='guitar',page(s,F,r){const k=learnSkill(F.p,F.L),n=1+Math.floor(k*7);
+  {k:'guitar',f:'guitar.html',nav:()=>'Learning Guitar',pri:7,when:(s,F)=>(F.p.arc==='learning'&&F.p.learn==='guitar')||F.past.has('guitar'),page(s,F,r){const k=F.p.arc==='learning'?learnSkill(F.p,F.L):.9,n=1+Math.floor(k*7);
     return`<h2>${hbImg('guitar')} My Guitar Journey ${hbImg('note')}</h2><p>Progress: ${'&#9733;'.repeat(Math.max(1,Math.round(k*5)))}${'&#9734;'.repeat(5-Math.max(1,Math.round(k*5)))}</p>
     <h3>Songs I can play (sort of)</h3><ol>${Array.from({length:n},()=>`<li>${hbE(hbSong(r))}`).join('')}</ol><h3>Chords I know</h3><p>${['G','C','D','E minor','A minor','F (barely)','B minor (no)'].slice(0,2+Math.floor(k*5)).join(', ')}</p>
     <pre>e|-----0---0-----|\nB|---1---1---1---|\nG|-0-----------0-|</pre><p>${k<.4?'My fingertips hurt SO much.':'My calluses are coming in!'}</p>`}},
-  {k:'gallery',f:'gallery.html',nav:()=>'My Paintings',pri:7,when:(s,F)=>(F.p.arc==='learning'&&F.p.learn==='paint')||/illustrat|comic|art student/.test(F.p.job||'')||(s.tags.has('paint')&&(s.nb.id==='LeftBank'||hash(s.id,61)%3===0)),page(s,F,r){
+  {k:'gallery',f:'gallery.html',nav:()=>'My Paintings',pri:7,when:(s,F)=>(F.p.arc==='learning'&&F.p.learn==='paint')||F.past.has('paint')||/illustrat|comic|art student/.test(F.p.job||'')||(s.tags.has('paint')&&(s.nb.id==='LeftBank'||hash(s.id,61)%3===0)),page(s,F,r){
     const n=4+hash(F.p.id,2)%4;let h='';for(let k=0;k<n;k++)h+=hbPic(hbPhoto('paint',F.p.id*13+k),hbPick(r,['Untitled #'+(k+1),'Study in Blue','Morning','The Window','Self Portrait (abstract)','Rooftops','Cat? (not sure)','Feelings']),140);
     return`<center><h2>${hbImg('palette')} The Gallery ${hbImg('palette')}</h2><p>${hbSay(s.v,'Click on a picture to... well, nothing happens yet. I\'m working on it!',r)}</p>${h}</center>`}},
   {k:'research',f:'research.html',nav:()=>'My Research',pri:8,when:(s,F)=>/professor|scientist|lab manager/.test(F.p.job||''),page(s,F,r){const vis=/vision|neuro|psych/.test(F.p.job);
@@ -3634,7 +3704,7 @@ function hbHr(th,s){switch(th.hr){case'rainbow':return`<p align="center"><img sr
   case'hr':return'<hr size="4" noshade>';case'dots':return`<p align="center">${hbImg('sparkle',{c:th.link,sc:1})} ${hbImg('sparkle',{c:th.vlink,sc:1})} ${hbImg('sparkle',{c:th.link,sc:1})}</p>`;
   case'sprites':return`<p align="center">${th.spr.map(n=>hbImg(n,{sc:1})).join(' &nbsp; ')}</p>`;default:return'<hr width="90%">'}}
 function hbCounter(s,F){const g=hbGbLoad(),key=city.seed+':'+s.id+':v';const mine=(g[key]||0);
-  const rate=s.tags.has('sociable')?9:s.tags.has('a loner')?1.2:3.5;const n=Math.round((F.L-F.created)*rate)+hash(s.id,city.seed,4260)%60+3+mine;
+  const rate=s.tags.has('sociable')?9:s.tags.has('a loner')?1.2:3.5;const n=Math.round((F.now-F.created)*rate)+hash(s.id,city.seed,4260)%60+3+mine;
   return`<span class="ctr">${String(n).padStart(6,'0').split('').map(d=>`<span>${d}</span>`).join('')}</span>`}
 function hbRing(s,ring){const m=HB.idx.rings[ring]||[];if(m.length<2)return'';const i=m.indexOf(s),pv=m[(i-1+m.length)%m.length],nx=m[(i+1)%m.length],rd=m[hash(s.id,F0(),4270)%m.length];
   return`<table border="3" cellpadding="6" align="center" bgcolor="${s.th.dark?'#202040':'#e8e8ff'}"><tr><td align="center"><font color="${s.th.dark?'#ffffff':'#000000'}" size="2">This <b>${hbE(ring)}</b> site is owned by ${hbE(s.p.first)}.<br>
@@ -3671,7 +3741,7 @@ function hbBuzz(s,F){if(s.kind==='construction'||s.kind==='positron'||s.kind==='
 function hbAptLink(s){return HB.standalone?` | <a href="${HBAPP}#city-${HB.standalone}/apt-${s.u.id}"><b>See ${s.p.kid?'my':'my'} window in the city</b></a>`:''}
 function hbGuestbook(s,F){
   const r=hbR(s.p,30),I=HB.idx,n=2+hash(s.id,city.seed,4280)%7+(s.tags.has('sociable')?4:0);let fr=hbFriends(s,F,r,n+2).filter(x=>x.u!==F.u);
-  const days=Math.max(1,F.L-F.created);const ents=[];
+  const days=Math.max(1,F.now-F.created);const ents=[];
   fr.slice(0,n).forEach((x,i)=>{const rr=hbR(x.p,31+s.id%97),d=F.created+Math.floor(days*(i+1+rr())/(n+1.2));
     const parts=[];const T=k=>s.tags.has(k);
     if(x.u.b===F.u.b)parts.push(hbPick(rr,[`Hi from ${'Apt '+(x.u.f+2)+x.u.letter}! Didn't know you had a homepage!`,'Hey neighbor!',`We should talk in the elevator more!`]));
@@ -3713,7 +3783,7 @@ function hbPage(s,file){
   else return null;
   const navH=nav.map(([f,t])=>(f===file||(f==='main.html'&&file==='index.html'))?`<b>${hbE(t)}</b>`:`<a href="${hbUrl(s,f)}">${hbE(t)}</a>`);
   const foot=`${file==='index.html'?hbBuzz(s,F):''}${hbHr(th,s)}<center><font size="2">${th.counter?`You are visitor number ${hbCounter(s,F)}<br>`:''}${th.mail?`${hbImg('mail',{sc:1})} <a href="mailto:${hbE((F.first+'_'+F.last).toLowerCase().replace(/[^a-z_]/g,''))}@homeblocks.com">Email me!</a><br>`:''}
-    This page was last updated on ${hbDate(F.updated)}.<br>${v.old?'Best viewed with your glasses on.':hbPick(r,['Best viewed at 800x600 in 256 colors.','Best viewed with your eyes.','This page is best viewed at 640x480.','Made with Notepad and love.'])}<br>
+    ${hbSendLink(s,file)}This page was last updated on ${hbDate(F.updated)}.<br>${v.old?'Best viewed with your glasses on.':hbPick(r,['Best viewed at 800x600 in 256 colors.','Best viewed with your eyes.','This page is best viewed at 640x480.','Made with Notepad and love.'])}<br>
     <a href="${HBROOT}">${'&#9668;'} Back to HomeBlocks</a> | <a href="${HBROOT}${s.nb.id}/">${hbE(s.nb.nm)} Neighborhood</a>${hbAptLink(s)}</font></center>`;
   let main;
   const navBar=`<p align="center"><font size="2">[ ${navH.join(' | ')} ]</font></p>`;
@@ -3744,7 +3814,7 @@ function hbSplash(s,F){const th=s.th,R=hbR(s.p,90),tl=th.tl;
   <body><table width="100%" height="96%"><tr><td align="center" valign="middle"><table cellpadding="24" border="3" bgcolor="${th.dark?'#000000':'#ffffff'}"><tr><td align="center"><font color="${th.dark?'#ffffff':'#000000'}">${th.spr.map(n=>hbImg(n,{sc:3})).join(' ')}<br><br>${hbHead(Object.assign({},th,{dark:th.dark,panel:th.dark?'#000000':'#ffffff'}),s.title,R,7)}<br><br>
   <font size="2">${hbE(hbSay(s.v,hbPick(R,['Welcome!','You have found it.','Please wipe your feet.','Abandon all hope, ye who enter here (just kidding)']),R))}</font><br><br>
   <a href="${hbUrl(s,'main.html')}"><font size="6" face="Arial Black,Arial"><b>${R()<.5?'<span class="blink">ENTER</span>':'ENTER'}</b></font></a><br><br>${hbImg(th.spr[0]||'star',{sc:1})}<br>
-  <font size="1">${hbE(hbPick(R,['Best viewed at 800x600','Turn your speakers on!','Requires a 4.0 browser or better','This site uses frames. Just kidding.']))}</font></font></td></tr></table></td></tr></table></body></html>`;
+  <font size="1">${hbE(hbPick(R,['Best viewed at 800x600','Turn your speakers on!','Requires a 4.0 browser or better','This site uses frames. Just kidding.']))}</font><br><br><font size="1">${hbSendLink(s,'index.html')}</font></font></td></tr></table></td></tr></table></body></html>`;
   return{title:s.title,html,s,file:'index.html'}}
 function hbIndexBody(s,F,mods,r){
   const v=s.v,th=s.th,p=s.p,R=hbR(s.p,50);const sayp=t=>t?`<p>${hbSay(v,t,R)}</p>`:'';
@@ -3761,6 +3831,7 @@ function hbIndexBody(s,F,mods,r){
   if(th.cons)h+=`<p align="center">${hbImg('cons',{sc:2})}<br><font size="2">${hbSay(v,'This page is under construction. Please come back soon!',R)}</font> ${hbImg('cone')}</p>`;
   if(th.marquee)h+=`<marquee scrollamount="${4+hash(s.id,9)%5}" behavior="${R()<.3?'alternate':'scroll'}"><font size="4" color="${th.link}">${hbE(hbSay(v,hbPick(R,[`Welcome to ${F.first}'s page!!!`,'Thanks for stopping by!',`Greetings from the ${F.bld}!`,'Sign my guestbook!!!','Under construction (forever)!']),R))}</font></marquee>`;
   h+=hbHr(th,s);
+  const nbTop=R()<.6;if(nbTop)h+=hbNewsBox(s,F,R);
   h+=`${hbH(s,'About Me',R)}${th.music?`<table align="right" cellpadding="8"><tr><td>${hbMidiBox(s)}</td></tr></table>`:''}<p>${about}</p>`;
   h+=sayp([job,tr.filter(Boolean).join(' '),arc].filter(Boolean).join(' '));
   if(F.p.arc==='dating'&&F.L>=p.arcS&&!v.formal)h+=`<p>${hbImg('heart')} ${hbSay(v,'P.S. I met someone. More soon.',R)}</p>`;
@@ -3769,6 +3840,7 @@ function hbIndexBody(s,F,mods,r){
   if(fav.length&&R()<.75)h+=`${hbH(s,'Favorite Things',R,3)}<table border="1" cellpadding="4">${fav.map(([a,b])=>`<tr><td><b>${a}</b></td><td>${hbE(b)}</td></tr>`).join('')}</table>`;
   if(!v.quiet&&R()<.5)h+=`<h3>Quote of the Day</h3><p><i>"${hbE(q[0])}"</i><br>&mdash; ${hbE(q[1])}</p>`;
   if(F.hist.length>1&&(v.formal||v.old||R()<.4))h+=`${hbH(s,'My Timeline',R,3)}<ul>${F.hist.map(([d,t])=>`<li><b>${fmtMonth(d)}</b>: ${hbE(t)}`).join('')}</ul>`;
+  if(!nbTop)h+=hbNewsBox(s,F,R);
   const lk=hbLinks(s,F,hbR(s.p,41));h+=`${hbH(s,'Cool Links',R,3)}<ul>${lk.slice(0,5).map(x=>`<li>${x}`).join('')}</ul>`;
   h+=sayp(v.kid?'SIGN MY GUESTBOOK!!! PLEEEASE':v.old?'Thank you for visiting my page. Please sign the guest book.':v.quiet?'sign the guestbook if you want. or don\'t.':v.loud?'Thanks for stopping by!!! Sign my guestbook!!!':'Thanks for visiting! Please sign my guestbook before you go.');
   h+=`<p align="center"><a href="${hbUrl(s,'guestbook.html')}">Sign</a> | <a href="${hbUrl(s,'guestbook.html')}">View</a> my guestbook</p>`;
@@ -3839,8 +3911,8 @@ const HBBIZ=[[/seamstress/,'Alterations by {F}','Hems, zippers, wedding dresses.
 const HBFANSHOW=['The {N} Files','Late Night at the {N}','{A} Heights','Captain {N}','The {N} Family','{A} Detectives'];
 function hbKind(s){
   if(hbIsKev(s.p))return'positron';if(hbIsSam(s.p))return'gk';
-  const r=hbR(s.p,70),T=k=>s.tags.has(k),v=s.v,p=s.p;if(v.kid)return r()<.25?'construction':'about';
-  const hob=Object.keys(HBHOB).filter(k=>T(k));const biz=!p.kid&&HBBIZ.find(([re])=>re.test(p.job||''));
+  const r=hbR(s.p,70),T=k=>s.ftags.has(k),v=s.v,p=s.p;if(v.kid)return r()<.25?'construction':'about';
+  const hob=Object.keys(HBHOB).filter(k=>T(k));const biz=!p.kid&&HBBIZ.find(([re])=>re.test(p.foundJob!==undefined?p.foundJob:(p.job||'')));
   const w=[['about',3],['construction',v.young||T('messy')||T('restless')?.9:v.old?.2:.45],['links',.25],['fan',.3]];
   if(hob.length)w.push(['hobby',2.2+(T('bookish')||T('tidy')?.6:0)]);
   if(T('parent')||(s.v.old&&T('sentimental'))||(T('newlywed')&&T('sentimental')))w.push(['family',T('parent')?2.6:1.2]);
@@ -3879,6 +3951,7 @@ function hbKHobby(s,F,mods,r){const H=HBHOB[s.hob],v=s.v,R=hbR(s.p,81),fl=t=>hbE
   let h=`<center>${hbImg(H.spr)} ${hbHead(s.th,s.title,R)} ${hbImg(H.spr)}</center>`;
   if(s.th.marquee)h+=`<marquee><font color="${s.th.link}" size="4"><b>${fl(hbPick(R,['Welcome to the best page on the Web about '+(HBINT[s.hob]||s.hob).toLowerCase().replace(/ \(.*/,'')+'!','Updated every week (sort of)!','Thanks for visiting!']))}</b></font></marquee>`;
   h+=hbHr(s.th,s)+`<p>${fl(H.intro)} ${hbE(hbSay(v,`My name is ${F.first} and I live in the ${F.bld}.`,R))}</p>`;
+  h+=hbNewsBox(s,F,R);
   h+=hbH(s,'How I Got Started',R)+`<p>${fl(hbPick(R,['It started as a way to fill the evenings. Now it fills all of them.','A friend got me into it {y} years ago. I have not been the same since.','I saw it on TV and thought, I could do that. I could not, at first. Now I can, mostly.','Honestly? I was bored one winter.']))}</p>`;
   h+=hbH(s,s.hob==='fish'||s.hob==='plants'||s.hob==='carni'?'What I Have':'My Gear',R)+hbUl(hbPickN(R,H.gear,Math.min(H.gear.length,4)).map(fl));
   if(H.reviews)h+=hbH(s,'Recent Reviews',R)+`<table border="1" cellpadding="5">${Array.from({length:4},()=>{const st=1+Math.floor(R()*5);return`<tr><td><i>${hbE(hbBook(R))}</i></td><td>${'&#9733;'.repeat(st)}${'&#9734;'.repeat(5-st)}</td><td>${hbE(hbPick(R,['Couldn\'t put it down.','The ending made me throw it across the room.','Slow start, worth it.','I don\'t know what I just read.','Better than the movie.','Read it on the train twice.']))}</td></tr>`}).join('')}</table>`;
@@ -3903,6 +3976,7 @@ function hbKFamily(s,F,mods,r){const v=s.v,R=hbR(s.p,82),p=s.p,L=F.L,fam=[p].con
   if(p.arc){const a=hbArc(p,F,R);if(a)dear.push(a)}
   dear.push(hbPick(R,['We hope this finds you well.','Come visit! The couch folds out.','Write back soon!']),`Love,`,`${hbList(fam.filter(m=>!m.kid).map(m=>m.first))}${F.kids.length?' and the kids':''}`);
   h+=hbH(s,`Our ${yr} Family Letter`,R)+`<table width="90%" align="center" cellpadding="14" border="1" bgcolor="${s.th.dark?'#202030':'#fffff0'}"><tr><td><font color="${s.th.dark?'#ffffff':'#000000'}">${dear.map(x=>`<p>${hbE(x)}</p>`).join('')}</font></td></tr></table>`;
+  h+=hbNewsBox(s,F,R);
   h+=hbH(s,'Family Recipes',R)+hbUl(hbPickN(R,HBFOOD,3).map(x=>hbE(hbCap(x.replace(/^my /,'')))));
   if(mods.length)h+=hbH(s,'More',R)+hbUl(mods.map(m=>`<a href="${hbUrl(s,m.f)}">${hbE(m.nav(F))}</a>`));
   h+=`<p align="center">${hbImg('heart')} <a href="${hbUrl(s,'guestbook.html')}">Sign our guestbook!</a> ${hbImg('heart')}</p>`;for(const g of s.rings)h+=hbRing(s,g)+'<br>';return h}
@@ -4591,7 +4665,7 @@ function samFamily(C){
   GEN.day=saveDay;GEN.base=saveBase;
   Object.assign(u,{vacant:false,mates:false,rel:'steady',relSince:ref-Math.round(18*YR),baby:false,due:undefined,babyName:undefined,fam:SAMFAM_LAST,plants:true,spooky:true,rw:{},evc:null,cast:null,guests:null});
   delete u.eras;u.era=null;u.hist=[[ref-Math.round(6*YR),`The ${plural(SAMFAM_LAST)} moved in.`]];
-  fitHousehold(u);C.sam=sam;C.samUnit=u;
+  fitHousehold(u);C.sam=sam;C.samUnit=u;for(const p of u.people){p.found=null;hbFoundAt(p,u,C.born)}
 }
 const hbIsSam=p=>typeof city!=='undefined'&&city&&city.sam===p;
 
@@ -4624,7 +4698,7 @@ function hbGK(s,F){
     .replace('{{BBS}}',`<li><b>The MEGAzine BBS:</b> <a href="${bbs}">dial in</a> and ask the sysop (that's me) about the adventure game file area.</li>`)
     .replace('{{GUEST}}',`<p><b>Update:</b> HomeBlocks has guestbooks! <a href="${g}">Sign mine here.</a> I read every entry.</p>`)
     .replace('{{ADDR}}',`Page maintained by Sam, a fellow Schattenj&auml;ger and SysOp of <a href="${bbs}">the MEGAzine BBS</a><br><tt>schattenjaeger (at) homeblocks.com</tt><br>Last updated 31-Jan-1994`)
-    .replace('{{FOOT}}',`<hr><p class="small">You are visitor number ${hbCounter(s,F)}. <a href="${HBROOT}">Back to HomeBlocks</a> | <a href="${HBROOT}${s.nb.id}/">${hbE(s.nb.nm)} Neighborhood</a>${hbAptLink(s)}</p>`);
+    .replace('{{FOOT}}',`<hr><p class="small">You are visitor number ${hbCounter(s,F)}.<br>${hbSendLink(s,'index.html')}<a href="${HBROOT}">Back to HomeBlocks</a> | <a href="${HBROOT}${s.nb.id}/">${hbE(s.nb.nm)} Neighborhood</a>${hbAptLink(s)}</p>`);
   const html=`<!doctype html><html><head><meta charset="utf-8"><title>Gabriel Knight Home Page</title><style>${HBGK_CSS}
   .ctr span{display:inline-block;background:#000;color:#20ff20;font:bold 14px "Courier New",monospace;padding:1px 3px;margin:0 1px}</style></head><body class="doc">${body}<script>${HBGK_JS}<\/script></body></html>`;
   return{title:'Gabriel Knight Home Page',html,s,file:'index.html'};
@@ -4682,6 +4756,7 @@ function hbRoute(url){
   if(path==='/'||path==='/index.html')return hbPortal();
   if(path==='/search')return hbSearch(qs.get('q')||'');
   if(path==='/ring')return hbRingPage(qs.get('r')||'');
+  if(path==='/sendpage')return hbSendPage(qs.get('u')||'/');
   if(path==='/rings')return hbRingsPage();if(path==='/new')return hbNewPage();if(path==='/help')return hbHelpPage();
   let k=path.match(/^\/(\w+)\/?$/);if(k&&HBNBI[k[1]])return hbNbPage(HBNBI[k[1]]);
   k=path.match(/^\/(\w+)\/(\w+)\/(\d+)\/?([\w.-]*)$/);
@@ -4690,6 +4765,36 @@ function hbRoute(url){
     const pg=hbPage(s,k[4]||'index.html');if(pg)return pg}
   return hbErr('404 Not Found',`<b>404 Not Found</b><br><br>The requested URL <b>${hbE(path)}</b> was not found on this server.`);
 }
+
+/* ---------- "E-mail this page to a friend!" ----------
+   The link a friend gets is the real standalone site, with the city code and today's date in the city pinned
+   (#code~day/...), so they open the same city at the same moment and see the page exactly as it is now. */
+function hbSendLink(s,file){return`${hbImg('mail',{sc:1})} <a href="${HBROOT}sendpage?u=${encodeURIComponent(s.path+(file&&file!=='index.html'?file:''))}"><b>E-mail this page to a friend!</b></a><br>`}
+function hbShareUrl(path){return HBAPP+'web/#'+cityCode()+'~'+Math.floor(simMin/1440)+(path||'/')}
+function hbSendPage(path){
+  if(!/^\/[\w\/.-]*$/.test(path))path='/';const res=hbRoute(HBROOT+path.slice(1)),title=res.title||'HomeBlocks',link=hbShareUrl(path),nat=typeof navigator!=='undefined'&&!!navigator.share;
+  HB.send={path,title,link};
+  const btn=(h,t)=>`<a href="${h}" style="display:inline-block;background:#c0c0c0;border:2px outset #fff;padding:3px 10px;color:#000;text-decoration:none;font:12px Arial">${t}</a>`;
+  return{title:'Send This Page',html:hbDoc('Send This Page',`<table width="100%" cellpadding="14"><tr><td align="center"><form data-send="1"><table bgcolor="#c0c0c0" cellpadding="6" style="border:2px outset #fff;max-width:520px">
+  <tr><td colspan="2" bgcolor="#000080"><font color="#fff" face="Arial"><b>Send This Page to a Friend</b></font></td></tr>
+  <tr><td colspan="2"><font face="Arial" size="2">You are sending: <b>${hbE(title)}</b></font></td></tr>
+  <tr><td><font face="Arial" size="2">Friend's e-mail:</font></td><td><input size="34" name="to" type="email" placeholder="friend@example.com"></td></tr>
+  <tr><td><font face="Arial" size="2">Your name:</font></td><td><input size="34" name="from" maxlength="40"></td></tr>
+  <tr><td colspan="2"><font face="Arial" size="2">Message:</font><br><textarea name="m" rows="5" cols="52" style="max-width:100%">Thought you would like this page!</textarea></td></tr>
+  <tr><td colspan="2" align="right"><input type="submit" value="Send it!"></td></tr>
+  <tr><td colspan="2"><hr><font face="Arial" size="2">Or copy the link:</font><br><input id="sendlink" readonly value="${hbE(link)}" style="width:100%;box-sizing:border-box;font:11px monospace" onfocus="this.select()">
+  <p>${btn('share:copy','Copy link')} ${nat?btn('share:native','Share...'):''} <font face="Arial" size="1" id="sendmsg"></font></p>
+  <font face="Arial" size="1">The link opens this same city on the same day, so your friend sees the page just like this.<br>Guestbook entries you signed stay on this computer.</font></td></tr>
+  </table></form><p><font face="Arial" size="2"><a href="${HBROOT+path.slice(1)}">&#9668; Back to the page</a></font></p></td></tr></table>`,'body{background:#808080}'),file:'sendpage'}}
+/* both browsers (the one in the city and the standalone site) hand these clicks and the form here */
+function hbShareDo(kind,doc,fd){const S=HB.send;if(!S)return;const say=t=>{const e=doc.getElementById('sendmsg');if(e)e.textContent=t};
+  if(kind==='copy'){const i=doc.getElementById('sendlink');const done=()=>say('Copied!');
+    try{navigator.clipboard.writeText(S.link).then(done,()=>{i.focus();i.select();say('Press Ctrl+C (or Cmd+C) to copy.')})}catch(e){i.focus();i.select();say('Press Ctrl+C (or Cmd+C) to copy.')}return}
+  if(kind==='native'){try{navigator.share({title:S.title,text:'Thought you would like this page!',url:S.link}).catch(()=>{})}catch(e){}return}
+  if(kind==='mail'){const to=String(fd.get('to')||'').trim(),from=String(fd.get('from')||'').trim().slice(0,40),m=String(fd.get('m')||'').trim().slice(0,1000);
+    const body=`${m?m+'\n\n':''}${S.title}\n${S.link}\n\n${from?'- '+from+'\n':''}(Sent from HomeBlocks)`;
+    const a=document.createElement('a');a.href=`mailto:${encodeURIComponent(to).replace(/%40/g,'@')}?subject=${encodeURIComponent('Check out this page: '+S.title)}&body=${encodeURIComponent(body)}`;document.body.appendChild(a);a.click();a.remove();
+    say('Opening your e-mail program...')}}
 
 /* ---------- MIDI: a little General-MIDI-ish tune per page ---------- */
 HBS.mplay={w:11,h:9,n:1,ms:1000,d(P){P.r(0,0,11,9,'#c0c0c0');for(let k=0;k<4;k++)P.r(4+k,1+k,1,7-2*k,'#000')}};
@@ -4737,7 +4842,7 @@ function hbShow(url){
   hbEl('wFind').disabled=!res.s;hbNavBtns();
 }
 /* the same page in a real browser tab, on the standalone HomeBlocks site */
-function hbExtUrl(url){const m=String(url).match(/^https?:\/\/(?:www\.)?homeblocks\.com(\/[^#]*)?/i);return HBAPP+'web/#'+cityCode()+(m?(m[1]||'/'):'!'+url)}
+function hbExtUrl(url){const m=String(url).match(/^https?:\/\/(?:www\.)?homeblocks\.com(\/[^#]*)?/i);return HBAPP+'web/#'+cityCode()+'~'+Math.floor(simMin/1440)+(m?(m[1]||'/'):'!'+url)}
 function hbSetLoc(url){const i=hbEl('wUrl');i.value=url;i.setAttribute('value',url);hbEl('wUrlTxt').textContent=url}
 function hbNavBtns(){hbEl('wBack').disabled=HB.hi<=0;hbEl('wFwd').disabled=HB.hi>=HB.hist.length-1}
 /* same-page links: a srcdoc frame can't navigate to its own #fragment, so scroll there by hand */
@@ -4746,10 +4851,12 @@ function hbHook(){
   const fr=hbEl('wFrame'),doc=fr.contentDocument;if(!doc||!doc.body)return;HB.doc=doc;HB.imgs=[...doc.querySelectorAll('img[data-s]')];
   doc.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented)return;const h=a.getAttribute('href');e.preventDefault();if(h.startsWith('#')){hbJump(doc,h);return}
     if(h==='midi:play'){if(HB.cur&&HB.cur.res.s)hbMidiPlay(HB.cur.res.s);return}if(h==='midi:stop'){hbMidiStop();return}
+    if(h.startsWith('share:')){hbShareDo(h.slice(6),doc);return}
     if(/^https?:\/\/(www\.)?(megazine\.org|samuelling\.github\.io)\//i.test(h)){window.open(h.replace(/^http:/,'https:'),'_blank','noopener');return}hbGo(h)});
   doc.addEventListener('mouseover',e=>{const a=e.target.closest&&e.target.closest('a[href]');hbEl('wStat').textContent=a?(/^midi:/.test(a.getAttribute('href'))?'Play MIDI':a.getAttribute('href')):'Document: Done'});
   doc.addEventListener('submit',e=>{e.preventDefault();const f=e.target,fd=new FormData(f);
     if(f.dataset.search)return hbGo(HBROOT+'search?q='+encodeURIComponent((fd.get('q')||'').toString().trim()));
+    if(f.dataset.send){hbShareDo('mail',doc,fd);return}
     if(f.dataset.mail){const doc2=hbDoc('Sent','<center><br><br><font face="Arial">Your message was sent.<br><br><font size="1">(Probably.)</font></font></center>');fr.srcdoc=doc2;hbEl('wStat').textContent='Message sent.';return}
     if(f.dataset.gb){const n=String(fd.get('n')||'').trim().slice(0,40),m=String(fd.get('m')||'').trim().slice(0,400),w=String(fd.get('w')||'').trim().slice(0,40);if(!n||!m){hbEl('wStat').textContent='Please enter your name and a comment.';return}
       const g=hbGbLoad(),k=city.seed+':'+f.dataset.gb;(g[k]=g[k]||[]).push({n,m,w,d:F0()});if(g[k].length>30)g[k].shift();hbGbSave(g);hbGo(HB.cur.url,'reload')}});
