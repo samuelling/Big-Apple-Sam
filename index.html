@@ -2533,7 +2533,7 @@ function renderPanel0(){
   const nowLab=p=>nowLabel(p,t);
   const line=p=>{const nx=nextSeg(p,t);const who=p.kid?`${p.first}, ${p.age}`:`${p.first} ${p.last}, ${p.age}`;
     const bio=[p.traits.join(', '),arcText(p,L)].filter(Boolean).join('; ');
-    const hbOk=u.kind==='res'&&!u.mega&&(!p.kid||p.age>=8)&&!(p.samFam&&p!==city.sam);
+    const hbOk=u.kind==='res'&&!u.mega&&(!p.kid||p.age>=8)&&!(p.samFam&&p!==city.sam)&&!p.labFam;
     return `<div class="who"><div class="nm">${esc(who)}${hbOk?`<button class="hbl" data-hb="${p.id}" title="Open ${esc(p.first)}'s home page">Home page</button>`:''}</div>${p.job?`<div class="jb">${esc(p.job)}</div>`:''}${bio&&u.kind==='res'?`<div class="bio">${esc(bio.charAt(0).toUpperCase()+bio.slice(1))}.</div>`:''}`+
       (u.kind==='res'?`<div class="md">Mood today: ${moodWord(moodOf(p,L))}</div>`:'')+
       `<div class="now">${esc(nowLab(p))}</div>${nx?`<div class="nx">then ${esc(lc(label(p,nx.act,nx)))} at ${fmtTime(nx.s)}</div>`:''}</div>`};
@@ -3086,7 +3086,7 @@ function updateCars(dt,tod){
     city.cars.push({x:dir>0?-40:city.W+40,dir,lane:dir>0?32:16,v:60+Math.random()*55,len:13+Math.floor(Math.random()*4),col,colD:shade(col,-.25)})}
 }
 function startCity(seed,born){
-  eraL=null;city=genCity(seed,born);markParlors(city);addFrontage(city);pickKevin(city);addMega(city);samFamily(city);makeSky(seed);sel=null;follow=false;favs=[];favI=-1;syncFavBtn();renderFollow();computeLimits();cam.s=sMin;cam.x=(city.W-W/cam.s)/2;cam.y=STREET+10-H/cam.s;clampCam();
+  eraL=null;city=genCity(seed,born);markParlors(city);addFrontage(city);pickKevin(city);addMega(city);samFamily(city);labFolks(city);makeSky(seed);sel=null;follow=false;favs=[];favI=-1;syncFavBtn();renderFollow();computeLimits();cam.s=sMin;cam.x=(city.W-W/cam.s)/2;cam.y=STREET+10-H/cam.s;clampCam();
   for(let k=0;k<12;k++)updateCars(1,mod(simMin,1440));updateWorld(simMin);lastUpd=simMin;bufBox=null;bufF=-1;
   const co=document.getElementById('codeOut');if(co)co.value=cityCode();
 }
@@ -3298,8 +3298,8 @@ function hbSite(p,u,L){
   const ft=new Set(p.found||[...tags]);for(const k of ['zine','bbs'])ft.delete(k);
   for(const nb of HBNB){let s=r()*1.4;for(const[k,v]of Object.entries(nb.w))if(ft.has(k))s+=v;sc[nb.id]=s}
   let nb=HBNB[0];for(const n of HBNB)if(sc[n.id]>sc[nb.id])nb=n;
-  const kev=hbIsKev(p),sam=hbIsSam(p);if(kev)nb=HBNBI.SunsetStrip;if(sam)nb=HBNBI.SiliconAlley;
-  const sub=kev?'Amplifier':sam?'Modem':nb.subs[Math.floor(r()*nb.subs.length)],num=1000+hash(p.id,city.seed,4243)%9000;
+  const kev=hbIsKev(p),sam=hbIsSam(p),lab=hbLabOf(p);if(kev)nb=HBNBI.SunsetStrip;if(sam)nb=HBNBI.SiliconAlley;if(lab)nb=HBNBI.CapeCanaveral;
+  const sub=kev?'Amplifier':sam?'Modem':lab?HBLAB[lab].sub:nb.subs[Math.floor(r()*nb.subs.length)],num=1000+hash(p.id,city.seed,4243)%9000;
   const created=hbCreated(p,u,L),arch0=['retiree','student','night','baker','creative','worker'].find(a=>ft.has(a))||p.arch;
   const v=hbVoice(p.kid?p:Object.assign(Object.create(p),{age:Math.floor(ageAt(p,created)),arch:arch0}),u,p.kid?tags:ft,hbR(p,2));
   const rings=[];for(const k of ['zine','spooky','novel','marathon','grief','homesick','heartbreak','dating','insomnia','theremin','newlywed','baby','kid','cat','dog','guitar','synth','fish','film','retro','stargaze','carni','knit','coffee','paint','yoga','computer','science','night','parent','retiree','student','a foodie','food','plants','cycle','lonely','music'])
@@ -3313,7 +3313,9 @@ function hbIndex(){
   const L=Math.floor(simMin/1440);if(HB.idx&&HB.idxL===L&&HB.idxSeed===city.seed)return HB.idx;
   const byUrl=new Map(),byId=new Map(),list=[],nb={},rings={};
   for(const u of city.units){if(u.kind!=='res'||u.mega||u.vacant)continue;
-    for(const p of u.people){if(!hbEligible(p,u)||(p.samFam&&!hbIsSam(p)))continue;list.push(hbSite(p,u,L))}}
+    for(const p of u.people){if(!hbEligible(p,u)||(p.samFam&&!hbIsSam(p))||p.labFam)continue;list.push(hbSite(p,u,L))}}
+  if(city.ling&&city.samUnit&&city.samUnit.people.includes(city.ling)){const s=hbSite(city.ling,city.samUnit,L);s.id=9000000+city.ling.id;s.lab='ling';s.kind=s.kind0='lab';s.nb=HBNBI.CapeCanaveral;s.sub='Lab';
+    s.num=1000+hash(s.id,city.seed,4243)%9000;s.path=`/${s.nb.id}/${s.sub}/${s.num}/`;s.rings=[];s.zine=s.bbs=false;s.title=null;list.push(s)}
   /* the older homestead keeps its number when two want the same one */
   list.sort((a,b)=>a.created-b.created||a.id-b.id);
   for(const s of list){while(byUrl.has(s.path)){s.num=s.num>=9999?1000:s.num+1;s.path=`/${s.nb.id}/${s.sub}/${s.num}/`}
@@ -3419,14 +3421,17 @@ function hbNewsLine(p,u,t){const f=p.first,me=t.includes(f);let m;
   if((m=t.match(/moved out; (\S+) (\S+) took the spare room/))&&m[1]!==f)return`New roommate! Say hi to ${m[1]}.`;
   if((m=t.match(/^(\S+) turned 18 and moved out/)))return`${m[1]} moved out. The house is quiet. Updated the family page.`;
   return null}
+function hbLapse(s,created=s.created){const p=s.p;return hash(p.id,city.seed,4304)%100<18?created+200+hash(p.id,4305)%900:Infinity}
 function hbNews(s,created,L){
   const p=s.p,u=s.u,v=s.v,out=[{d:created,t:hbPick(hbR(p,4302),['Page created!','Welcome to my new homepage!','My first web page is up!']),ev:1}];
   if(s.kind0==='construction'&&!s.finished)return out;
   const H=(u.hist||[]).filter(([d])=>d>created&&d<=L);
   for(const[d,t]of H){const m=hbNewsLine(p,u,t);if(m){const dd=Math.min(L,d+hash(p.id,d,4303)%5);out.push({d:dd,t:m,ev:1})}}
+  const B=hbNvBook(s);if(B)B.posts.forEach((d,i)=>{if(d>created&&d<=L){const t=hbNvTitle(B,i+1),w=B.kid?'book':'novel';
+    out.push({d,t:i?`Posted Chapter ${i+1} of my ${w}${t?': "'+t+'"':''}!`:`Started posting my ${w}, ${B.title}! Chapter 1 is up.`,ev:1})}});
   if(s.finished)out.push({d:s.finishDay,t:'Finally finished my page!!! No more Under Construction!',ev:1});
   const base=v.loud||v.young||v.kid?32:v.quiet||v.old?160:75,mult=p.arch==='night'?1.5:1;
-  const babies=H.filter(([,x])=>/^Baby .* was born/.test(x)).map(([d])=>d),lapse=hash(p.id,city.seed,4304)%100<18?created+200+hash(p.id,4305)%900:Infinity;
+  const babies=H.filter(([,x])=>/^Baby .* was born/.test(x)).map(([d])=>d),lapse=hbLapse(s,created);
   let t=created;for(let k=1;k<400;k++){let gap=Math.round(base*mult*(.45+hr(p.id,k,4306)*1.6));if(babies.some(b=>t>=b-20&&t<b+240))gap+=220;t+=gap;if(t>L||t>lapse)break;
     out.push({d:t,t:HBROUT[hash(p.id,k,4307)%HBROUT.length]})}
   /* big news still gets posted after someone stops tinkering */
@@ -3597,13 +3602,7 @@ const HBMOD=[
     return`<center>${hbImg('candle',{sc:3})}<h2>In Loving Memory of ${hbE(F.p.lost)}</h2>${hbImg('dove')}<p>It has been ${d<60?'a few weeks':d<365?Math.round(d/30)+' months':'a long time'} now.</p>
     <p>I made this page because I wanted somewhere to put the things I didn't get to say. ${hbE(F.p.lost)} would have laughed at me for making a web page about them. They would have read every word, though.</p>
     <p>If you knew ${hbE(F.p.lost)}, please sign the guestbook and share a memory. If you didn't, thank you for reading this anyway.</p>${hbImg('candle',{sc:2})} ${hbImg('candle',{sc:2})} ${hbImg('candle',{sc:2})}</center>`}},
-  {k:'novel',f:'novel.html',nav:()=>'My Novel',pri:9,when:(s,F)=>F.p.arc==='novel'||F.past.has('novel'),page(s,F,r){const p=F.p.arc==='novel'?F.p:Object.assign(Object.create(F.p),{arcS:F.L-200,finish:F.L-120}),done=F.L>=p.finish,w=done?Math.max(60,Math.round((p.finish-p.arcS)*1.2)):Math.max(1,Math.round((F.L-p.arcS)*1.2)),goal=80;
-    const t=hbBook(r),n1=hbPick(r,FIRST),n2=hbPick(r,FIRST),pl=hbPick(r,['the night ferry','a hotel with no elevator','the last diner on Ninth Street','her uncle\'s pawn shop','a lighthouse that was never lit']);
-    const bar=Math.min(100,Math.round(w/goal*100));
-    return`<h2>${hbImg('book')} My Novel: <i>${hbE(t)}</i></h2><p><b>Word count:</b> ${w},000 of about ${goal},000</p><table border="1" width="300" cellspacing="0"><tr><td bgcolor="#00a000" width="${bar}%">&nbsp;</td><td>${bar<100?'&nbsp;':''}</td></tr></table>
-    <p>${done?'The first draft is DONE. Now I have to read it, which is scary.':'I write every night after work. Some nights it\'s 2,000 words. Some nights it\'s one sentence that I delete.'}</p>
-    <h3>Excerpt from Chapter ${1+hash(p.id,F.L>>5)%9}</h3><blockquote><i>${hbE(n1)} had never trusted ${pl}, and tonight was not going to change that. The rain came down the way it always did in this city, sideways and personal. "You're late," said ${hbE(n2)}, without looking up. "I'm exactly on time," ${hbE(n1)} said. "Everyone else is early."</i></blockquote>
-    <p><font size="2">&copy; ${new Date(F.L*864e5).getUTCFullYear()} ${hbE(F.first)} ${hbE(F.last)}. Please don't steal my novel. Agents, my email is at the bottom.</font></p>`}},
+  {k:'novel',f:'novel.html',nav:F=>F.p.kid?'My Book':'My Novel',pri:14,when:(s,F)=>{const B=hbNvBook(s);return!!B&&F.L>=B.b0},page(s,F,r){return hbNvPage(s,F)}},
   {k:'marathon',f:'marathon.html',nav:()=>'Road to 26.2',pri:9,when:(s,F)=>F.p.arc==='marathon'||F.past.has('marathon'),page(s,F,r){const p=F.p.arc==='marathon'?F.p:Object.assign(Object.create(F.p),{arcS:F.L-300,race:F.L-200}),left=p.race-F.L;let rows='';
     const end=Math.min(F.L,p.race-1);for(let k=6;k>=0;k--){const d=end-k*3-(hash(p.id,k)%2);if(d<p.arcS)continue;const tt=Math.max(0,Math.min(1,(d-p.arcS)/Math.max(1,p.race-p.arcS)));const mi=k===0&&p.race-d<7?Math.max(3,Math.round(6+hash(p.id,k,2)%4)):3+Math.round(tt*15)+hash(p.id,k,2)%3;
       rows+=`<tr><td>${hbDateS(d)}</td><td align="right">${mi}</td><td>${hbE(hbPick(r,['Felt great!','Knee hurts.','Rained the whole time.','New personal best!!','Had to walk the last mile.','Saw a dog wearing boots.','Ran past my old school.','Too hot. Never again. (Until Thursday.)']))}</td></tr>`}
@@ -3684,6 +3683,312 @@ const HBMOD=[
 /* the pages a site has, in nav order */
 function hbMods(s,F){if(s.kind==='construction')return[];const m=HBMOD.filter(x=>x.when(s,F)&&!(s.kind==='family'&&x.k==='family')).sort((a,b)=>b.pri-a.pri||hash(s.id,a.k.length)%3-1);return m.slice(0,s.v.kid?2:s.v.old?3:4)}
 
+/* ---------- novels in progress ----------
+   Some residents are writing a book and post it a chapter at a time: the ones living a "writing a novel"
+   storyline, working novelists, a share of readers and word people, and the odd kid. Each book is generated
+   from the author and the city seed: a genre that suits them, a cast, a setting, a premise, a planned length,
+   and chapters whose prose is assembled from that genre's sentence banks. Chapters go up on their own dates
+   (they show in What's New), and most writers stall partway, so the table of contents ends in "coming soon!" */
+const HBNV_PLACE=['Port Ellery','Harlow Falls','New Carthage','Bellmont','Saint Vire','Coldwater','Marrow Bay','Lindenhurst','East Halvard','Granger City'];
+const HBNV_NAMES={f:['Clara','Nadia','Rosa','Mae','Helen','Ines','Vera','June','Delia','Margot','Ruth','Tessa','Lena','Ada','Iris','Nell','Priya','Yuki','Hana','Greta'],
+  m:['Frank','Theo','Walt','Marcus','Otis','Hugo','Leon','Abe','Felix','Ray','Dev','Kenji','Omar','Jonah','Silas','Emil','Arturo','Kwame','Gus','Victor'],
+  kf:['Tess','Rosie','Bea','Lulu','Zoe','Ivy','Maddie','Nora'],km:['Nico','Leo','Ollie','Mateo','Remy','Max','Finn','Jojo']};
+const HBNV_STREET=['Alder Street','Fenwick Avenue','Quarry Road','Mercy Street','Bell Lane','Orchard Row','Pike Street','Hollis Avenue','Canal Street','Juniper Way'];
+const HBNV_SMELL=['burnt coffee','lilacs','motor oil','old books','wet wool','cinnamon','bleach','cut grass','rain on hot pavement','candle wax','oranges','pipe smoke'];
+const HBNV_DAY=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const HBNV_MONTH=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const HBNV_TIME=['three in the morning','a quarter to midnight','six-fifteen','five in the morning','ten past two','half past eleven','four in the afternoon','nine o\'clock'];
+const HBNV_TAGB=['shrugged','looked away','leaned back','sighed','almost smiled','looked at the floor','tapped the table','did not answer right away'];
+const HBNV_MODERN=['A car went by slowly, then sped up.','Somewhere a dog barked twice and gave up.','The radiator knocked like it wanted to be let out.','A siren rose and fell, a long way off.',
+  'The refrigerator hummed to itself.','Upstairs, someone was practicing scales on a piano, badly.','The streetlight outside flickered and decided to stay on.'];
+/* combinable pieces, so chapters run long without repeating themselves */
+const HBNV_GEST=['rubbed {her} eyes','checked the time','looked out the window for a long while','read the note again','counted to ten under {her} breath','set down {her} cup','stood up, then sat back down','listened','waited',
+  'pushed {her} hair out of {her} face','folded {her} hands on the table','stared at nothing in particular','chewed the inside of {her} cheek','straightened a picture that was already straight'];
+const HBNV_GTAIL=['.','.','.',', and nothing happened.',', and tried not to think about {V}.',', the way {her} mother used to.',' until the feeling passed.',' and said nothing.',', which did not help.',' and waited for {A} to say something.'];
+const HBNV_MEM=['the summer {she} was nine','the smell of {smell} in {her} grandmother\'s kitchen','something {A} had said years ago','a song {her} father used to whistle','the last thing {V} had said','a winter when the pipes froze and everyone slept in one room',
+  'the way the light looked on the morning {she} left home','a dog {she} had as a kid, who was afraid of thunder','the first time {she} had been truly afraid','a birthday cake that fell on the floor'];
+const HBNV_MEMF=['{She} remembered {m}.','For no reason at all, {P} thought of {m}.','It made {herO} think of {m}.','Out of nowhere came the memory of {m}.'];
+const HBNV_SCENE={modern:[['A delivery truck','A bus','A man in a gray coat','Two kids on bicycles','A woman walking three small dogs','A taxi','An old man with a newspaper'],['went by outside','passed under the window','stopped at the corner, then moved on','disappeared down {street}','crossed against the light']],
+  scifi:[['A maintenance drone','A crewman with a clipboard','A cart of supplies','A cleaning bot'],['drifted past the hatch','rolled by in the corridor','came and went','bumped gently against the wall']],
+  fantasy:[['A cart full of turnips','A crow','A shepherd and his dog','Two soldiers','A peddler with a jangling pack'],['went by on the road','passed without a word','crossed the square','watched from the wall']]};
+const HBNV_LIGHT={modern:['lamp','streetlight','television','neon sign'],scifi:['console','warning light','status panel'],fantasy:['candle','fire','lantern']};
+const HBNV_LIGHTV=['flickered','buzzed','went dim, then bright again','threw long shadows across the floor','hummed to itself'];
+const HBNV_PASS=['An hour went by. Then another.','By {time}, nothing had changed.','The minutes crawled.','Later, {she} would not remember how long {she} sat there.','Night came on slowly.','The rest of {day} went by in a blur.'];
+const HBNV_TALK=[[['A','Did you eat anything today?'],['P','Coffee counts.'],['A','Coffee does not count.']],[['P','What time is it?'],['A','Almost {hour}.'],['P','It feels later.']],
+  [['A','You okay?'],['P','{fine}']],[['A','What are you going to do?'],['P','{plan}']],[['P','Do you trust {V}?'],['A','{trust}']],[['A','{P}, listen to me.'],['P','I am listening.'],['A','No, you\'re hearing. That\'s different.']],
+  [['P','Where are we going?'],['A','{place}.'],['P','At this hour?']],[['A','Tell me about {V}.'],['P','There\'s nothing to tell.'],['A','There\'s always something to tell.']]];
+const HBNV_SLOT={fine:['Fine.','No. But I will be.','Ask me tomorrow.','I don\'t know yet.'],plan:['Something stupid, probably.','Go back to {place}.','Wait. And then not wait.','What I should have done in the first place.'],
+  trust:['About as far as I can throw a piano.','I don\'t trust anybody. Present company included.','I used to.'],hour:['one','two','three','eleven','midnight','four','six']};
+const HBNV={
+mystery:{nm:'Mystery',spr:'candle',bg:'#2a2a3a',fg:'#e8d8a0',modern:1,
+  job:['a night-shift insurance investigator','a retired homicide detective','a hotel night clerk','a crossword constructor with too much free time','a tow-truck driver','a pawnbroker','a court stenographer'],
+  case:['a body in the hotel laundry','a missing bookkeeper','a stolen painting of a lighthouse','a letter with no stamp','a key that opened nothing','a hit-and-run nobody saw'],
+  obj:['a matchbook from the Blue Anchor','a pawn ticket','a torn photograph','a ledger with one page missing','a single silver earring','a bus transfer dated last March'],
+  place:['the docks','the all-night diner on {street}','the precinct basement','the lobby of the Hotel Marlowe','a parking garage that smelled of rain','the bus station','the back room of the pawn shop','the bowling alley on {street}'],
+  title:['The {city} Affair','Death on {street}','A Cold Kind of Rain','Nobody Calls on {day}','The {city} Ledger','Last Call at the Blue Anchor','The Quiet Witness','Ten Minutes Fast'],
+  ttl:['The Call','{day} Night','A Matchbook','Nobody Saw Anything','The Ledger','Rain','What {A} Knew','The Second Visit','Midnight','The Blue Anchor','Loose Ends'],
+  open:['The rain started at {time} and did not stop for three days.','{city} looked better from a distance, and {P} had never been far enough away.','It was {time} on a {day}, and {P} {Pl} was on {her} fourth cup of coffee.',
+    'Nobody goes to {place} on a {day} night unless they have to. {P} had to.','The phone rang at {time}. Good news never calls that late.','Morning came to {city} the way it always did: gray, wet and late.','{P} had been awake for thirty hours, and it showed.'],
+  desc:['The neon sign across the street buzzed like it was trying to say something.','The coffee tasted like it had been made yesterday, by someone who hated coffee.','Somewhere a radio was playing a song about leaving.','The streetlights made orange puddles on the wet sidewalk.',
+    'The room smelled of {smell} and old cigarettes.','A cat watched from a fire escape and decided {P} was not worth the trouble.','Every window on the block was dark except one.','The clock over the door was ten minutes fast. It had been ten minutes fast for twenty years.',
+    'The waitress had a pencil behind each ear and no patience at all.','The elevator smelled of {smell} and took its time.'],
+  act:['{P} turned up {her} collar and walked.','{She} lit a match, remembered {she} had quit, and blew it out.','{P} wrote the address on the back of {her} hand.','{She} took the stairs two at a time.',
+    '{P} put a dollar on the counter and left before anyone could mention pie.','{She} pocketed {obj} while nobody was looking. Or so {she} thought.','{P} parked across the street and waited.','{She} knocked twice, waited, and knocked again.'],
+  think:['Something about it was wrong. {P} just couldn\'t say what yet.','{P} had met a lot of liars. {V} was a good one.','Three people knew where the car was parked that night. One of them was lying.','{She} thought about calling {A}, and didn\'t.',
+    'The thing about {city} was that everybody owed somebody.','Twenty years on the job, and {she} still hated the waiting.'],
+  hook:['Then the lights went out.','When {P} got home, the door was already open.','The name on the back of the photograph was {her} own.','{V} was not supposed to be alive.','Someone had been in the apartment. Someone who knew where {she} kept the spare key.',
+    'That was when {P} noticed the car following {herO}.','The ledger was gone.'],
+  beats:[['They found {case} on a {day} morning, and by noon everyone in {city} had a theory.','The call was about {case}. {P} almost didn\'t take it.'],['{A} had a lead: someone had been asking questions at {place}.','The only clue was {obj}, and nobody wanted to talk about it.'],
+    ['{V} was polite, expensive and much too calm.','{P} met {V} for the first time at {place}. {V} was smiling.'],['Somebody tried to scare {P} off the case. It didn\'t work, but it came close.','A brick came through the window with a note tied to it: STOP.'],
+    ['{A} had known about {obj} all along.','The ledger showed payments to a name {P} recognized.'],['The second body changed everything.','The police closed the case. {P} didn\'t.'],['{P} went back to {place}, alone, at midnight.','It all came back to one night at {place}, twelve years ago.']],
+  talk:[[['P','Where were you on {day} night?'],['V','Home. Alone. Ask anybody.'],['P','I would, but you said alone.']],[['A','You look terrible.'],['P','Thanks. I worked on it all night.']],
+    [['V','You should leave this alone.','said quietly'],['P','People keep telling me that.'],['V','Maybe you should start listening.']],[['P','Have you seen this before?','asked, sliding {obj} across the table'],['A','Never.','said, too fast']],
+    [['A','Coffee?'],['P','Is it fresh?'],['A','It was on Tuesday.']],[['P','Who else knew?'],['V','Everybody knows everything in {city}. Nobody says it.']],
+    [['A','The captain wants you off this.'],['P','The captain can tell me himself.'],['A','He just did. Through me.']],[['P','Why are you helping me?'],['A','Because nobody helped her.']]]},
+romance:{nm:'Romance',spr:'heart',bg:'#ffd8e8',fg:'#a01850',modern:1,
+  job:['a pastry chef','a florist','an architect','a veterinarian','a used-bookshop owner','a wedding photographer','a ferry captain'],
+  vjob:['a carpenter','the new doctor in town','a food critic','a landscape gardener','a jazz pianist','the man who bought the building'],
+  case:['the new bakery across the street','a mix-up with two identical cake orders','a ferry that broke down halfway across the bay','the wedding of {P}\'s ex','a lease on the same apartment, signed by two people'],
+  obj:['a recipe card in someone else\'s handwriting','a lost mitten','a pressed flower','a parking ticket','a jar of honey'],
+  place:['the shop on {street}','the farmers market','the ferry','a rooftop garden','the hardware store','the park by the river','the town gazebo','the bowling alley'],
+  title:['Love on {street}','Second Helpings','Meet Me at the Market','{month} in {city}','The Florist\'s Rules','Four Blocks Home','A Recipe for Trouble','Sweet on You'],
+  ttl:['Closed on Mondays','Flour Everywhere','The Wrong Order','Rooftop','A Long Song','Rain Check','The Festival','Four Blocks','The Ex','Honey'],
+  open:['{P} {Pl} had exactly one rule: no dating anyone who worked on {street}.','Spring came early to {city} that year, and {P} was not ready for it.','The bell over the door rang at {time}, which meant trouble.',
+    '{P} was covered in flour when {V} walked in.','It was the kind of {month} morning that makes people do foolish things.','{P} had sworn off love, carbs and {city}. {She} was zero for three.'],
+  desc:['The light came in gold through the front window.','{V} had the kind of smile that should come with a warning label.','The shop smelled of {smell} and coffee.','Outside, a dog was barking at a pigeon with great conviction.',
+    '{V}\'s hands were rough, like someone who fixed things for a living.','The string lights over the patio blinked on one at a time.','The river was the color of tea.','Every table in the place had a tiny vase with one tired daisy in it.'],
+  act:['{P} dropped the tray. Of course {she} did.','{She} pretended to be very interested in the menu.','{P} texted {A}: CODE RED.','{She} laughed before {she} could stop {herself}.','{P} wiped {her} hands on {her} apron for the third time.',
+    '{She} walked the long way home, past the shop, twice.'],
+  think:['{She} was not going to fall for {V}. Absolutely not. Probably not.','{P} had been hurt before, and {she} had the playlist to prove it.','Why did {V} have to be nice? Rude would have been so much easier.','{A} would never let {herO} hear the end of this.',
+    'It was just coffee. People had coffee all the time.'],
+  hook:['And then {V} kissed {herO}.','The text said: Can we talk? It was from {V}.','Standing in the doorway was the last person {P} wanted to see: {her} ex.','{P} realized {she} was smiling. That was the problem.','The FOR SALE sign went up the next morning.',
+    '{V} had left something behind: {obj}.'],
+  beats:[['The trouble started with {case}.','Then came {case}, and {P}\'s careful life fell over like a cake in a cold oven.'],['{V} turned out to be {vjob}, which explained nothing.','{A} declared {V} "a project." {P} declared {A} fired as a best friend.'],
+    ['They were stuck together at {place} for three hours, which was two hours and fifty minutes too long. Or not long enough.','The festival committee put {P} and {V} in charge of the same booth.'],['{P} found out {V} was leaving {city} at the end of the summer.','There was a rival, and the rival was very good at everything.'],
+    ['They danced. It was only one song. It was a long song.','{V} told {herO} about the father who never came back.'],['Everything went wrong at the worst possible moment, in front of everybody.','{P} said the wrong thing, and {V} walked out into the rain.'],['{A} gave the speech {P} needed to hear.','{P} went to {place} and waited.']],
+  talk:[[['V','Is it always this busy?'],['P','Only when someone blocks the door.'],['V','Noted.']],[['A','So? Tell me everything.'],['P','There is nothing to tell.'],['A','You are blushing at a muffin.']],
+    [['V','I think we got off on the wrong foot.'],['P','You stepped on my foot.'],['V','Then we got off on your foot.']],[['P','Why {city}?'],['V','I needed somewhere nobody knew me.'],['P','Well. Now somebody does.']],
+    [['V','Do you ever stop working?'],['P','Do you ever stop asking questions?'],['V','No.']],[['A','You like {V}.'],['P','I tolerate {V}.'],['A','You tolerated {V} for two hours on a bench.']],
+    [['V','Can I walk you home?'],['P','It\'s four blocks.'],['V','I walk slowly.']]]},
+scifi:{nm:'Science Fiction',spr:'rocket',bg:'#000020',fg:'#80ffff',
+  job:['the ship\'s engineer','a cargo pilot','a xenolinguist','the night-shift medic','a salvage diver','the navigator'],
+  case:['a distress signal that repeated every eleven minutes','a derelict ship that was not on any chart','a crewmember who woke from cryosleep twice','a signal hidden in the static from {moon}'],
+  obj:['a data chip','a frozen flower','a cracked helmet','a recording with no timestamp','a key card from a ship that sank three hundred years ago'],
+  place:['the bridge','the cargo bay','the airlock','the hydroponics deck','the observation dome','engineering','the mess hall','the cryo bay'],
+  title:['The {ship} Directive','Signal from {moon}','Beyond the Quiet Dark','{ai} Remembers','Eleven Minutes','The Last Shift on the {ship}','Cold Light','Seven Aboard'],
+  ttl:['Third Shift','The Signal','Outside','Erased','{moon}','Deck Four','Seven','The Long Dark','Static','Burn'],
+  open:['Day {num} out from {moon}. Nothing had happened in weeks, which was how {P} liked it.','The alarm went off at 0300, ship time.','Space is mostly nothing. {P} had gotten used to the nothing.',
+    '{ai} woke {P} at the start of third shift. {ai} never woke anybody.','Through the observation window, {moon} turned slowly, gray and patient.','{P} {Pl} was the only one awake on the {ship}, or {she} was supposed to be.'],
+  desc:['The hum of the engines was so constant that {P} only noticed it when it stopped.','Frost had formed on the inside of the porthole, in a pattern like ferns.','Every surface on the {ship} was scuffed by forty years of elbows.','The emergency lights turned everything a deep, dull red.',
+    'Somewhere below decks a pump clicked on and off, on and off.','The stars did not twinkle out here. They just stared.','The recycled air tasted faintly of {smell}.','The corridor lights came on one panel at a time, a step ahead of {herO}.'],
+  act:['{P} pulled on {her} gloves and checked the seals twice.','{She} floated down the corridor, pushing off the handholds.','{P} ran the diagnostic again. Same result.','{She} pressed {her} palm to the airlock door. It was warm.',
+    '{P} pulled up the star charts and stared until the numbers swam.','{She} strapped in and fired the thrusters, gently, like {she} was waking someone.'],
+  think:['Forty-one days to {moon}. Forty-one days to be wrong about this.','{P} thought about home, and the smell of cut grass, and then {she} made {herself} stop.','{ai} had never lied before. That was what scared {herO}.','Nobody had trained {herO} for this. Nobody had trained anybody for this.'],
+  hook:['Then something knocked on the hull. From the outside.','The signal stopped. Then it said {her} name.','There were supposed to be six people aboard. The scanner counted seven.','And for the first time in forty years, the {ship} changed course on its own.','The derelict\'s lights came on.'],
+  beats:[['It began with {case}.','Nobody on the {ship} wanted to talk about {case}, so naturally {P} could think of nothing else.'],['The captain, {V}, ordered everyone to ignore it.','{A} decoded the first part of the message: a set of coordinates.'],
+    ['They found {obj} in a sealed locker that had been empty an hour before.','{P} suited up and went outside.'],['The logs from the last voyage had been erased.','Half the crew wanted to turn back. The other half wanted to see.'],
+    ['{V} had been to {moon} before, and had not come back alone.','The message was not a warning. It was an invitation.'],['The power failed on deck four.','{A} went quiet, and then {A} went missing.'],['{P} opened the door.','They reached {moon}, and {moon} was waiting.']],
+  talk:[[['P','{ai}, play back the signal.'],['AI','Playing.'],['P','Again.'],['AI','That is the fourteenth time, {P}.']],[['V','We follow orders out here.'],['P','Whose orders?'],['V','Mine.']],
+    [['A','You see that?'],['P','I see it.'],['A','Tell me it\'s a reflection.'],['P','It\'s not a reflection.']],[['P','How long has it been transmitting?'],['A','From the decay? About three hundred years.']],
+    [['AI','Life support at ninety-one percent.'],['P','And falling?'],['AI','And falling.']],[['A','Do you ever miss home?'],['P','Every day. You?'],['A','I was born on a ship. This is home.']]]},
+fantasy:{nm:'Fantasy',spr:'star',bg:'#203018',fg:'#f0e0a0',
+  job:['a goose-herd','an apprentice mapmaker','a thief with a conscience','the youngest child of a bellmaker','a blacksmith\'s apprentice','a disgraced knight','a hedge witch'],
+  case:['a stranger carrying {obj}','the bells ringing thirteen times','a dragon\'s egg in the hayloft','the river running backward for one whole day'],
+  place:['the tower at {fplace}','the Whispering Wood','the river crossing','the market at {fplace}','the ruins of {fplace}','the King\'s Road','a tavern called the Drowned Hound','the old mill'],
+  title:['The {Obj}','Shadow over {fplace}','The Thirteenth Bell','{P} of {home}','The Hollow Crown','Songs of {fplace}','The Mapmaker\'s Daughter','The Long Road North'],
+  ttl:['The Stranger','{home}','The Crossroads','Riders','The Ruin','The Second Half','Moonrise','The Wood','The Bell','Fire'],
+  open:['In the village of {home}, nothing ever happened. Then everything did, all on one autumn morning.','The bells of {home} rang thirteen times, and every head in the market turned.','{P} was mucking out the goat pen when the stranger rode into {home}.',
+    'Smoke rose from the hills beyond {home}, and it was not chimney smoke.','The old road north had not been walked in a hundred years. {P} walked it at dawn.','There are seven ways out of the Whispering Wood. {P} knew four.'],
+  desc:['The forest was old, older than the kingdom, and it knew it.','Moss grew thick on the stones, green as a secret.','The tavern was loud, warm and smelled of {smell} and wet dog.','Far above, the twin moons hung like coins on a dark cloth.',
+    'The road was mud for a mile and then, suddenly, perfect stone.','Mist sat in the valley like milk in a bowl.','The castle had more towers than it needed, and most of them were leaning.'],
+  act:['{P} gripped {her} walking stick and did not look back.','{She} hid {obj} under {her} cloak.','{P} climbed the wall the way {she} had climbed it a hundred times as a child.','{She} whispered the old words, and the candle flame leaned toward {herO}.',
+    '{P} shared the last apple with the horse, which seemed fair.'],
+  think:['Heroes, {P} thought, probably did not get this many blisters.','{She} had always wanted an adventure. {She} had not wanted this one.','Somewhere, {V} was waiting. {P} could feel it like weather coming.','The songs never mentioned how cold it got at night.'],
+  hook:['{Obj} began to glow.','Behind them, the bridge fell into the river.','The old woman said, "You have your mother\'s eyes. She had that same look the day she disappeared."','When {P} looked down, the map had changed.','The rider wore {V}\'s colors.'],
+  beats:[['It started with {case}.','Everyone in {home} knew the story of {obj}. Nobody believed it, until {P} found it at the bottom of the well.'],['{P} left {home} before dawn with a loaf of bread, two apples and no plan.','{A} joined {herO} at the crossroads, uninvited and talking.'],
+    ['{V} sent riders: black horses, silver bridles, no faces under the hoods.','They took shelter at {place}, which was not as empty as it looked.'],['{A} had a secret, and it had teeth.','The map led to {place}. Of course it did.'],
+    ['The prophecy had a second half. Nobody had told {P} about the second half.','{P} learned to make {obj} listen.'],['They lost the horses at the river.','{V} spoke to {P} in a dream, very kindly, which was worse.']],
+  talk:[[['A','You are not a hero.'],['P','I know.'],['A','Good. The heroes in the songs all die in the third verse.']],[['P','What is it?'],['A','Trouble. Old trouble. The worst kind.']],
+    [['V','Give me {obj}, and your village will be spared.'],['P','And if I don\'t?'],['V','Then you will learn what I am.']],[['A','Do you know how to use that sword?'],['P','The pointy end goes in the bad guy.'],['A','That is technically correct.']],
+    [['P','How much farther?'],['A','Three days. Four, if you keep asking.']],[['A','Why you?'],['P','I don\'t know. I was the one standing by the well.']]]},
+horror:{nm:'Horror',spr:'ghost',bg:'#100808',fg:'#d0c0c0',modern:1,
+  job:['a recently divorced schoolteacher','a night nurse','a real estate agent','a graduate student in folklore','a piano tuner','a substitute librarian'],
+  case:['the scratching inside the walls','a photograph of the house with someone standing in the upstairs window','a door in the cellar that was not on the floor plan','a music box that wound itself'],
+  obj:['a music box','an old diary with a broken lock','a child\'s shoe','a ring of keys, one too many','a Polaroid with the faces scratched out'],
+  place:['the cellar','the attic','the upstairs hallway','the garden','the old well','the nursery','the root cellar','the back stairs'],
+  title:['The House on {street}','Don\'t Open the Cellar','What Lives in the Walls','Three Knocks','The Upstairs Window','Settling','The Quiet Room','Nobody Lives Here'],
+  ttl:['Move-In Day','The Walls','The Diary','Small Footprints','The Cellar','The Second Night','Knock Knock','Do Not Go Upstairs','The Neighbors'],
+  open:['The house on {street} was cheap. That should have been the first warning.','At {time} the knocking started again: three, a pause, then three more.','Nobody had lived on {street} since 1971. The real estate agent was very cheerful about it.',
+    '{P} {Pl} did not believe in ghosts. The house did not care.','The moving truck left at dusk, and the house got very quiet.'],
+  desc:['The wallpaper was a pattern of small birds, and every bird was facing the door.','The floorboards complained with every step.','It was colder in the hallway than it was outside.','The mirror at the top of the stairs was very old, and a little too clear.',
+    'The smell of {smell} came up from somewhere below.','A clock ticked somewhere in the house. {P} had not brought a clock.','The neighbors\' windows were all dark, and their curtains were all closed.'],
+  act:['{P} turned on every light in the house. It helped a little.','{She} counted the doors again. Seven. There had been six that morning.','{P} pressed {her} ear to the wall and held {her} breath.','{She} took the flashlight and went down the stairs, one at a time.',
+    '{P} locked the bedroom door, then checked it, then checked it again.'],
+  think:['Old houses settle, {P} told {herself}. That is all. Old houses settle.','{She} could leave. {She} could get in the car right now and leave.','The neighbors never looked at the house. {P} noticed that now.'],
+  hook:['Something upstairs began to hum along.','The footprints in the dust were small and bare, and they ended at the wall.','When {P} looked at the photograph again, the figure in the window was closer.','From inside the cellar, very politely, someone knocked back.','The music box was playing. {P} had thrown it away that morning.'],
+  beats:[['{P} moved into the house on {street} on a {day} in {month}.','It began with {case}.'],['{A}, from next door, brought over a casserole and a warning.','{P} found {obj} under the floorboards.'],
+    ['The previous owner, {V}, had left in a hurry, and had left everything.','The town library had one article about the house. Someone had cut out the photograph.'],['The second night was worse.','{P} stopped sleeping in the bedroom.'],
+    ['The diary\'s last entry was dated tomorrow.','{A} finally admitted it: {A} had grown up in this house.'],['{P} went down to {place} with a hammer.','The priest would not come inside.']],
+  talk:[[['A','You bought the house on {street}?'],['P','Is that a problem?'],['A','No. No. Do you need anything? Salt?']],[['P','Who lived here before?'],['A','A family. Then just the mother. Then nobody.']],
+    [['P','Did you hear that?'],['A','The wind.'],['P','There\'s no wind.']],[['V','You should not have come back.'],['P','I live here.'],['V','Not for long.']],
+    [['A','Don\'t go in the cellar.'],['P','Why not?'],['A','Just don\'t.']]]},
+literary:{nm:'Literary Fiction',spr:'book',bg:'#f4ecd8',fg:'#403020',modern:1,
+  job:['a piano teacher','a middle-aged accountant','a hospice nurse','a retired bus driver','a sculptor who had stopped sculpting','a translator of other people\'s poems'],
+  case:['a funeral','the sale of the family house','a letter from the brother {she} hadn\'t spoken to in ten years','the last summer at the lake'],
+  obj:['an old wristwatch','a box of letters','a jar of buttons','an unfinished quilt','the key to the boathouse'],
+  place:['the kitchen','the dock','the hospital parking lot','the old church hall','the bus shelter on {street}','the porch'],
+  title:['Everything We Kept','{home}, {month}','Small Weather','The Lake in Winter','What the House Remembers','Paperwork','A Short History of Leaving','Four Minutes Slow'],
+  ttl:['The Drive','Coats on the Hooks','The Lake','Paperwork','Letters','Boathouse','Snow in {month}','What We Kept','The Kitchen','Sunday'],
+  open:['There is a particular silence in a kitchen after a funeral.','{home} had not changed, which was its own kind of insult.','{P} drove all night and reached the house as the sun came up over the lake.',
+    'Every family has a story it doesn\'t tell. Ours was about {V}.','The summer {P} turned twelve, {her} father stopped speaking to the neighbors.','It rained the whole week of {month}, which felt right.'],
+  desc:['The lake was flat and silver, the color of a spoon.','The kitchen clock still ran four minutes slow. Nobody had ever fixed it, and now nobody would.','Light came through the curtains in long, patient bars.','There were still coats on the hooks by the door.',
+    'The garden had gone to seed, tall and beautiful and useless.','The house smelled of {smell}, the way it always had.','The church bells rang the hour, a little late, as they always had.'],
+  act:['{P} washed the same cup three times.','{She} opened the window, and the room let out a breath.','{P} sat on the porch steps until the mosquitoes found {herO}.','{She} put {obj} in {her} pocket and kept {her} hand on it all afternoon.',
+    '{P} sorted the mail into piles: bills, sympathy, and things {she} could not open yet.'],
+  think:['Grief, {P} was learning, was mostly paperwork.','{She} had spent twenty years leaving this place. It had taken one phone call to bring {herO} back.','Some days {she} could not remember {her} mother\'s voice. Some days it was all {she} could hear.',
+    'There is no word for the kind of tired that sitting still makes you.'],
+  hook:['At the bottom of the box was a letter addressed to {herO}, in handwriting {she} did not know.','{A} was standing at the end of the dock, as if no time had passed.','{P} understood, finally, why {her} father had never sold the boathouse.','And then it began to snow, in {month}, which it never did.'],
+  beats:[['{P} came home to {home} for {case}.','Afterward, there was only {case}, and the long drive back to {home}.'],['{A} still lived down the road, and still made terrible coffee.','The house was full of things nobody wanted and nobody could throw away.'],
+    ['{P} found {obj} at the back of the closet.','{V} called. {P} let it ring.'],['They argued about the house, which was not really about the house.','{P} took the rowboat out alone, the way {her} father used to.'],
+    ['The letters told a different story than the one {P} had grown up with.','{V} arrived on a {day}, unannounced, carrying a pie.'],['Nobody said the word. Everyone thought it.','{P} sat in the car in the hospital parking lot for an hour.']],
+  talk:[[['A','You look like him.'],['P','People keep saying that.'],['A','It\'s a compliment.'],['P','I know.']],[['V','Are you going to sell it?'],['P','I don\'t know.'],['V','You have to decide something eventually.']],
+    [['P','Do you remember the winter the lake froze?'],['A','I remember you fell through.'],['P','I remember you pulled me out.']],[['A','Stay for dinner.'],['P','I should get back.'],['A','Back to what?']]]},
+thriller:{nm:'Thriller',spr:'clock',bg:'#101010',fg:'#ff4040',modern:1,
+  job:['a junior analyst','a bicycle courier','an ex-army translator','a hotel security chief','a subway conductor','a locksmith'],
+  case:['a briefcase left on the late train','a name on a list that should not exist','an envelope with {her} own photograph inside','a phone call from a man who had been dead for six years'],
+  obj:['the briefcase','a burner phone','a hotel key card','a roll of film','a list of nine names'],
+  place:['the train station','a safe house on {street}','the parking deck','an embassy party','the subway tunnels','a laundromat that never closed','the ferry terminal'],
+  title:['The {city} Protocol','Zero Hour','Last Train from {city}','Dead Drop','Nine Names','The Courier','Burn Notice on {street}','Twelve Hours'],
+  ttl:['The Wrong Briefcase','Midnight','The List','Safe House','The Drop','Two Teams','Static','{city}','Run','The Handler'],
+  open:['At {time}, {P} {Pl} picked up the wrong briefcase.','{city} at night was a city of strangers, which suited {P} fine.','The message was four words long: THEY KNOW. RUN NOW.','{P} had been out for five years. Five years was not long enough.',
+    'The train was eleven minutes late. In {P}\'s old line of work, that meant something.'],
+  desc:['The station clock ticked over to the hour with a sound like a gun being cocked.','Every face in the crowd looked like a face {she} had seen before.','The safe house had two exits, one window and no furniture worth sitting on.','Rain blurred the windshield into smears of red and white light.',
+    'The laundromat smelled of {smell} and fabric softener.'],
+  act:['{P} took the long way, doubling back twice.','{She} pulled the battery out of {her} phone.','{P} memorized the plate number and kept walking.','{She} changed trains at the last second, as the doors were closing.','{P} paid cash and did not give a name.'],
+  think:['Trust no one, {her} old handler used to say. {P} had thought it was a figure of speech.','Twelve hours. {She} had twelve hours, and no idea who to call.','Whoever {V} was, {V} had been planning this for years.'],
+  hook:['The man on the platform was wearing {her} coat.','The photograph in the envelope had been taken that morning.','{A}\'s phone went straight to voicemail. It never did that.','And the voice on the line said: Hello, {P}. It\'s been a long time.'],
+  beats:[['It started with {case}.','By midnight there was {case}, and by one {P} was running.'],['{A} owed {herO} a favor. Tonight {P} was calling it in.','The name at the top of the list was {V}.'],
+    ['They met at {place}. Neither of them sat with their back to the door.','Somebody had searched {P}\'s apartment, and wanted {herO} to know it.'],['The drop was at {place} at {time}. It was a trap. Of course it was a trap.','There were two teams following {herO} now, and they were not on the same side.'],
+    ['{A} had been working for {V} the whole time.','{Obj} had a false bottom.']],
+  talk:[[['A','You can\'t be here.'],['P','I know.'],['A','They\'ll be watching.'],['P','I know. Get in the car.']],[['V','You have something of mine.'],['P','Come and get it.']],
+    [['P','Who else knows?'],['A','Nobody. Me. Maybe one other person.'],['P','Who?'],['A','That\'s the problem. I don\'t know.']],[['A','How long do we have?'],['P','Until they check the cameras.'],['A','So, no time.'],['P','So, no time.']]]},
+kid:{nm:'Adventure',spr:'star',bg:'#ffff80',fg:'#0000c0',kid:1,
+  case:['a secret door in the school library','a treasure map in a cereal box','a portal in the bathtub','an alien in the backyard','a dragon egg under the bed'],
+  pet:['a talking dog named Biscuit','a very small dragon named Pickles','a robot named Bolt','a cat who could fly named Mittens','a hamster named Captain'],
+  place:['the school','the backyard','the treehouse','the moon','a candy volcano','the lunchroom','a castle made of blocks','the bottom of the ocean'],
+  title:['{P} and the Secret Door','The SECRET of the Treehouse','Attack of the Space Worms','{P} vs. the Dragon','The Candy Volcano','Super {P}','The Mystery of the Missing Hamster'],
+  ttl:['The Door','{pet}','The Bad Guy','LAVA','The Big Fight','Part 6','The Secret','Night Time'],
+  open:['Once there was a kid named {P}. {P} was 9 and a half.','It was a normal day. Then it was NOT a normal day.','{P} woke up and {pet} was on the bed.','This is the part where it gets good.'],
+  desc:['It was SO big.','The sky was purple and green.','There were a hundred snakes. Maybe a thousand.','It smelled like old socks.','It was really really dark.','Everything was made of candy, even the trees.'],
+  act:['{P} ran as fast as {she} could.','{P} jumped over the lava.','They hid behind a big rock.','{P} did a karate move. HI-YAH!','They climbed and climbed and climbed.'],
+  think:['{P} was a little scared but mostly brave.','{P} wished {her} mom was there. But only a little.','{P} had a plan. It was a good plan.'],
+  hook:['Then the floor fell in!!!','TO BE CONTINUED!!!','And then they saw it. The BOSS.','And then the door shut behind them. BAM!'],
+  beats:[['{P} found {case}.','One day {P} found {case} and that is how it all started.'],['{pet} could talk. That was weird.','{A} wanted to come too. {A} is {P}\'s best friend.'],
+    ['They went to {place}.','They got lost at {place}.'],['The bad guy was {V}. {V} was SO mean.','{V} took {pet}!!!'],['They made a trap.','{A} was really brave this time.']],
+  talk:[[['P','Whoa.'],['A','WHOA.']],[['PET','Follow me!'],['P','Okay!']],[['V','Ha ha ha! You will never win!'],['P','Yes we will!']],[['A','Are you scared?'],['P','No. Are you?'],['A','No. Maybe.']]]}
+};
+/* the people who write, and when they start */
+function hbNvBook(s){
+  if(s._nv!==undefined)return s._nv;s._nv=null;const p=s.p;if(!p||p.samFam||p.lab||p.labFam||hbIsKev(p)||hbIsSam(p))return null;
+  if(s.kind0==='business'||(s.kind0==='construction'&&!s.finished))return null;
+  const ft=new Set(p.found||[]),h=n=>hash(p.id,city.seed,n,4500)%1000,created=s.created;
+  let type=null,b0;const hist=(s.u.hist||[]).find(([,t])=>t===`${p.first} started writing a novel.`);
+  if(hist){type='arc';b0=hist[0]}else if(ft.has('novel')||(p.arc==='novel'&&p.arcS<=created+30)){type='arc';b0=p.arcS!==undefined?p.arcS:created}
+  else if(/novelist/.test(p.foundJob||'')){type='pro';b0=created+10+h(1)%200}
+  else if(p.kid){if(ageAt(p,created)>=9&&h(2)<90){type='kid';b0=created+30+h(3)%300}}
+  else if(h(4)<(ft.has('words')||ft.has('read')||p.reader||ft.has('poet')?60:10)){type='hobby';b0=created+40+h(5)%600}
+  if(!type)return null;b0=Math.max(b0,created-400);
+  const age=ageAt(p,b0),r=srng(p.id,city.seed,4501,0),W={mystery:3,romance:2,literary:2,scifi:1,fantasy:1,thriller:1,horror:1};
+  let g;if(p.kid&&age<13)g='kid';else{
+    if(p.kid){W.fantasy=5;W.scifi=3;W.horror=3;W.romance=2;W.literary=0;W.thriller=1}
+    if(ft.has('spooky')||ft.has('halloween'))W.horror+=5;if(ft.has('stargaze')||ft.has('science')||ft.has('computer'))W.scifi+=4;if(age>=60){W.literary+=3;W.mystery+=2}
+    if(p.arch==='night'||ft.has('nightowl')){W.thriller+=2;W.mystery+=1}if(ft.has('grief')||ft.has('heartbreak')||ft.has('melancholy')){W.literary+=2;W.romance+=2}if(ft.has('dating')||ft.has('romantic'))W.romance+=3;
+    let tot=0;for(const k in W)tot+=W[k];let x=r()*tot;g='mystery';for(const k in W){x-=W[k];if(x<0){g=k;break}}}
+  const G=HBNV[g],kid=g==='kid',v=s.v;
+  /* cast and setting */
+  const she=r()<.5,nm=a=>{let n;do{n=hbPick(r,a)}while(n===p.first||n===c.P||n===c.A);return n};
+  const fn=()=>{const A=['Al','Bri','Cor','Dun','El','Fen','Gal','Hal','Is','Ka','Lor','Mor','Ny','Or','Pel','Quel','Ros','Syl','Tam','Ul','Vey','Wyn'],B=['dric','wen','mere','thas','ora','in','ys','arra','eth','ion','ia','ard','ovar','elle','un'];return hbPick(r,A)+hbPick(r,B)};
+  const c={};c.P=g==='fantasy'?fn():hbPick(r,HBNV_NAMES[(kid?'k':'')+(she?'f':'m')].filter(n=>n!==p.first));c.Pl=hbPick(r,LAST);
+  c.A=kid?hbPick(r,KIDN.filter(n=>n!==c.P&&n!==p.first)):g==='fantasy'?fn():nm(FIRST);c.V=g==='fantasy'?'the '+hbPick(r,['Grey Regent','Ashen Queen','Hollow King','Lantern Duke','Pale Abbess']):kid?hbPick(r,['Doctor Stinky','the Slime King','Mr. Grumbles','Queen Spidera']):nm(FIRST);
+  Object.assign(c,she?{she:'she',her:'her',herO:'her',herself:'herself'}:{she:'he',her:'his',herO:'him',herself:'himself'});
+  c.city=hbPick(r,HBNV_PLACE);c.home=g==='fantasy'?fn()+hbPick(r,['ford','wick','dale','by','holm']):hbPick(r,HBNV_PLACE.filter(x=>x!==c.city));c.fplace=fn();c.street=hbPick(r,HBNV_STREET);
+  c.ship=hbPick(r,['Patient','Quiet','Long','Silver','Second','Northern'])+' '+hbPick(r,['Heron','Lantern','Promise','Meridian','Harvest','Anchor']);c.ai=hbPick(r,['ORIN','HALCYON','BEACON','WREN','ARGO']);
+  c.moon=hbPick(r,['Tethys Station','Kepler\'s Rest','Callow IV','the Ninth Moon','Halvard\'s Reach']);c.pet=G.pet?hbPick(r,G.pet):'';c.petN=c.pet.split(' named ')[1]||c.pet.replace(/^an? /,'');
+  c.job=G.job?hbPick(r,G.job):'';c.vjob=G.vjob?hbPick(r,G.vjob):'';c.obj=G.obj?hbPick(r,G.obj):g==='fantasy'?`the ${hbPick(r,['Glass','Iron','Ember','Silver','Bone'])} ${hbPick(r,['Key','Crown','Map','Bell','Lantern'])} of ${fn()}`:'';
+  c.num=String(30+Math.floor(r()*300));const X0=t=>t.replace(/\{(\w+)\}/g,(m,k)=>k==='pet'?c.petN:k==='Obj'?hbCap(c.obj.replace(/^(the|a|an) /,'')):k==='She'||k==='Her'?hbCap(c[k.toLowerCase()]):c[k]!==undefined?c[k]:k==='day'?hbPick(r,HBNV_DAY):k==='month'?hbPick(r,HBNV_MONTH):m);
+  c.case=X0(hbPick(r,G.case));
+  const title=X0(hbPick(r,G.title)).replace(/\{\w+\}/g,'');
+  /* the plan: length, posting dates, how far the draft gets */
+  const N=kid?5+Math.floor(r()*5):18+Math.floor(r()*14),postMax=(kid?2+Math.floor(r()*3):2+Math.floor(r()*5))+(r()<.15?4:0);
+  const gap0=(v.loud||v.young||kid?22:v.quiet||v.old?95:48)*(.6+r()),lapse=hbLapse(s);
+  const posts=[];let d=b0+(type==='arc'?20+Math.floor(r()*40):0);for(let k=0;k<Math.min(postMax,N);k++){if(d>lapse)break;posts.push(Math.round(d));d+=gap0*(.5+r()*1.3)}
+  const cap=type==='arc'&&p.finish!==undefined?N:Math.max(postMax,Math.floor(N*(.35+r()*.35))),dgap=gap0*.7;
+  const pen=!kid&&r()<.2?`${hbPick(r,'ABCDEFGHJKLMNPRSTW'.split(''))}.${hbPick(r,'ABCDEFGJKLMRST'.split(''))}. ${hbPick(r,LAST)}`:null;
+  const ttls=hbPickN(r,G.ttl,G.ttl.length).map(t=>X0(t)),named=r()<.6;
+  return s._nv={g,G,c,title,type,b0,N,posts,cap,dgap,pen,seed:hash(p.id,city.seed,4502),ttls,named,kid};
+}
+function hbNvPosted(B,L){return B.posts.filter(d=>d<=L)}
+function hbNvDrafted(B,L,s){const n=hbNvPosted(B,L).length;if(L<B.b0)return 0;
+  if(B.type==='arc'&&s.p.finish!==undefined&&s.p.arcS!==undefined)return Math.max(n,Math.min(B.N,Math.round(B.N*Math.min(1,(L-s.p.arcS)/Math.max(1,s.p.finish-s.p.arcS)))));
+  return Math.max(n,Math.min(B.cap,1+Math.floor((L-B.b0)/B.dgap)))}
+function hbNvTitle(B,k){return B.named?B.ttls[(k-1)%B.ttls.length]:''}
+/* one chapter of prose */
+function hbNvChapter(B,k){
+  const G=B.G,c=B.c,r=srng(B.seed,k,4503,1),used=new Set();
+  const deck=n=>{B.dk=B.dk||{};if(!B.dk[n]){const a=(G[n]||[]).concat(n==='desc'&&G.modern?HBNV_MODERN:[],n==='talk'&&!B.kid?HBNV_TALK:[]),rr=srng(B.seed,n.length,n.charCodeAt(0),4504);B.dk[n]=hbPickN(rr,a,a.length)}return B.dk[n]};
+  const ix={};const take=n=>{const d=deck(n);if(!d.length)return'';ix[n]=(ix[n]||0);const per={desc:4,act:3,think:2,talk:3,open:1,hook:1}[n]||1;return d[((k-1)*per+ix[n]++)%d.length]};
+  const X=t=>hbCap(t.replace(/\{(\w+)\}/g,(m,key)=>{switch(key){case'She':return hbCap(c.she);case'Her':return hbCap(c.her);case'Obj':return hbCap(c.obj);case'place':return X(hbPick(r,G.place)).replace(/^./,ch=>ch.toLowerCase()).replace(/^the /,'the ');
+    case'day':return hbPick(r,HBNV_DAY);case'month':return hbPick(r,HBNV_MONTH);case'time':return hbPick(r,HBNV_TIME);case'smell':return hbPick(r,HBNV_SMELL);case'pet':return c.petN;case'hour':return hbPick(r,HBNV_SLOT.hour);case'fine':case'plan':case'trust':return X(hbPick(r,HBNV_SLOT[key])).replace(/^./,ch=>ch);default:return c[key]!==undefined?c[key]:m}}));
+  const who=(w,st)=>w==='P'?c.P:w==='A'?c.A:w==='V'?(st?hbCap(c.V):c.V):w==='AI'?c.ai:w==='PET'?c.petN:c.P;
+  const talk=()=>{const ex=take('talk');if(!ex)return[];return ex.map(([w,t,tag],i)=>{const q=X(t),n=who(w),end=/[?!]$/.test(q)?q:q.replace(/\.$/,',');
+    if(tag){const tg=X(tag);return`"${end}" ${n} ${tg.charAt(0).toLowerCase()+tg.slice(1)}.`}const m=r();if(B.kid)return`"${q}" said ${n}.`;
+    if(i>0&&m<.3)return`"${q}"`;if(m<.75)return`"${end}" ${n} ${/\?$/.test(q)?'asked':'said'}.`;return`${who(w,1)} ${hbPick(r,HBNV_TAGB)}. "${q}"`})};
+  const bt=G.beats[(k-1)%G.beats.length]||[],sw=k>G.beats.length,beatA=bt[sw?1:0]||'',beatB=bt[sw?0:1]||'';
+  const set=B.g==='scifi'?'scifi':B.g==='fantasy'?'fantasy':'modern';
+  const gD=hbPickN(r,HBNV_GEST,HBNV_GEST.length),sD=hbPickN(r,HBNV_SCENE[set][0],9),
+    gest=()=>`${r()<.5?'{P}':'{She}'} ${gD.shift()||'waited'}${hbPick(r,HBNV_GTAIL)}`,mem=()=>hbPick(r,HBNV_MEMF).replace('{m}',hbPick(r,HBNV_MEM)),
+    scene=()=>`${sD.shift()||'Someone'} ${hbPick(r,HBNV_SCENE[set][1])}.`,sense=()=>r()<.5?`The ${hbPick(r,HBNV_LIGHT[set])} ${hbPick(r,HBNV_LIGHTV)}.`:'The air smelled of {smell}.',pass=()=>hbPick(r,HBNV_PASS);
+  const P=[];const para=(...a)=>{const t=a.filter(Boolean).map(X).join(' ');if(t)P.push(t)};
+  const T=()=>{for(const l of talk())P.push(l)};
+  if(B.kid){para(take('open'),beatA);para(take('desc'),take('act'),take('desc'));T();para(take('act'),take('think'),beatB);para(take('desc'),take('act'));T();para(take('hook'))}
+  else{para(take('open'),take('desc'),take('desc'),sense());para(beatA,take('act'),gest(),take('desc'));T();para(take('think'),mem(),take('desc'));para(take('act'),scene(),gest());T();
+    para(beatB,take('act'),take('think'));T();para(pass(),take('act'),sense());para(take('hook'))}
+  return P;
+}
+const hbNvWords=P=>P.join(' ').split(/\s+/).length;
+const HBNV_AN=['Sorry this one took so long. Work has been crazy.','I rewrote this chapter five times. I think this is the one.','This is my favorite chapter so far.','Thank you to everyone who signed my guestbook about the last chapter!!',
+  'I know where this is going now. I think.','I wrote most of this on the bus.','I am not sure about the ending of this one. Be honest.','This chapter is short but a lot happens.','I stayed up until 2 AM finishing this.','No spoilers in the guestbook please!'];
+/* the book's own pages: novel.html (cover, blurb, table of contents) and chapterN.html */
+function hbNvCover(s,B){const by=B.pen?`${hbE(B.pen)}<br><font size="1">(that's me, ${hbE(s.F?s.F.first:s.p.first)})</font>`:hbE(s.p.first+' '+s.p.last);
+  return`<table border="4" cellpadding="18" bgcolor="${B.G.bg}" align="center" width="260" style="border-color:${B.G.fg}"><tr><td align="center"><font color="${B.G.fg}" face="Georgia,Times New Roman,serif">${hbImg(B.G.spr,{sc:3})}<br><br>
+    <font size="5"><b>${hbE(B.title)}</b></font><br><br><font size="2"><i>${B.kid?'a book':'a novel'} by</i><br>${by}</font></font></td></tr></table>`}
+function hbNvBlurb(B){const c=B.c,G=B.G,r=srng(B.seed,4505,0,0),X=t=>hbCap(t.replace(/\{(\w+)\}/g,(m,k)=>k==='She'?hbCap(c.she):c[k]!==undefined?c[k]:m));
+  if(B.kid)return`${X('{P} is just a regular kid. Then {P} finds {case}.')} ${X(c.pet?'With {pet}, ':'With ')}${X('{P} and {A} have to stop {V} before it is TOO LATE!!!')}`;
+  const intro=c.job?`${X('{P} {Pl} is '+c.job+(B.g==='scifi'?' aboard the {ship}.':B.g==='fantasy'?' in the village of {home}.':' in {city}.'))}`:'';
+  const mid={mystery:'Then comes {case}, and the only lead is {obj}.',romance:'Then comes {case}, and {V}.',scifi:'Then comes {case}.',fantasy:'Then comes {case}, and with it {obj}, and with it {V}.',horror:'The house on {street} was supposed to be a fresh start. Then came {case}.',
+    literary:'Called home for {case}, {P} finds a house full of things nobody can throw away.',thriller:'Then comes {case}, and twelve hours to stay alive.'}[B.g]||'';
+  const end=hbPick(r,{mystery:['Everyone in {city} is lying. One of them is a killer.','Some cases should stay closed.'],romance:['Some recipes take two.','Love was not on the menu.'],scifi:['Some signals should not be answered.','Forty years out, and something is still waiting.'],
+    fantasy:['Every legend starts somewhere. This one starts with a goat pen.','The road north is long, and something is waiting at the end of it.'],horror:['Some houses remember.','Do not go into the cellar.'],literary:['A novel about the things we keep.','Some homes you never really leave.'],thriller:['Trust no one. Not even yourself.','The clock is already running.']}[B.g]||['']);
+  return`${intro} ${X(mid)} <b>${X(end)}</b>`}
+function hbNvPage(s,F){const B=hbNvBook(s),L=F.L,v=s.v,r=hbR(s.p,4506);if(!B||L<B.b0)return null;
+  const posted=hbNvPosted(B,L),dr=hbNvDrafted(B,L,s),pct=Math.round(dr/B.N*100),last=posted.length,stalled=last&&L-posted[last-1]>(B.kid?120:300);
+  const note=hbSay(v,B.kid?'I am writing a book!!! Here is what I have so far.':B.type==='pro'?'This is the book I am working on now. My agent does not know I am posting chapters here, so shhh.':B.type==='arc'?'I am finally writing the novel I always said I would write. I am posting chapters as I go so I can\'t chicken out.':
+    hbPick(r,['I have been writing this book for a while now. Here are the first chapters. Please be nice.','Writing is my secret hobby. Well, not anymore, I guess.','This started as a short story and then it kept going.']),r);
+  const toc=posted.map((d,i)=>{const t=hbNvTitle(B,i+1);return`<li><a href="${hbUrl(s,`chapter${i+1}.html`)}">Chapter ${i+1}${t?': '+hbE(t):''}</a> <font size="1">(posted ${hbDate(d)}${L-d<14?' '+hbImg('newb',{sc:1}):''})</font>`}).join('');
+  const next=last<B.N?`<li>Chapter ${last+1}: <i>${stalled?hbSay(v,'coming soon!',r):hbSay(v,'coming soon! I promise.',r)}</i> ${hbImg('cons',{sc:1})}`:'';
+  return`<h2>${hbImg('book')} ${hbE(hbSay(v,B.kid?'My Book':'My Novel',r))}</h2>${hbNvCover(s,B)}
+  <p>${hbE(note)}</p><table border="1" cellpadding="8" width="90%" align="center"><tr><td><font size="2"><b>${hbE(B.G.nm)}.</b> ${hbNvBlurb(B)}</font></td></tr></table>
+  <p><b>Progress:</b> ${dr} of about ${B.N} chapters written${dr>=B.N?' (first draft DONE!!)':''}</p><table border="1" width="300" cellspacing="0"><tr><td bgcolor="#00a000" width="${Math.max(2,pct)}%">&nbsp;</td><td>${pct<100?'&nbsp;':''}</td></tr></table>
+  <h3>Table of Contents</h3>${posted.length?`<ol style="list-style:none;padding-left:8px">${toc}${next}</ol>`:`<p><i>${hbE(hbSay(v,'I will post Chapter 1 when it is ready. Soon!',r))}</i></p>`}
+  <p><font size="2">&copy; ${new Date(L*864e5).getUTCFullYear()} ${hbE(s.p.first)} ${hbE(s.p.last)}. ${B.kid?'Do not copy my book.':'Please don\'t steal my novel. Agents, my email is at the bottom.'}</font></p>`}
+function hbNvChapterPage(s,F,k){const B=hbNvBook(s),L=F.L,v=s.v;if(!B)return null;const posted=hbNvPosted(B,L);if(k<1||k>posted.length)return null;
+  const P=hbNvChapter(B,k),t=hbNvTitle(B,k),r=hbR(s.p,4507+k),body=P.map(x=>`<p>${hbE(B.kid?hbSay(v,x,r):x)}</p>`).join('\n');
+  const an=r()<.7?`<p><font size="2"><b>A/N:</b> ${hbE(hbSay(v,B.kid?hbPick(r,['I hope you like it!!!','Part 2 is coming soon!','My mom helped me spell some words.']):HBNV_AN[hash(B.seed,k)%HBNV_AN.length],r))}</font></p>`:'';
+  const nav=`<p align="center"><font size="2">${k>1?`<a href="${hbUrl(s,`chapter${k-1}.html`)}">&lt;&lt; Chapter ${k-1}</a> | `:''}<a href="${hbUrl(s,'novel.html')}">Table of Contents</a>${k<posted.length?` | <a href="${hbUrl(s,`chapter${k+1}.html`)}">Chapter ${k+1} &gt;&gt;</a>`:` | <i>Chapter ${k+1} coming soon!</i>`}</font></p>`;
+  return`<center><font size="2"><i>${hbE(B.title)}</i> by ${hbE(B.pen||s.p.first+' '+s.p.last)}</font></center>${nav}<h2 align="center">Chapter ${k}${t?`<br><font size="4">${hbE(t)}</font>`:''}</h2>
+  <p align="center"><font size="1">Posted ${hbDate(posted[k-1])} &middot; ${hbNvWords(P)} words</font></p><table width="100%" cellpadding="10"><tr><td style="max-width:640px;line-height:1.5">${body}</td></tr></table>
+  <p align="center">* * *</p>${an}<p><font size="2">${hbE(hbSay(v,'Tell me what you think in my guestbook!',r))}</font></p>${nav}`}
+
 /* ---------- assembling a page ---------- */
 const HBGBKEY='big-apple-sam/guestbooks';
 function hbGbLoad(){try{return JSON.parse(localStorage.getItem(HBGBKEY)||'{}')||{}}catch(e){return{}}}
@@ -3730,7 +4035,7 @@ function hbMidiBox(s){const nm=hbMidiName(s);return`<table border="2" cellpaddin
 function hbMidiName(s){if(s.kind==='positron')return'mylittlefriend.mid';const r=hbR(s.p,7);return hbPick(r,['theme','lovesong','sunset','canyon','mysong','groove','dreams','rain','party','nocturne','journey','oldtown'])+(r()<.5?(1+Math.floor(r()*9)):'')+'.mid'}
 
 const HBZINE='http://megazine.org/',HBBBS='https://samuelling.github.io/BBS/';
-function hbBuzz(s,F){if(s.kind==='construction'||s.kind==='positron'||s.kind==='gk'||!(s.zine||s.bbs))return'';const R=hbR(s.p,96),v=s.v,o=[];
+function hbBuzz(s,F){if(s.kind==='construction'||s.kind==='positron'||s.kind==='gk'||s.kind==='lab'||!(s.zine||s.bbs))return'';const R=hbR(s.p,96),v=s.v,o=[];
   const Z=`<a href="${HBZINE}">megaZINE</a>`,B=`<a href="${HBBBS}">the MEGAzine BBS</a>`;
   if(s.zine)o.push(hbPick(R,[`<b>Has anybody else seen ${Z}?</b> Somebody left a copy at the laundromat. It's one sheet of paper folded into a tiny book, and every page points to something weird.`,
     `Shout out to ${Z}! A new issue comes out every month. I am trying to get my page in it.`,`I found out about HomeBlocks from ${Z}. Thanks, whoever made it.`,
@@ -3748,6 +4053,8 @@ function hbGuestbook(s,F){
     else{const g=s.rings.find(q=>x.rings.includes(q));if(g)parts.push(`Found you through the ${g}!`);else parts.push(hbPick(rr,['Great page!','Cool site!','Nice page!','Just surfing by!','Love the graphics!','WOW what a page.']))}
     if(hash(x.id,s.id,4292)%100<4)parts.push(hbPick(rr,['Found your page through megaZINE!','Saw your page mentioned on the BBS!','Is your page going to be in the next megaZINE??']));
     else if(s.kind==='gk')parts.push(hbPick(rr,['Day Eleven made me laugh out loud!','I got GRACE on your quiz. Obviously.','I was stuck on Day 3 for a week too!','See you on the BBS, sysop!','Number 7 on your top ten is the best one.','Please write another story!']));
+    else if(s.kind==='lab'&&s.lab==='ling')parts.push(hbPick(rr,['I stared at your stripes for 10 minutes and now everything is stripes.','Are you looking for RAs?','The drifting grating trick WORKED on me!','Can I be in an experiment? I like snacks.','My contrast sensitivity hill is VERY normal, thank you.']));
+    else if(s.kind==='lab')parts.push(hbPick(rr,['My Stroop effect was 112 ms. Is that bad?','I could not stop reading the words. You were right.','R forever!','Love the hexagons.','Open science rules!']));
     else if(s.kind==='positron')parts.push(hbPick(rr,['POSITRON RULES!!!','Play Abercrombian Bitch at the next show!!','My Little Friend is stuck in my head. Thanks a lot.','When is the next show???','Saw you guys in Rochester, you were SO loud.','Tell Brody and Nate to show up more.']));
     else if(T('grief')&&d>=F.p.arcS)parts.push(hbPick(rr,['So sorry for your loss.','Thinking of you.','What a beautiful tribute.']));
     else if(F.pets.length&&rr()<.6)parts.push(`${F.pets[0].name} is SO cute!`);
@@ -3772,6 +4079,7 @@ function hbGbPage(s,F){const ents=hbGuestbook(s,F),th=s.th;
 function hbPage(s,file){
   const L=F0(),F=hbFacts(s,L);s.F=F;s.title=s.title||hbTitle(s,F);const th=s.th=s.th||hbTheme(s),v=s.v,r=hbR(s.p,40+file.length);
   if(s.kind==='gk'&&file==='index.html')return hbGK(s,F);
+  if(s.kind==='lab'){const x=hbLab(s,F,file);if(x)return x}
   if(s.kind==='construction')F.updated=F.created;
   const home=th.splash?'main.html':'index.html';if(th.splash&&file==='index.html')return hbSplash(s,F);if(th.splash&&file==='main.html')file='index.html';
   const mods=hbMods(s,F),nav=[[home,'Home']].concat(mods.map(m=>[m.f,m.nav(F)]),[['guestbook.html','Guestbook']],s.kind==='construction'?[]:[['links.html','Links']]);
@@ -3780,6 +4088,7 @@ function hbPage(s,file){
   else if(file==='guestbook.html')body=hbGbPage(s,F);
   else if(file==='links.html')body=`<center>${hbHead(th,hbSay(v,'Cool Links',r),r,5)}</center><ul>${hbLinks(s,F,hbR(s.p,41)).map(x=>`<li>${x}`).join('')}</ul>${s.rings.map(g=>hbRing(s,g)).join('<br>')}`;
   else if(mod)body=mod.page(s,F,r);
+  else if(/^chapter\d+\.html$/.test(file)&&mods.some(m=>m.k==='novel')){body=hbNvChapterPage(s,F,+file.match(/\d+/)[0]);if(!body)return null}
   else return null;
   const navH=nav.map(([f,t])=>(f===file||(f==='main.html'&&file==='index.html'))?`<b>${hbE(t)}</b>`:`<a href="${hbUrl(s,f)}">${hbE(t)}</a>`);
   const foot=`${file==='index.html'?hbBuzz(s,F):''}${hbHr(th,s)}<center><font size="2">${th.counter?`You are visitor number ${hbCounter(s,F)}<br>`:''}${th.mail?`${hbImg('mail',{sc:1})} <a href="mailto:${hbE((F.first+'_'+F.last).toLowerCase().replace(/[^a-z_]/g,''))}@homeblocks.com">Email me!</a><br>`:''}
@@ -3910,7 +4219,7 @@ const HBBIZ=[[/seamstress/,'Alterations by {F}','Hems, zippers, wedding dresses.
   [/travel agent/,'{F}\'s Travel Deals','Cruises, flights and getaways. Call me before you book!'],[/jazz pianist/,'Piano Lessons with {F}','All ages, all levels. 50 years of playing.'],[/architect/,'{L} Design Studio','Renovations, additions and dream houses.'],[/accountant|bookkeep/,'{L} Tax & Bookkeeping','Tax season is coming. Don\'t panic. Call me.']];
 const HBFANSHOW=['The {N} Files','Late Night at the {N}','{A} Heights','Captain {N}','The {N} Family','{A} Detectives'];
 function hbKind(s){
-  if(hbIsKev(s.p))return'positron';if(hbIsSam(s.p))return'gk';
+  if(hbIsKev(s.p))return'positron';if(hbIsSam(s.p))return'gk';if(hbLabOf(s.p)){s.lab=hbLabOf(s.p);return'lab'}
   const r=hbR(s.p,70),T=k=>s.ftags.has(k),v=s.v,p=s.p;if(v.kid)return r()<.25?'construction':'about';
   const hob=Object.keys(HBHOB).filter(k=>T(k));const biz=!p.kid&&HBBIZ.find(([re])=>re.test(p.foundJob!==undefined?p.foundJob:(p.job||'')));
   const w=[['about',3],['construction',v.young||T('messy')||T('restless')?.9:v.old?.2:.45],['links',.25],['fan',.3]];
@@ -3925,7 +4234,7 @@ function hbKindTitle(s,F){const r=hbR(s.p,73),p=s.p;
   switch(s.kind){case'hobby':return hbFill(hbPick(r,HBHOB[s.hob].t),s,F);case'family':return hbPick(r,[`The ${plural(p.last)} Home Page`,`The ${p.last} Family`,`Welcome to the ${p.last} House!`]);
     case'construction':return hbPick(r,[`${p.first}'s Page (UNDER CONSTRUCTION)`,'My First Web Page!!!',`${p.first}'s Home Page`,`Coming Soon: ${p.first}'s Page`]);
     case'diary':return hbPick(r,[`${p.first}'s Online Journal`,'Dear Diary...',`${p.first.toLowerCase()}'s notebook`,'Thoughts From Apartment '+(F?F.u.f+2+F.u.letter:'')]);
-    case'business':return hbFill(s.biz[1],s,F);case'fan':s.fan=s.fan||hbFanName(s);return`The Unofficial ${s.fan} Fan Page`;case'positron':return'POSITRON - Official Home Page';case'gk':return'The Gabriel Knight Home Page';case'links':return hbPick(r,[`${p.first}'s Hotlist`,`${p.first}'s Favorite Places on the Web`,'Cool Links!!!'])}
+    case'business':return hbFill(s.biz[1],s,F);case'fan':s.fan=s.fan||hbFanName(s);return`The Unofficial ${s.fan} Fan Page`;case'positron':return'POSITRON - Official Home Page';case'gk':return'The Gabriel Knight Home Page';case'lab':return HBLAB[s.lab].title;case'links':return hbPick(r,[`${p.first}'s Hotlist`,`${p.first}'s Favorite Places on the Web`,'Cool Links!!!'])}
   return null}
 function hbFanName(s){const r=hbR(s.p,74);return r()<.5?hbBand(r):hbPick(r,HBFANSHOW).replace('{N}',hbPick(r,HBNOUN)).replace('{A}',hbPick(r,HBADJ))}
 /* graphic headers: words drawn as an image, the way people made section titles in paint programs */
@@ -4648,7 +4957,7 @@ const HBGK_JS=String.raw`
    Sam (synths, Gabriel Knight, gardening; SysOp of the MEGAzine BBS), Emma, Emmy, Maya and Everett live in a
    family apartment in every city. They are placed after the city is built, so nobody else changes, and they
    stay put (no move-outs or life events). Only Sam has a HomeBlocks page. */
-const SAMFAM_LAST='Lindqvist';
+const SAMFAM_LAST='Ling';
 function samFamily(C){
   let best=null,bh=0;
   for(const u of C.units){if(u.kind!=='res'||u.mega||u.n<4||!u.rooms||!u.rooms.some(r=>r.type==='kids')||u.people.includes(C.kev))continue;
@@ -4658,7 +4967,7 @@ function samFamily(C){
   const ref=dayOf(2026,9,24),saveDay=GEN.day,saveBase=GEN.base;GEN.day=C.born;GEN.base=null;
   const mk=(arch,first,age,look,o={})=>{const p=mkPerson(C,u,arch,r,{last:SAMFAM_LAST});p.first=first;p.bd=ref-Math.round((age+.3)*YR);p.bday=doyOf(p.bd);
     p.age=Math.max(0,Math.floor(ageAt(p,C.born)));Object.assign(p,look,o);p.samFam=true;p.arc=null;p.dateG=null;return p};
-  const sam=mk('creative','Sam',46,{longHair:false,skirt:false},{job:'SysOp, MEGAzine BBS',workAct:'computer',traits:['musical','easygoing']});
+  const sam=mk('creative','Sam',46,{longHair:false,skirt:false},{job:'vision scientist (and SysOp, MEGAzine BBS)',workAct:'computer',traits:['musical','easygoing']});
   sam.likes=Object.assign(sam.likes||{},{synth:true,modular:true});sam.hobbies=['synth','synth','computer','water','water','read','tv'];sam.mbase=.4;
   mk('worker','Emma',45,{longHair:true},{job:'',traits:[]});
   mk('kid','Emmy',14,{longHair:true,skirt:false},{traits:[]});mk('kid','Maya',11,{longHair:true,skirt:false},{traits:[]});mk('kid','Everett',5,{longHair:false,skirt:false},{traits:[]});
@@ -4694,7 +5003,7 @@ HBMOD.unshift(
     <p>Someday: a dry stone wall. I have read three books about it.</p><p><a href="${hbUrl(s)}">Back to the Gabriel Knight page</a></p>`}});
 function hbGK(s,F){
   const bbs='https://samuelling.github.io/BBS/',g=hbUrl(s,'guestbook.html');
-  const body=HBGK_BODY.replace('{{TOP}}',`<p><b>Note:</b> I moved this page over from my old school account to HomeBlocks. I did not change a thing, except I finally have a <a href="${g}">guestbook</a>. Also see <a href="${hbUrl(s,'synths.html')}">my synths</a>, <a href="${hbUrl(s,'garden.html')}">my garden</a>, and <a href="${bbs}">the MEGAzine BBS</a>, where I am the SysOp.</p>`)
+  const body=HBGK_BODY.replace('{{TOP}}',`<p><b>Note:</b> I moved this page over from my old school account to HomeBlocks. I did not change a thing, except I finally have a <a href="${g}">guestbook</a>. Also see <a href="${hbUrl(s,'synths.html')}">my synths</a>, ${(o=>o?`my day job at <a href="${hbUrl(o)}">the Ling Lab</a>, `:'')(hbOtherSite(s))} <a href="${hbUrl(s,'garden.html')}">my garden</a>, and <a href="${bbs}">the MEGAzine BBS</a>, where I am the SysOp.</p>`)
     .replace('{{BBS}}',`<li><b>The MEGAzine BBS:</b> <a href="${bbs}">dial in</a> and ask the sysop (that's me) about the adventure game file area.</li>`)
     .replace('{{GUEST}}',`<p><b>Update:</b> HomeBlocks has guestbooks! <a href="${g}">Sign mine here.</a> I read every entry.</p>`)
     .replace('{{ADDR}}',`Page maintained by Sam, a fellow Schattenj&auml;ger and SysOp of <a href="${bbs}">the MEGAzine BBS</a><br><tt>schattenjaeger (at) homeblocks.com</tt><br>Last updated 31-Jan-1994`)
@@ -4703,6 +5012,155 @@ function hbGK(s,F){
   .ctr span{display:inline-block;background:#000;color:#20ff20;font:bold 14px "Courier New",monospace;padding:1px 3px;margin:0 1px}</style></head><body class="doc">${body}<script>${HBGK_JS}<\/script></body></html>`;
   return{title:'Gabriel Knight Home Page',html,s,file:'index.html'};
 }
+
+/* ---------- two real labs, as their PIs would have built them in 1998 ----------
+   Sam (of Sam's household: Emma, Emmy, Maya, Everett) runs the Ling Lab, visual neuroscience; it is his second
+   homestead, next to his Gabriel Knight page. Matt Crump runs the Computational Cognition Lab and lives with his
+   wife Jenn and their two cats. Like Sam's family, Matt's household is placed after the city is built, so nobody
+   else changes, and it stays put. Only Sam and Matt have homepages. */
+const HBLAB={
+  ling:{first:'Sam',last:'Ling',age:45,job:'professor of vision science',seed:4601,sub:'Lab',title:'The Ling Lab',real:'https://sites.bu.edu/vision/home/'},
+  crump:{first:'Matt',last:'Crump',age:48,job:'professor of cognitive psychology',seed:4602,sub:'Orbiter',title:'crumplab: The Computational Cognition Lab',real:'https://crumplab.com/'}};
+function labFolks(C){
+  const ref=dayOf(2026,9,24),saveDay=GEN.day,saveBase=GEN.base;GEN.day=C.born;GEN.base=null;
+  C.ling=C.sam||null;
+  const L=HBLAB.crump;let best=null,bh=0;
+  for(const u of C.units){if(u.kind!=='res'||u.mega||u===C.samUnit||(C.kev&&u.people.includes(C.kev))||!u.rooms||u.n<2||u.n>3)continue;const h=hash(u.id,C.seed,L.seed);if(!best||h<bh){best=u;bh=h}}
+  if(best){const u=best,r=mulberry32(hash(C.seed,L.seed,u.id));
+    C.people=C.people.filter(p=>!u.people.includes(p));u.people=[];u.pets=[];
+    const mk=(first,age,o)=>{const p=mkPerson(C,u,'worker',r,{last:L.last});p.first=first;p.bd=ref-Math.round((age+.4)*YR);p.bday=doyOf(p.bd);p.age=Math.max(0,Math.floor(ageAt(p,C.born)));Object.assign(p,{arc:null,dateG:null},o);return p};
+    const p=mk('Matt',48,{job:L.job,workAct:'computer',lab:'crump',traits:['curious','musical'],longHair:false,skirt:false});mk('Jenn',47,{job:'',traits:[],longHair:true,labFam:true});
+    Object.assign(u,{vacant:false,mates:false,rel:'steady',relSince:ref-Math.round(20*YR),baby:false,due:undefined,babyName:undefined,fam:L.last,rw:{},evc:null,cast:null,guests:null,lab:'crump'});
+    fitHousehold(u);
+    for(const[name,col]of[['Professor','#8a8a8a'],['Mochi','#2a2a2a']])u.pets.push({kind:'cat',name,col,x:6+Math.floor(r()*(u.n*CW-12)),tx:0,state:'sit',until:0,face:1,yo:0});
+    delete u.eras;u.era=null;u.hist=[[ref-Math.round(7*YR),`The ${plural(L.last)} moved in.`]];C.crump=p;for(const q of u.people){q.found=null;hbFoundAt(q,u,C.born)}}
+  GEN.day=saveDay;GEN.base=saveBase;
+}
+const hbLabOf=p=>p&&p.lab&&typeof city!=='undefined'&&city&&city[p.lab]===p?p.lab:null;
+/* the person's other homestead, if they have two (Sam) */
+const hbOtherSite=s=>{const I=hbIndex();return I.list.find(x=>x.p===s.p&&x!==s)||null};
+const HBLAB_LING_PUBS=[['Park, M. & Ling, S.',2026,'Audiovisual interactions modulate visuocortical gain','Communications Biology'],['Vinke, L., Ling, S., & Bloem, I.M.',2026,'Model-based estimation of the population contrast response function in human visual cortex','Journal of Vision'],
+  ['Ling, S., Brascamp, J. & Tong, F.',2026,'On Randolph Blake','Journal of Vision'],['Cicero, N., Klimova, M., Vinke, L., Ling, S. & Lewis, L.D.',2026,'Cortex-specific inversion of visual responses during sleep','Nature Communications'],
+  ['Ramirez, L.D., Wang, F., Wiecek, E., Vinke, L. & Ling, S.',2026,'The population spatial frequency toolbox','Journal of Open Research Software'],['Wiecek, E., Ramirez, L.D., Klimova, M. & Ling, S.',2026,'Spatial frequency tuning follows scale invariance in the human visual cortex','Journal of Neuroscience'],
+  ['Ramirez, L.D., Wang, F. & Ling, S.',2025,'Attention alters population spatial frequency tuning','Journal of Neuroscience'],['Pan, J., Vinke, L.N., McGuire, J.T. & Ling, S.',2025,'Heterogenous effects of cognitive arousal on the contrast response in human visual cortex','Journal of Neuroscience'],
+  ['Bloem, I.B., Bakst, L., McGuire, J.T. & Ling, S.',2025,'Dynamic estimation of the attentional field from visual cortical activity','eLife'],['Klímová, M., Bloem, I.M. & Ling, S.',2025,'How does orientation-tuned normalization spread across the visual field?','Journal of Neurophysiology'],
+  ['Pan, J., Sun, X., Park, E., Kaufmann, M., Klimova, M., McGuire, J.T. & Ling, S.',2024,'The effects of emotional arousal on pupil size depend on luminance','Scientific Reports'],['Geurts, L.S., Ling, S. & Jehee, J.F.M.',2024,'Pupil-linked arousal modulates precision of stimulus representation in cortex','Journal of Neuroscience'],
+  ['Cicero, N.G., Klimova, M., Lewis, L.D. & Ling, S.',2024,'Differential cortical and subcortical visual processing with eyes shut','Journal of Neurophysiology'],['Klímová, M., Bloem, I.M. & Ling, S.',2023,'Attention preserves the selectivity of feature-tuned normalization','Journal of Neurophysiology'],
+  ['Carrasco, M., Ling, S. & Read, S.',2004,'Attention alters appearance','Nature Neuroscience']];
+const HBLAB_CRUMP_PUBS=[['Jamieson, R. K., & Crump, M. J. C.',2025,'An instance theory of associative inference','American Journal of Psychology (accepted)'],['Johns, B. T., Jamieson, R. K., Crump, M. J. C., & Jones, M. N.',2024,'Instance memory models as a general computational framework for exploring language processing: Bringing the lexicon to life','Linguistics Vanguard (forthcoming)'],
+  ['Behmer, L. P., Crump, M. J. C., & Jantzen, K. J.',2023,'Motor-evoked potentials for early individual elements of an action sequence during planning reflect parallel activation processes','Motor Control'],['Crump, M. J. C.',2021,'Instances of Cognition: Questions, Methods, Findings, Explanations, Applications, and Implications','Open textbook'],
+  ['Piech, R. M., Crump, M. J. C., & Zald, D. H.',2021,'The negative contingency illusion: A cognitive bias leading to misjudgement of protection',''],['Brosowsky, N. P., & Crump, M. J. C.',2021,'Contextual recruitment of selective attention can be updated via changes in task relevance','Canadian Journal of Experimental Psychology'],
+  ['Vuorre, M., & Crump, M. J. C.',2021,'Sharing and organizing research products as R packages','Behavior Research Methods'],['Crump, M. J. C., Jamieson, R. K., Johns, B. T., & Jones, M. N.',2020,'Controlling the retrieval of general vs specific semantic knowledge in the instance theory of semantic memory','Proceedings of the Cognitive Science Society'],
+  ['Johns, B. T., Jamieson, R. K., Crump, M. J. C., Jones, M. N., & Mewhort, D. J. K.',2020,'Production without rules: Using an instance memory model to exploit structure in natural language','Journal of Memory and Language'],['Aujla, H., Crump, M. J. C., Cook, M. T., & Jamieson, R. K.',2019,'The Semantic Librarian: A search engine built from vector-space models of semantics','Behavior Research Methods'],
+  ['Braem, S., Bugg, J. M., Schmidt, J. R., Crump, M. J. C., Weissman, D. H., Notebaert, W., & Egner, T.',2019,'Measuring adaptive control in conflict tasks','Trends in Cognitive Sciences'],['Crump, M., Navarro, D., & Suzuki, J.',2019,'Answering Questions with Data: Introductory statistics for psychology students','Open textbook'],
+  ['Crump, M. J. C., Gong, Z., & Milliken, B.',2006,'The context-specific proportion congruent Stroop effect: Location as a contextual cue','Psychonomic Bulletin & Review']];
+const HBLAB_LING_PEOPLE=[['Sam Ling','Principal Investigator (the guy who made this page)'],['Emily Wiecek','Research Affiliate'],['Minsun Park','Postdoc'],['Sanga Cho','Doctoral Student'],['Feiyi Wang','Doctoral Student'],['Chenanke Sun','Doctoral Student'],
+  ['Chi Kien Dang','Undergrad RA'],['Julia Gendin','Undergrad RA'],['Ally Serbaroli','Undergrad RA'],['Khushi Patel','Undergrad RA'],['Edla Saint Rose','Undergrad RA'],['Sally Zhang','Undergrad RA'],['Betty','Lab member (no title, all vibes)']];
+const HBLAB_LING_ALUM=[['Luis Ramirez','Postdoc @ UC San Diego'],['Jasmine Pan','Associate Editor @ Nature Communications Biology'],['Michaela Klimova','Postdoc @ Northeastern'],['Louis Vinke','Instructor in Investigation @ Harvard Medical School'],
+  ['Ilona Bloem','Postdoc @ Spinoza Institute'],['Sara Aghajari','Postdoc @ New England College of Optometry'],['Dongho Kim','Senior Imaging Researcher @ Sungkyunkwan University'],['Joshua Foster','Data Scientist @ Woolworths Group']];
+const HBLAB_CRUMP_ALUM={Postdoc:['Lawrence Behmer'],Doctoral:['Drew Shives','Nicholaus Brosowsky','Kevonte Mitchell'],"Master's":['Ashot Balayan','Michelle Villavicencio'],
+  Undergraduate:['Hao Zhu','Shifa Maqsood','Chantal Miller','Cobe Liu','Wesley Huang','Patrick Ihejirika','Kendra Scarlett Reynoso Moreno','Austin Kaplan','Mark Rayev','Walter Lai','Rochelle Hall','Chin Tan','Marissa Scotto','Niles Uy','Ana Sanchez','Shawn Lauzon','Rebecca Colon','Elena Dominguez','Michael Blecher','Emily Paolillo','Esthena Brutten']};
+function hbLabPubs(list,me){return list.map(([a,y,t,j])=>`<li><font size="2">${hbE(a).replace(new RegExp(me.replace(/[.]/g,'\\.'),'g'),`<b>${me}</b>`)} (${y}). ${hbE(t)}. ${j?`<i>${hbE(j)}</i>.`:''} ${y>=2026?hbImg('newb',{sc:1}):''}</font>`).join('')}
+/* the shared shell: a lab-specific look, nav, and the usual HomeBlocks footer */
+function hbLabDoc(s,F,file,title,body){const k=s.lab,L=HBLAB[k],ling=k==='ling';
+  const nav=(ling?[['index.html','Home'],['research.html','Research'],['people.html','People'],['pubs.html','Publications'],['tryit.html','Try It Yourself!'],['join.html','Join the Lab'],['guestbook.html','Guestbook']]
+    :[['index.html','Home'],['research.html','Research'],['people.html','People'],['pubs.html','Pubs'],['stroop.html','Stroop Test!'],['software.html','Software'],['join.html','Join'],['guestbook.html','Guestbook']])
+    .map(([f,t])=>f===file?`<b>${t}</b>`:`<a href="${hbUrl(s,f)}">${t}</a>`).join(ling?' | ':' &middot; ');
+  const css=ling?`body{background:#808080 url(${hbLabTile('ling')});color:#000;font:14px "Times New Roman",serif;margin:0}a{color:#0000cc}a:visited{color:#660099}.pan{background:#fff;border:3px ridge #c0c0c0}
+    h1{font:bold 30px "Arial Black",Arial;color:#000080;margin:6px 0}.gab{display:inline-block;width:64px;height:64px;border-radius:50%;vertical-align:middle;background:repeating-linear-gradient(90deg,#222 0,#ddd 8px,#222 16px);
+    -webkit-mask-image:radial-gradient(circle,#000 25%,transparent 70%);mask-image:radial-gradient(circle,#000 25%,transparent 70%);animation:drift 1s linear infinite}.gab.b{transform:rotate(45deg);animation-duration:1.6s}
+    @keyframes drift{to{background-position:16px 0}}marquee{font:bold 13px Arial;color:#ffff00;background:#000080;padding:2px}`
+    :`body{background:#e8eef0 url(${hbLabTile('crump')});color:#111;font:14px Verdana,Arial,sans-serif;margin:0}a{color:#006060}.pan{background:#fffff4;border:2px solid #208080}
+    .term{background:#000;color:#40ff40;font:bold 15px "Courier New",monospace;padding:8px 12px;text-align:left;border:3px inset #888}.cur{animation:bl 1s steps(1) infinite}@keyframes bl{50%{visibility:hidden}}
+    h1{font:bold 26px Georgia,serif;color:#104040;margin:6px 0}`;
+  const foot=`<hr><center><font size="2">You are visitor number ${hbCounter(s,F)}<br>${hbSendLink(s,file)}This page was last updated on ${hbDate(F.updated)}.<br>
+    ${ling?'Best viewed with both eyes open.':'Made with Notepad, R, and love. Best viewed at 800x600.'}<br>
+    ${(o=>o?`${hbE(L.first)}'s other homepage: <a href="${hbUrl(o)}">${hbE(hbTitleOf(o))}</a><br>`:'')(hbOtherSite(s))}<a href="${L.real}">The real ${ling?'Ling Lab':'crumplab'}</a> &middot; ${hbE(L.first)} also co-edits <a href="https://megazine.org/">megaZINE</a><br>
+    <a href="${HBROOT}">&#9668; Back to HomeBlocks</a> | <a href="${HBROOT}${s.nb.id}/">${hbE(s.nb.nm)} Neighborhood</a>${hbAptLink(s)}</font></center>`;
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>${hbE(title)}</title><style>${css}img.spr{image-rendering:pixelated;vertical-align:middle}td{font-size:inherit}</style></head><body>
+  <table width="100%" cellpadding="10"><tr><td align="center"><table class="pan" width="720" cellpadding="14"><tr><td>
+  <p align="center"><font size="2">[ ${nav} ]</font></p>${body}${foot}</td></tr></table></td></tr></table></body></html>`;
+  return{title,html,s,file}}
+const HBLAB_TILE={};
+function hbLabTile(k){if(HBLAB_TILE[k])return HBLAB_TILE[k];let u='';try{const c=document.createElement('canvas');c.width=c.height=k==='ling'?64:56;const x=c.getContext('2d');
+  if(k==='ling'){x.fillStyle='#808080';x.fillRect(0,0,64,64);for(const[cx,cy,th]of[[16,16,0],[48,48,Math.PI/3]])for(let yy=-14;yy<=14;yy++)for(let xx=-14;xx<=14;xx++){const d=Math.exp(-(xx*xx+yy*yy)/60),v=Math.cos((xx*Math.cos(th)+yy*Math.sin(th))*.8)*d*.25;
+      const g=Math.round(128+127*v);x.fillStyle=`rgb(${g},${g},${g})`;x.fillRect(cx+xx,cy+yy,1,1)}}
+  else{x.fillStyle='#e8eef0';x.fillRect(0,0,56,56);x.strokeStyle='#c8dcdc';x.lineWidth=2;const hx=(cx,cy,r)=>{x.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i+Math.PI/6;x[i?'lineTo':'moveTo'](cx+r*Math.cos(a),cy+r*Math.sin(a))}x.closePath();x.stroke()};hx(14,14,12);hx(42,42,12)}
+  u=c.toDataURL()}catch(e){}return HBLAB_TILE[k]=u}
+/* ---------- the Ling Lab ---------- */
+function hbLabLing(s,F,file){const r=hbR(s.p,4610),P=(t,b)=>hbLabDoc(s,F,file,t,b);
+  const head=`<center><span class="gab"></span> <h1 style="display:inline-block">THE LING LAB</h1> <span class="gab b"></span><br><font face="Arial" size="3"><b>Visual Neuroscience</b></font><br>
+    <marquee scrollamount="4">*** Welcome to the Ling Lab! *** Psychophysics *** Computational Modeling *** TMS *** fMRI *** Now with ${HBLAB_LING_PUBS.filter(x=>x[1]>=2026).length} new papers this year! ***</marquee></center>`;
+  if(file==='index.html')return P('The Ling Lab - Visual Neuroscience',`${head}
+    <p>${hbImg('book')} Your eye is <b>not</b> a camera. A camera just records the light that lands on it. When light lands on <i>your</i> retina, that is only the beginning: your brain does a huge amount of work before you see anything at all.</p>
+    <p>We study the moment where <b>sensation becomes perception</b>. The world throws far more at your eyes than your brain could ever handle, a buzzing confusion of edges and colors and motion, and somehow it gets boiled down to something you can use. How does the brain decide what to keep? What does attention do to what you see? Why does a stripe look like a stripe?</p>
+    <h3>How we find out</h3><table cellpadding="4"><tr><td>${hbImg('atom',{sc:2})}</td><td><b>Psychophysics.</b> People sit in a dark room and tell us what they see. Mostly stripes. We love stripes.</td></tr>
+    <tr><td>${hbImg('computer',{sc:2})}</td><td><b>Computational modeling.</b> Math that predicts what neurons will do. Ask us about normalization. Actually, don't, we will never stop talking.</td></tr>
+    <tr><td>${hbImg('flame',{sc:2})}</td><td><b>TMS.</b> A strong magnet held near your head for a moment. It's fine. It's totally fine.</td></tr>
+    <tr><td>${hbImg('moon',{sc:2})}</td><td><b>fMRI.</b> A much bigger magnet, all around your head, and very loud. Bring a book. (You can't bring a book.)</td></tr></table>
+    <h3>${hbImg('newb')} Lab News</h3><ul>${HBLAB_LING_PUBS.slice(0,4).map(([a,y,t,j])=>`<li><font size="2">New paper in <i>${hbE(j)}</i>: "${hbE(t)}"</font>`).join('')}</ul>
+    <p align="center">${hbImg('cons')}<br><font size="2">This page is always under construction, like the visual system.</font></p>
+    <p align="center"><font size="2">Psychological &amp; Brain Sciences &middot; Boston University &middot; <a href="mailto:samling@homeblocks.com">E-mail Sam</a></font></p>`);
+  if(file==='research.html')return P('Research - The Ling Lab',`${head}<h2>What We Work On</h2>
+    <p><b>Spatial frequency.</b> Your visual system splits the world into fine detail and coarse blobs, like an equalizer splits music into treble and bass. We measure how whole populations of neurons are tuned to these "frequencies," and how that tuning changes when you pay attention.</p>
+    <p><b>Normalization.</b> Neurons keep each other in check: each one's response gets divided by the activity of its neighbors. It's the brain's automatic volume knob, and we think it's everywhere. We map how far it spreads across the visual field.</p>
+    <p><b>Attention.</b> Paying attention to something changes how it looks. Not just how well you see it: how it actually <i>looks</i>. (We showed this back in 2004, and we're still at it.)</p>
+    <p><b>Arousal and the pupil.</b> When you're keyed up, your pupils change and so does your visual cortex. We want to know how those fit together.</p>
+    <p><b>Sleep.</b> What does the visual cortex do with light when you're asleep? Surprising things.</p>
+    <p><b>Contrast.</b> How the response of visual cortex grows as contrast goes up, and how to estimate that curve straight from fMRI.</p><p>Want to see some of this for yourself? <a href="${hbUrl(s,'tryit.html')}">Try It Yourself!</a></p>`);
+  if(file==='people.html')return P('People - The Ling Lab',`${head}<h2>Lab Members</h2><table border="1" cellpadding="5" cellspacing="0" width="100%">${HBLAB_LING_PEOPLE.map(([n,t],i)=>`<tr><td width="34">${hbImg(i?hbPick(r,['star','book','atom','computer','coffee','owl']):'trophy')}</td><td><b>${hbE(n)}</b></td><td><font size="2">${hbE(t)}</font></td></tr>`).join('')}</table>
+    <h2>Lab Alumni</h2><p><font size="2">Where are they now? Doing great, mostly.</font></p><ul>${HBLAB_LING_ALUM.map(([n,t])=>`<li><b>${hbE(n)}</b>: ${hbE(t)}`).join('')}</ul>`);
+  if(file==='pubs.html')return P('Publications - The Ling Lab',`${head}<h2>Publications</h2><p><font size="2">About 53 papers since 2004. Here are the newest, and the very first. PDFs coming soon. ${hbImg('cons',{sc:1})}</font></p><ol reversed>${hbLabPubs(HBLAB_LING_PUBS.slice(0,-1),'Ling, S.')}</ol><h3>The Oldie but Goodie</h3><ul>${hbLabPubs(HBLAB_LING_PUBS.slice(-1),'Ling, S.')}</ul>`);
+  if(file==='tryit.html')return P('Try It Yourself! - The Ling Lab',`${head}<h2>Try It Yourself!</h2>
+    <h3>1. Your contrast sensitivity, on one picture</h3><p>Stripes get finer from left to right, and fainter from bottom to top. Look at where the stripes seem to fade into gray: that curve, a hill in the middle, is <b>your</b> contrast sensitivity function. Everybody's hill is in about the same place, because it is your visual system, not the picture.</p>
+    <center><canvas id="csf" width="560" height="300" style="border:2px inset #ccc;image-rendering:auto"></canvas></center>
+    <h3>2. The drifting grating</h3><p>Stare at the center of the left one for 30 seconds, then look at the right one, which is not moving. Does it look like it's drifting the other way? That's adaptation: the neurons that like leftward motion got tired.</p>
+    <center><span class="gab" style="width:120px;height:120px;animation-duration:.8s"></span> &nbsp; &nbsp; &nbsp; <span class="gab" style="width:120px;height:120px;animation:none"></span></center>
+    <h3>3. Gray dots that aren't there</h3>${hbPic(hbPhoto('hermann',s.id),'look between the squares',220)}
+    <script>(function(){var c=document.getElementById('csf'),x=c.getContext('2d'),W=c.width,H=c.height,im=x.createImageData(W,H),k=Math.log(60)/W,f0=.004;for(var j=0;j<H;j++){var con=Math.pow(10,-2.6*(1-j/H));for(var i=0;i<W;i++){var ph=2*Math.PI*f0*(Math.exp(k*i)-1)/k,v=128+127*con*Math.sin(ph),q=4*(j*W+i);im.data[q]=im.data[q+1]=im.data[q+2]=v;im.data[q+3]=255}}x.putImageData(im,0,0)})();<\/script>`);
+  if(file==='join.html')return P('Join the Lab - The Ling Lab',`${head}<h2>Join the Lab!</h2><p>${hbImg('star')} We are always looking for curious people who like stripes, magnets, and staring at a dot for a long time.</p>
+    <ul><li><b>Undergrads:</b> come be an RA! You will learn to run experiments, and you will learn that the scanner is very loud.</li><li><b>Grad students:</b> apply through Psychological &amp; Brain Sciences at Boston University.</li><li><b>Postdocs:</b> e-mail Sam with your CV and what you want to work on.</li></ul>
+    <p>${hbImg('mail')} <a href="mailto:samling@homeblocks.com">samling@homeblocks.com</a></p><p><font size="2">We also need people for experiments. You sit in a dark room and look at stripes. There are snacks.</font></p>`);
+  return null}
+/* ---------- crumplab ---------- */
+function hbLabCrump(s,F,file){const P=(t,b)=>hbLabDoc(s,F,file,t,b);
+  const head=`<div class="term">&gt; library(crumplab)<br>&gt; lab()<br>[1] "Computational Cognition Lab"<br>[2] "Brooklyn College of CUNY"<br>&gt; <span class="cur">_</span></div><center><h1>crumplab</h1><font size="2"><i>Matt Crump &middot; Department of Psychology, Brooklyn College &middot; Cognitive and Comparative Psychology, CUNY Graduate Center</i></font></center>`;
+  const hex=['computational modeling','natural language processing','reproducible research','big data & online methods','statistics, R & open source','learning, memory, attention & performance'];
+  const hexSvg=`<svg width="430" height="300" viewBox="0 0 430 300" style="font:bold 10px Verdana">${hex.map((t,i)=>{const a=Math.PI/3*i-Math.PI/2,cx=215+120*Math.cos(a),cy=150+105*Math.sin(a),pts=[0,1,2,3,4,5].map(k=>{const b=Math.PI/3*k+Math.PI/6;return(cx+46*Math.cos(b)).toFixed(1)+','+(cy+46*Math.sin(b)).toFixed(1)}).join(' ');
+    const w=t.split(' '),ln=[];let cur='';for(const x of w){if((cur+' '+x).trim().length>13){ln.push(cur.trim());cur=x}else cur+=' '+x}ln.push(cur.trim());
+    return`<polygon points="${pts}" fill="${['#2a8a8a','#e0a020','#8a4ab0','#d04040','#3070c0','#40a050'][i]}" stroke="#103030" stroke-width="3"/>${ln.map((l,j)=>`<text x="${cx.toFixed(1)}" y="${(cy-6*(ln.length-1)+12*j+3).toFixed(1)}" text-anchor="middle" fill="#fff">${hbE(l)}</text>`).join('')}`}).join('')}
+    <polygon points="${[0,1,2,3,4,5].map(k=>{const b=Math.PI/3*k+Math.PI/6;return(215+40*Math.cos(b)).toFixed(1)+','+(150+40*Math.sin(b)).toFixed(1)}).join(' ')}" fill="#000" stroke="#40ff40" stroke-width="2"/><text x="215" y="148" text-anchor="middle" fill="#40ff40">crump</text><text x="215" y="161" text-anchor="middle" fill="#40ff40">lab</text></svg>`;
+  if(file==='index.html')return P('crumplab - Computational Cognition Lab',`${head}
+    <p>${hbImg('computer')} Welcome to the <b>Computational Cognition Lab</b>! We study <b>learning, memory, attention, performance, and semantic cognition</b>: how practice turns into skill, how memory turns into knowledge, and how attention decides what gets in.</p>
+    <center>${hexSvg}<br><font size="1">(Our research, in hexagons. Every lab needs hexagons.)</font></center>
+    <h3>${hbImg('newb')} Recent work</h3><ul>${HBLAB_CRUMP_PUBS.slice(0,5).map(([a,y,t])=>`<li><font size="2">${hbE(t)} (${y})</font>`).join('')}</ul>
+    <p><b>New here?</b> <a href="${hbUrl(s,'stroop.html')}">Take the Stroop Test!</a> It takes one minute and you'll find out your brain can't stop reading.</p>`);
+  if(file==='research.html')return P('Research - crumplab',`${head}<h2>Research</h2>
+    <p><b>Instance theory.</b> Every experience leaves its own trace in memory. When something new comes along, every trace answers back at once, and what you "remember" is the echo of all of them together. We build computer models of memory that work this way, and test how far the idea goes: learning, attention, skill, even word meanings.</p>
+    <p><b>Language as memory.</b> Can a model that just remembers sentences, with no grammar rules, produce language? Ours does better than you'd think.</p>
+    <p><b>Attention and control.</b> The Stroop effect, task switching, and how the context you're in quietly tunes your attention before you know it.</p>
+    <p><b>Skilled performance.</b> How do expert typists type? Fast, and the fingers know things the typist doesn't.</p>
+    <p><b>Reproducible research.</b> We share everything: code, data, analysis scripts, whole papers as R packages. Science should come with the recipe.</p>
+    <p><b>Big data and online methods.</b> Experiments in the web browser, with lots of people, and big piles of text.</p>`);
+  if(file==='people.html')return P('People - crumplab',`${head}<h2>People</h2><table border="1" cellpadding="6" cellspacing="0"><tr><td>${hbImg('trophy',{sc:2})}</td><td><b>Matthew (Matt) Crump</b><br><font size="2">Principal Investigator. Professor, Department of Psychology, Brooklyn College of CUNY.</font></td></tr></table>
+    <p>The lab runs with student research assistants, from undergraduates to doctoral students.</p><h3>Former lab members</h3>${Object.entries(HBLAB_CRUMP_ALUM).map(([g,ns])=>`<p><b>${g}:</b> <font size="2">${ns.map(hbE).join(', ')}</font></p>`).join('')}`);
+  if(file==='pubs.html')return P('Publications - crumplab',`${head}<h2>Pubs</h2><p><font size="2">About 56 of them since 2006: articles, books, chapters. Here are the newest, and the first. Most are open access, because of course they are.</font></p><ol reversed>${hbLabPubs(HBLAB_CRUMP_PUBS.slice(0,-1),'Crump, M.')}</ol><h3>Where it started</h3><ul>${hbLabPubs(HBLAB_CRUMP_PUBS.slice(-1),'Crump, M.')}</ul>`);
+  if(file==='software.html')return P('Software - crumplab',`${head}<h2>Software</h2><p>${hbImg('disc')} Free! Open source! Made in R!</p><table border="1" cellpadding="6" cellspacing="0">
+    <tr><td><b>RsemanticLibrarian</b></td><td><font size="2">Search and explore word meanings with vector-space models of semantics.</font></td></tr><tr><td><b>vertical</b></td><td><font size="2">A whole research project, from data to paper to slides, kept together in one R package.</font></td></tr>
+    <tr><td><b>jspsychr</b></td><td><font size="2">Build web-browser experiments with jsPsych from inside R.</font></td></tr></table><p>Get them all on <a href="https://github.com/CrumpLab">GitHub</a>.</p>`);
+  if(file==='join.html')return P('Join - crumplab',`${head}<h2>Join the Lab</h2><p>Matt is serving a three-year term as Department Chair (2024&ndash;2027), so there are only a few research spots for now. If you're a Brooklyn College student who likes memory, attention, coding or R, send an e-mail anyway. ${hbImg('mail')} <a href="mailto:mattcrump@homeblocks.com">mattcrump@homeblocks.com</a></p>`);
+  if(file==='stroop.html')return P('The Stroop Test! - crumplab',`${head}<h2>The Stroop Test!</h2><p>Click the button for the <b>ink color</b> of each word. Ignore what the word says. (You won't be able to.) 24 words. Go as fast as you can.</p>
+    <center><div id="st" style="font:bold 48px Arial;height:70px;line-height:70px;background:#fff;border:2px inset #ccc;width:300px">Ready?</div><br>
+    <span id="bt"><button data-c="RED">RED</button> <button data-c="GREEN">GREEN</button> <button data-c="BLUE">BLUE</button> <button data-c="YELLOW">YELLOW</button></span><br><br><button id="go">Start</button><p id="res"></p></center>
+    <p><font size="2">This is the classic effect from 1935, and still one of the most studied tasks in cognitive psychology. Matt's first paper was about it. ${hbImg('book',{sc:1})}</font></p>
+    <script>(function(){var C={RED:'#e00000',GREEN:'#00a000',BLUE:'#0000e0',YELLOW:'#c8b400'},K=Object.keys(C),tr=[],i=-1,t0=0,st=document.getElementById('st'),res=document.getElementById('res');
+      function next(){i++;if(i>=tr.length){var m=function(c){var a=tr.filter(function(t){return t.cong===c&&t.ok}).map(function(t){return t.rt});return a.length?a.reduce(function(x,y){return x+y},0)/a.length:0},a=m(true),b=m(false),ok=tr.filter(function(t){return t.ok}).length;
+        st.textContent='Done!';st.style.color='#000';res.innerHTML='Same color: <b>'+Math.round(a)+' ms</b> &middot; Different color: <b>'+Math.round(b)+' ms</b><br>Your Stroop effect: <b>'+Math.round(b-a)+' ms</b> ('+ok+'/24 right)<br><font size=2>Sign the guestbook with your score!</font>';return}
+        var t=tr[i];st.textContent=t.w;st.style.color=C[t.c];t0=performance.now()}
+      document.getElementById('go').onclick=function(){tr=[];for(var n=0;n<24;n++){var w=K[Math.floor(Math.random()*4)],cong=n%2===0,c=cong?w:K.filter(function(k){return k!==w})[Math.floor(Math.random()*3)];tr.push({w:w,c:c,cong:cong})}tr.sort(function(){return Math.random()-.5});i=-1;res.innerHTML='';next()};
+      document.getElementById('bt').onclick=function(e){var b=e.target.closest('button');if(!b||i<0||i>=tr.length)return;var t=tr[i];t.rt=performance.now()-t0;t.ok=b.getAttribute('data-c')===t.c;next()}})();<\/script>`);
+  return null}
+function hbLab(s,F,file){if(file==='guestbook.html')return null;s.lab=s.lab||hbLabOf(s.p);return s.lab==='ling'?hbLabLing(s,F,file):s.lab==='crump'?hbLabCrump(s,F,file):null}
 
 /* ---------- the HomeBlocks portal, directories, search and errors ---------- */
 const HBAPP='https://samuelling.github.io/Big-Apple-Sam/';
@@ -4852,7 +5310,7 @@ function hbHook(){
   doc.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented)return;const h=a.getAttribute('href');e.preventDefault();if(h.startsWith('#')){hbJump(doc,h);return}
     if(h==='midi:play'){if(HB.cur&&HB.cur.res.s)hbMidiPlay(HB.cur.res.s);return}if(h==='midi:stop'){hbMidiStop();return}
     if(h.startsWith('share:')){hbShareDo(h.slice(6),doc);return}
-    if(/^https?:\/\/(www\.)?(megazine\.org|samuelling\.github\.io)\//i.test(h)){window.open(h.replace(/^http:/,'https:'),'_blank','noopener');return}hbGo(h)});
+    if(/^https?:\/\/(www\.)?(megazine\.org|samuelling\.github\.io|sites\.bu\.edu|crumplab\.com|github\.com)\//i.test(h)){window.open(h.replace(/^http:/,'https:'),'_blank','noopener');return}hbGo(h)});
   doc.addEventListener('mouseover',e=>{const a=e.target.closest&&e.target.closest('a[href]');hbEl('wStat').textContent=a?(/^midi:/.test(a.getAttribute('href'))?'Play MIDI':a.getAttribute('href')):'Document: Done'});
   doc.addEventListener('submit',e=>{e.preventDefault();const f=e.target,fd=new FormData(f);
     if(f.dataset.search)return hbGo(HBROOT+'search?q='+encodeURIComponent((fd.get('q')||'').toString().trim()));

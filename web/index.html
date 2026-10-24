@@ -44,7 +44,7 @@ function show(url,push){
 function go(href){
   if(/^midi:/.test(href))return;
   if(/^https?:\/\/samuelling\.github\.io\/Big-Apple-Sam\//i.test(href)){location.href=href;return}
-  if(/^https?:\/\/(www\.)?(megazine\.org|samuelling\.github\.io)\//i.test(href)){window.open(href.replace(/^http:/,'https:'),'_blank','noopener');return}
+  if(/^https?:\/\/(www\.)?(megazine\.org|samuelling\.github\.io|sites\.bu\.edu|crumplab\.com|github\.com)\//i.test(href)){window.open(href.replace(/^http:/,'https:'),'_blank','noopener');return}
   show(/^[a-z]+:/i.test(href)?href:'http://'+href.replace(/^\/+/,''),true);
 }
 function hook(){
@@ -76,7 +76,7 @@ async function start(){
   const mine=st&&st.seed===want.seed&&st.born===want.born;
   W$.sim0=W$.pin!=null?W$.pin*1440+13*60:mine?st.sim+(st.paused?0:(Date.now()-st.at)/60000):localNow();W$.t0=Date.now();simMin=W$.sim0;
   step('Building the city...',60);await new Promise(r=>setTimeout(r,30));
-  city=genCity(want.seed,want.born);markParlors(city);addFrontage(city);pickKevin(city);addMega(city);samFamily(city);
+  city=genCity(want.seed,want.born);markParlors(city);addFrontage(city);pickKevin(city);addMega(city);samFamily(city);labFolks(city);
   const L=Math.floor(simMin/1440);for(const u of city.units)if(u.eras&&!u.mega)syncEra(u,L);refreshAges(L);kevinCheck();
   if(!st&&W$.pin==null){try{localStorage.setItem(STORE,JSON.stringify({seed:city.seed,born:city.born,sim:simMin,at:Date.now(),speed:1,paused:false}))}catch(e){}}
   W$.code=cityCode();HB.standalone=W$.code;hbBuzzFetch();
