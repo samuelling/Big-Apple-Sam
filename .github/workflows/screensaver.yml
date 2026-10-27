@@ -45,6 +45,22 @@ jobs:
           lipo -info "build/Release/Big Apple Sam.saver/Contents/MacOS/Big Apple Sam"
           test -f "build/Release/Big Apple Sam.saver/Contents/Resources/index.html"
 
+      - name: Test that the .saver draws the city
+        working-directory: saver
+        run: |
+          swiftc -O Tests/saver_test.swift -framework ScreenSaver -o "$RUNNER_TEMP/saver_test"
+          mkdir -p "$RUNNER_TEMP/shots"
+          for m in direct snapshot; do
+            BAS_RENDER=$m "$RUNNER_TEMP/saver_test" "build/Release/Big Apple Sam.saver" "$RUNNER_TEMP/shots/$(sw_vers -productVersion)-$m.png" 12 \
+              || echo "::warning::$m rendering drew nothing on macOS $(sw_vers -productVersion)"
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: saver-test-${{ github.job }}
+          path: ${{ runner.temp }}/shots
+
       - name: Import Developer ID certificate
         if: env.MAC_SIGNING == 'true'
         env:
@@ -122,6 +138,32 @@ jobs:
           path: |
             Big-Apple-Sam-Mac.dmg
             Big-Apple-Sam-saver.zip
+
+  mac-newest:
+    # Builds and runs the same test on the newest macOS runner GitHub has (macOS 26 is where web views in
+    # screen savers started going blank). Informational only: it never blocks a release.
+    runs-on: macos-26
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test
+        working-directory: saver
+        run: |
+          sw_vers
+          brew install xcodegen && xcodegen generate
+          xcodebuild -project BigAppleSam.xcodeproj -target BigAppleSam -configuration Release SYMROOT="$PWD/build" build | tail -n 5
+          swiftc -O Tests/saver_test.swift -framework ScreenSaver -o "$RUNNER_TEMP/saver_test"
+          mkdir -p "$RUNNER_TEMP/shots"
+          for m in default direct snapshot; do
+            if [ $m = default ]; then unset BAS_RENDER; else export BAS_RENDER=$m; fi
+            "$RUNNER_TEMP/saver_test" "build/Release/Big Apple Sam.saver" "$RUNNER_TEMP/shots/$(sw_vers -productVersion)-$m.png" 12 \
+              || echo "::warning::$m rendering drew nothing on macOS $(sw_vers -productVersion)"
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: saver-test-mac-newest
+          path: ${{ runner.temp }}/shots
 
   windows:
     runs-on: windows-2022

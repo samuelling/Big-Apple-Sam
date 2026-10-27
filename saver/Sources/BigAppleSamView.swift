@@ -9,10 +9,32 @@ final class PassiveWebView: WKWebView {
 }
 
 /// Big Apple Sam as a macOS screen saver: hosts the bundled index.html in autopilot mode.
+///
+/// Two ways to show the page:
+/// - Direct (macOS 12-15): the web view sits inside the screen saver view.
+/// - Snapshot (macOS 26 and later): since macOS 26.4, a web view inside a screen saver view goes blank a few
+///   seconds after it appears. There the web view lives in an off-screen window instead, and the screen saver
+///   draws snapshots of it.
+/// Either way the screen saver host can treat the page as hidden and stop its animation frames, so the page is
+/// told it is visible, and animateOneFrame drives it through window.BAS_TICK.
 @objc(BigAppleSamView)
 final class BigAppleSamView: ScreenSaverView {
     private var webView: PassiveWebView?
+    private var hostWindow: NSWindow?
+    private var frameImage: CGImage?
+    private var snapping = false
+    private var snapshotMode: Bool {
+        if let forced = ProcessInfo.processInfo.environment["BAS_RENDER"] { return forced == "snapshot" }
+        if #available(macOS 26.0, *) { return true }
+        return false
+    }
     private static var stopObserver: NSObjectProtocol?
+    private static let visibleScript = """
+    try {
+      Object.defineProperty(Document.prototype, 'hidden', { configurable: true, get: function () { return false; } });
+      Object.defineProperty(Document.prototype, 'visibilityState', { configurable: true, get: function () { return 'visible'; } });
+    } catch (e) {}
+    """
 
     // Options sheet controls
     private var sheet: NSWindow?
@@ -32,7 +54,7 @@ final class BigAppleSamView: ScreenSaverView {
 
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
-        animationTimeInterval = 1.0
+        animationTimeInterval = 1.0 / 30.0
         wantsLayer = true
         layer?.backgroundColor = NSColor.black.cgColor
         // Since Sonoma, legacyScreenSaver can keep running a saver after it is dismissed.
@@ -53,11 +75,49 @@ final class BigAppleSamView: ScreenSaverView {
     override func draw(_ rect: NSRect) {
         NSColor.black.setFill()
         rect.fill()
+        if let img = frameImage, let ctx = NSGraphicsContext.current?.cgContext {
+            ctx.interpolationQuality = .none
+            ctx.draw(img, in: bounds)
+        }
     }
 
     override func startAnimation() {
         super.startAnimation()
-        if webView == nil { loadPage() }
+        if webView == nil { loadPage() } else { sizeWebView() }
+    }
+
+    override func resizeSubviews(withOldSize oldSize: NSSize) {
+        super.resizeSubviews(withOldSize: oldSize)
+        sizeWebView()
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        sizeWebView()
+    }
+
+    /// The host sometimes hands over a 0x0 frame, or one in backing pixels; trust the screen instead.
+    private func targetSize() -> NSSize {
+        if isPreview, bounds.width > 1, bounds.height > 1 { return bounds.size }
+        let screen = window?.screen?.frame.size ?? NSScreen.main?.frame.size ?? .zero
+        if screen.width > 1, screen.height > 1 {
+            if bounds.width > 1, bounds.height > 1 {
+                return NSSize(width: min(bounds.width, screen.width), height: min(bounds.height, screen.height))
+            }
+            return screen
+        }
+        return bounds.width > 1 ? bounds.size : NSSize(width: 1440, height: 900)
+    }
+
+    private func sizeWebView() {
+        guard let wv = webView else { return }
+        let size = targetSize()
+        if let hw = hostWindow {
+            if hw.frame.size != size { hw.setContentSize(size) }
+            wv.frame = NSRect(origin: .zero, size: size)
+        } else {
+            wv.frame = NSRect(origin: .zero, size: size)
+        }
     }
 
     override func stopAnimation() {
@@ -66,13 +126,33 @@ final class BigAppleSamView: ScreenSaverView {
     }
 
     override func animateOneFrame() {
-        // The page animates itself; nothing to do here.
+        guard let wv = webView else { return }
+        wv.evaluateJavaScript("window.BAS_TICK && window.BAS_TICK()", completionHandler: nil)
+        guard hostWindow != nil, !snapping else { return }
+        snapping = true
+        let cfg = WKSnapshotConfiguration()
+        cfg.rect = wv.bounds
+        cfg.afterScreenUpdates = false
+        wv.takeSnapshot(with: cfg) { [weak self] image, _ in
+            guard let self = self else { return }
+            self.snapping = false
+            if let image = image, let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                self.frameImage = cg
+                self.needsDisplay = true
+            }
+        }
     }
 
     private func teardown() {
         webView?.stopLoading()
+        webView?.navigationDelegate = nil
         webView?.removeFromSuperview()
         webView = nil
+        hostWindow?.contentView = nil
+        hostWindow?.close()
+        hostWindow = nil
+        frameImage = nil
+        snapping = false
     }
 
     private func loadPage() {
@@ -98,11 +178,23 @@ final class BigAppleSamView: ScreenSaverView {
         config.mediaTypesRequiringUserActionForPlayback = .all
         config.userContentController.addUserScript(
             WKUserScript(source: "window.BAS_SAVER=\(json);", injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        config.userContentController.addUserScript(
+            WKUserScript(source: BigAppleSamView.visibleScript, injectionTime: .atDocumentStart, forMainFrameOnly: false))
 
-        let wv = PassiveWebView(frame: bounds, configuration: config)
-        wv.autoresizingMask = [.width, .height]
+        let size = targetSize()
+        let wv = PassiveWebView(frame: NSRect(origin: .zero, size: size), configuration: config)
         wv.setValue(false, forKey: "drawsBackground")
-        addSubview(wv)
+        if #available(macOS 13.3, *) { wv.isInspectable = true }
+        if snapshotMode {
+            // Off-screen, never ordered in: the page renders here and the screen saver draws snapshots of it.
+            let hw = NSWindow(contentRect: NSRect(origin: NSPoint(x: -20000, y: -20000), size: size),
+                              styleMask: .borderless, backing: .buffered, defer: false)
+            hw.isReleasedWhenClosed = false
+            hw.contentView = wv
+            hostWindow = hw
+        } else {
+            addSubview(wv)
+        }
         webView = wv
 
         if let url = Bundle(for: BigAppleSamView.self).url(forResource: "index", withExtension: "html") {
