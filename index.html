@@ -2535,7 +2535,7 @@ function renderPanel0(){
     const bio=[p.traits.join(', '),arcText(p,L)].filter(Boolean).join('; ');
     const hbOk=u.kind==='res'&&!u.mega&&(!p.kid||p.age>=8)&&!(p.samFam&&p!==city.sam)&&!p.labFam;
     return `<div class="who"><div class="nm">${esc(who)}${hbOk?`<button class="hbl" data-hb="${p.id}" title="Open ${esc(p.first)}'s home page">Home page</button>`:''}</div>${p.job?`<div class="jb">${esc(p.job)}</div>`:''}${bio&&u.kind==='res'?`<div class="bio">${esc(bio.charAt(0).toUpperCase()+bio.slice(1))}.</div>`:''}`+
-      (u.kind==='res'?`<div class="md">Mood today: ${moodWord(moodOf(p,L))}</div>`:'')+
+      (u.kind==='res'&&!u.mega?hbSocPanel(p):'')+(u.kind==='res'?`<div class="md">Mood today: ${moodWord(moodOf(p,L))}</div>`:'')+
       `<div class="now">${esc(nowLab(p))}</div>${nx?`<div class="nx">then ${esc(lc(label(p,nx.act,nx)))} at ${fmtTime(nx.s)}</div>`:''}</div>`};
   if(u.kind==='office'){
     const here=u.people.filter(p=>!p.away);
@@ -3436,6 +3436,7 @@ function hbNews(s,created,L){
   for(const[d,t]of H){const m=hbNewsLine(p,u,t);if(m){const dd=Math.min(L,d+hash(p.id,d,4303)%5);out.push({d:dd,t:m,ev:1})}}
   const B=hbNvBook(s);if(B)B.posts.forEach((d,i)=>{if(d>created&&d<=L){const t=hbNvTitle(B,i+1),w=B.kid?'book':'novel';
     out.push({d,t:i?`Posted Chapter ${i+1} of my ${w}${t?': "'+t+'"':''}!`:`Started posting my ${w}, ${B.title}! Chapter 1 is up.`,ev:1})}});
+  for(const e of hbSocNews(s,created,L))out.push(e);
   if(s.kind0==='news')for(const it of hbNewsStories(s,L).slice(0,8))if(it.day>created)out.push({d:it.day,t:'New story: '+hbNewsHead(it,()=>.1),ev:1});
   if(s.finished)out.push({d:s.finishDay,t:'Finally finished my page!!! No more Under Construction!',ev:1});
   const base=v.loud||v.young||v.kid?32:v.quiet||v.old?160:75,mult=p.arch==='night'?1.5:1;
@@ -3853,6 +3854,8 @@ function hbAlbum(s,F){
     if(r2()<.6)add(day(y,12,24),u.xmas?'xmas':'snow',alive(day(y,12,24)).slice(0,5),u.xmas?hbPick(r2,['Merry Christmas from all of us!','Holiday photo','Christmas morning']):hbPick(r2,['First snow!','Snow day!']),{santa:u.xmas&&r2()<.3,sweater:u.xmas});
     if(r2()<.7){const sc=hbPick(r2,['beach','beach','lake','mountain','city']);add(day(y,7,10)+(r2()*40|0),sc,alive(day(y,7,1)).slice(0,5),{beach:'Vacation!!! At the beach',lake:'At the lake',mountain:'Hiking in the mountains',city:'Our big trip to the city'}[sc])}
     if(r2()<.35)add(day(y,5,1)+(r2()*30|0),hbPick(r2,['park','garden']),alive(day(y,5,1)).slice(0,4),hbPick(r2,['Picnic in the park','Spring!','Sunday afternoon']))}
+  {const B=hbSocOf(p).best;if(B&&!p.kid){const q=B.q;for(let y=y0;y<=y1;y++){const r4=mulberry32(hash(p.id,q.id,y,4725)),d=day(y,1,1)+Math.floor(r4()*360);if(d<B.since||r4()>.55)continue;
+    const sc=hbPick(r4,['park','restaurant','beach','city','party']);add(d,sc,[p,q],hbPick(r4,[`Me and ${q.first}`,`${q.first} and me, ${sc==='restaurant'?'out to dinner':sc==='party'?'at the party':'on a day out'}`,`With ${q.first}!`]),{cake:false})}}}
   items.sort((a,b)=>a.d-b.d);
   const cap=s.v.old?9:s.v.quiet?6:s.v.loud||s.v.kid?16:12,keep=items.slice(-cap);
   keep.forEach((it,i)=>{const r3=mulberry32(hash(p.id,it.d,4722,i));it.key=p.id+'|'+it.d+'|'+it.sc+'|'+i;it.seed=hash(p.id,it.d,4723,i);
@@ -3892,6 +3895,152 @@ function hbWebcam(s,F){const p=s.p,t=simMin,sg=(()=>{try{return segAt(p,t)}catch
 HBMOD.push(
   {k:'album',f:'album.html',nav:F=>F.kids.length?'Family Photos':'Photo Album',pri:8,when:(s,F)=>hbAlbumWants(s,F)&&hbAlbum(s,F).length>=3,page(s,F,r){return hbAlbumPage(s,F,r)}},
   {k:'webcam',f:'webcam.html',nav:()=>'WebCam!',pri:7,when:(s,F)=>!s.p.kid&&(s.tags.has('computer')||s.tags.has('nightowl'))&&hash(s.p.id,city.seed,4743)%100<30,page(s,F,r){return hbWebcam(s,F)}});
+
+/* ---------- who knows whom, and who lives where ----------
+   A remembered web of relationships across apartments: friends, a best friend, old flames, and feuds between
+   neighbors. Everyone belongs to a few circles (their building, their main hobbies, their line of work, retirees,
+   kids by school year); within a circle each pair either clicks or doesn't, decided by that pair alone, so nobody
+   moving in or out can break anyone else's friendship. Friendships start a while after both people arrived, so
+   the web keeps growing. Feuds come from the building itself: the person upstairs whose footsteps you hear, the
+   wall you share with a TV. Same city, same web, for everyone. */
+const HBSOC_HOW={b:['in the elevator','at the mailboxes','in the laundry room','during the big blackout','on the fire escape','at the building\'s holiday party','arguing about the thermostat'],
+  k:['at school','at recess','on the bus','at the playground'],j:['at work','on a lunch break','at the office holiday party'],r:['at the senior center','on the park bench','at bingo night']};
+function hbSocStart(p){return p.foundDay!==undefined?p.foundDay:city.born-400}
+/* the building: who's above, below and beside, and which shops are close */
+function hbAbove(u,d=1){const e=HB.bld&&HB.bld.get(u.b);if(!e)return null;const fl=e.floors.get(u.f+d);if(!fl)return null;let best=null,bo=0;for(const v of fl){const o=Math.min(u.c0+u.n,v.c0+v.n)-Math.max(u.c0,v.c0);if(o>bo){bo=o;best=v}}return best&&!best.vacant&&best.people.length?best:null}
+const hbBelow=u=>hbAbove(u,-1);
+function hbBeside(u){const e=HB.bld&&HB.bld.get(u.b);if(!e)return[];const fl=e.floors.get(u.f)||[],i=fl.indexOf(u);return[fl[i-1],fl[i+1]].filter(v=>v&&!v.vacant&&v.people.length)}
+/* what a household sounds like through a floor or a wall, from cheap facts only */
+function hbNoiseOf(v){if(!v)return null;const ad=v.people.filter(q=>!q.kid),ks=v.people.filter(q=>q.kid),H=k=>ad.find(q=>(q.hobbies||[]).includes(k));
+  if(ks.length&&ks.some(q=>q.age<11))return{q:ks[0],over:'the kids running around',strong:1};
+  const ex=H('exercise')||H('dance');if(ex)return{q:ex,over:ex.hobbies.includes('dance')?'the dancing':'the 6 AM jumping jacks',strong:1};
+  const ow=ad.find(q=>q.nightOwl);if(ow)return{q:ow,over:'the footsteps at all hours',strong:1};
+  const mu=H('guitar')||H('synth');if(mu)return{q:mu,over:mu.hobbies.includes('synth')?'the synthesizer':'the guitar practice',strong:0};
+  if((v.pets||[]).some(a=>a.kind==='dog'))return{q:ad[0]||v.people[0],over:'the dog',strong:0};
+  if(ad.some(q=>q.tvLove>=3))return{q:ad.find(q=>q.tvLove>=3),over:'the TV',strong:0};
+  return null}
+function hbSoc(){
+  const L=Math.floor(simMin/1440);if(HB.soc&&HB.socL===L&&HB.socSeed===city.seed)return HB.soc;
+  const G=new Map(),rel=p=>{let r=G.get(p.id);if(!r)G.set(p.id,r={p,friends:new Map(),feuds:[],flames:[]});return r};
+  const B=new Map();for(const u of city.units){if(u.kind!=='res'||u.mega)continue;let e=B.get(u.b);if(!e)B.set(u.b,e={floors:new Map(),units:0,i:B.size});e.units++;let fl=e.floors.get(u.f);if(!fl)e.floors.set(u.f,fl=[]);fl.push(u)}
+  const shops=(city.front||[]).filter(f=>f.shop);
+  for(const[b,e]of B){for(const fl of e.floors.values())fl.sort((a,c)=>a.c0-c.c0);const cx=b.x+b.w/2;e.shops=shops.map(f=>({s:f.shop,b:f,d:f===b?0:Math.abs(f.x+f.w/2-cx)})).filter(x=>x.d<700).sort((a,c)=>a.d-c.d).slice(0,4)}
+  HB.bld=B;
+  const people=[];for(const u of city.units){if(u.kind!=='res'||u.mega||u.vacant)continue;for(const p of u.people)if(!p.kid||p.age>=5)people.push(p)}
+  const pr=(a,b,k)=>hash(Math.min(a.id,b.id),Math.max(a.id,b.id),k,4952)%10000;
+  const link=(a,b,w,how,k)=>{if(a===b||a.u===b.u&&!a.kid&&!b.kid&&w<5)return;const lo=Math.min(a.id,b.id),hi=Math.max(a.id,b.id),d=Math.max(hbSocStart(a),hbSocStart(b))+20+hash(lo,hi,k,4950)%420;if(d>L&&w<5)return;
+    for(const[x,y]of[[a,b],[b,a]]){const r=rel(x),e=r.friends.get(y.id);if(e){e.w+=w;if(d<e.since){e.since=d;e.how=how}}else r.friends.set(y.id,{q:y,w,how,since:d})}};
+  const C=new Map(),add=(k,p,P,W,how)=>{let a=C.get(k);if(!a)C.set(k,a={m:[],P,W,how});a.m.push(p)};
+  for(const p of people){const e=B.get(p.u.b),bp=1.4/Math.max(6,e.units*1.5);
+    if(p.kid){add('b'+e.i+'k',p,.45,2,'k');add('k'+Math.floor(p.bd/(3*YR))+':'+hash(p.id,4970)%12,p,.08,1.5,'k')}
+    else{add('b'+e.i,p,bp,2,'b');const hob=[...new Set((p.hobbies||[]).filter(h=>!['tv','phone','vacuum','play','game'].includes(h)))].slice(0,2);for(const h of hob)add('h:'+h+':'+hash(p.id,h.length,4971)%40,p,.05,1.5,'h:'+h);
+      for(const[re,tag]of HBJOB)if(re.test(p.job||'')){add('j:'+tag+':'+hash(p.id,4972)%20,p,.05,1,'j');break}if(p.arch==='retiree')add('r:'+hash(p.id,4973)%10,p,.06,1.5,'r')}}
+  const kh=k=>{let h=0;for(let i=0;i<k.length;i++)h=(h*31+k.charCodeAt(i))|0;return h};
+  for(const[k,c]of C){const m=c.m,K=kh(k),T=c.P*10000;if(m.length<2)continue;for(let i=0;i<m.length;i++)for(let j=i+1;j<m.length;j++)if(pr(m[i],m[j],K)<T)link(m[i],m[j],c.W,c.how,K)}
+  // feuds: the household above you, or the one on the other side of the wall
+  for(const e of B.values())for(const fl of e.floors.values())for(const u of fl){if(u.vacant||!u.people.length)continue;const me=u.people.find(q=>!q.kid);if(!me)continue;
+    const cand=[[hbAbove(u),1],...hbBeside(u).map(v=>[v,0])];
+    for(const[v,up]of cand){const n=hbNoiseOf(v);if(!n||n.q.kid&&!v.people.find(q=>!q.kid))continue;const them=n.q.kid?v.people.find(q=>!q.kid):n.q;if(!them||them===me)continue;
+      const lo=Math.min(me.id,them.id),hi=Math.max(me.id,them.id);if(pr(me,them,4974+up)>=(up?(n.strong?1300:500):300))continue;if(rel(me).friends.has(them.id)||rel(me).feuds.some(f=>f.q===them))continue;
+      const d=Math.max(hbSocStart(me),hbSocStart(them))+40+hash(lo,hi,4956)%500;if(d>L)continue;const end=hash(lo,hi,4957)%100<35?d+100+hash(lo,hi,4958)%500:Infinity;
+      rel(me).feuds.push({q:them,since:d,until:end,over:n.over,where:up?'upstairs':'next door'});rel(them).feuds.push({q:me,since:d,until:end,over:up?'"noise," apparently':n.over,where:up?'downstairs':'next door'})}}
+  // old flames: grown-ups of about the same age, a few years back
+  const fl=new Map();for(const p of people){if(p.kid||p.age<22)continue;const k=Math.floor(p.bd/(6*YR))+':'+hash(p.id,4975)%30;let a=fl.get(k);if(!a)fl.set(k,a=[]);a.push(p)}
+  for(const[k,m]of fl)for(let i=0;i<m.length;i++)for(let j=i+1;j<m.length;j++){const a=m[i],b=m[j];if(a.u===b.u||pr(a,b,4961)>=70)continue;const lo=Math.min(a.id,b.id),hi=Math.max(a.id,b.id);
+    const yr=new Date((Math.min(hbSocStart(a),hbSocStart(b))-200-hash(lo,hi,4962)%900)*864e5).getUTCFullYear(),how=hbPick(mulberry32(hash(lo,hi,4963)),['It didn\'t work out.','We\'re still friends. Mostly.','We don\'t talk about it.','It was a long summer.']);
+    rel(a).flames.push({q:b,yr,how});rel(b).flames.push({q:a,yr,how})}
+  // people we know about: Sam and Matt make megaZINE together; Kevin and Sam were in the band back in Rochester
+  const S=city.sam,M=city.crump,K=city.kev;
+  if(S&&M&&people.includes(S)&&people.includes(M))link(S,M,12,'making megaZINE together',4964);
+  if(S&&K&&people.includes(S)&&people.includes(K))link(S,K,9,'in the band, back in Rochester',4965);
+  if(S&&M){const E=S.u.people.find(q=>q.first==='Emma'),J=M.u.people.find(q=>q.first==='Jenn');if(E&&J)link(E,J,6,'through Sam and Matt',4966)}
+  /* old friends count for more: the longer you've known someone, the harder they are to replace */
+  const sc=e=>e.w+Math.min(4,(L-e.since)/365*1.5);
+  for(const r of G.values()){const fr=[...r.friends.values()].sort((a,b)=>sc(b)-sc(a)||a.since-b.since||a.q.id-b.q.id);r.list=fr;r.best=fr[0]||null}
+  HB.soc=G;HB.socL=L;HB.socSeed=city.seed;return G}
+const HBSOC_NONE={friends:new Map(),list:[],best:null,feuds:[],flames:[]};
+function hbSocOf(p){return p&&hbSoc().get(p.id)||HBSOC_NONE}
+function hbSocHow(e){const h=e.how||'';if(h.startsWith('h:'))return'through '+(HBSOC_HOBBY[h.slice(2)]||'a shared hobby');if(HBSOC_HOW[h])return hbPick(mulberry32(hash(e.q.id,e.since,4967)),HBSOC_HOW[h]);return h}
+const HBSOC_HOBBY={guitar:'guitar lessons',paint:'a painting class',read:'the library book club',yoga:'yoga class',stargaze:'the astronomy club',dance:'dance class',computer:'a computer user group',water:'the community garden',
+  cook:'a cooking class',exercise:'the gym',run:'the running club',synth:'a synth meetup',knit:'the knitting circle',bake:'a bake sale',chess:'the chess club',walk:'the morning walking group',fish:'the aquarium society',bird:'the bird-watching club',sing:'the church choir'};
+function hbSocRel(a,b){const r=hbSocOf(a);if(r.best&&r.best.q===b)return'best';if(r.friends.has(b.id))return'friend';const L=Math.floor(simMin/1440);if(r.feuds.some(f=>f.q===b&&L<f.until))return'feud';if(r.flames.some(f=>f.q===b))return'flame';return null}
+function hbSocApt(q){return`${q.u.b&&q.u.b.name?q.u.b.name+', ':''}Apt ${q.u.f+2}${q.u.letter||''}`}
+/* the panel in the city: best friend and anyone they're not speaking to */
+function hbSocPanel(p){const r=hbSocOf(p),L=Math.floor(simMin/1440),go=q=>`<button class="hbl" style="margin:0" data-goto="${city.units.indexOf(q.u)}" title="Go to ${esc(q.first)}'s window">${esc(q.first+(q.kid?'':' '+q.last))}</button>`;let h='';
+  if(r.best)h+=`<div class="bio">Best friend: ${go(r.best.q)} <span style="opacity:.75">(${esc(hbSocApt(r.best.q))})</span></div>`;
+  const fe=r.feuds.find(f=>L<f.until);if(fe)h+=`<div class="bio">Not speaking to: ${go(fe.q)} <span style="opacity:.75">(${esc(fe.where||'')}, over ${esc(fe.over)})</span></div>`;
+  else if(!p.kid){hbSoc();const up=hbAbove(p.u),n=hbNoiseOf(up);if(n&&n.strong)h+=`<div class="bio">Pet peeve: ${esc(n.over)} upstairs (${go(n.q)})</div>`}return h}
+function hbSocGo(i){const u=city.units[i];if(!u)return;if(AP.on)apStop();select(u);follow=true;flyTo(u.x0+u.n*CW/2,u.wy+RH/2,clamp(W*.55/(Math.max(3,u.n)*CW),DET1()*1.4,Math.min(sMax,H*.3/RH)),1400);renderPanel()}
+/* homepage pieces */
+function hbSocBlurb(s,F,R){const p=s.p,r=hbSocOf(p),v=s.v;if(!r.best)return'';const b=r.best,yr=new Date(b.since*864e5).getUTCFullYear(),others=r.list.slice(1,5).map(e=>e.q);
+  const bw=hbWho(b.q);let t=p.kid?`MY BEST FRIEND IS ${bw}!!! We met ${hbE(hbSocHow(b))}.`:`My best friend is ${bw}. We met ${hbE(hbSocHow(b))}${yr<new Date(F.now*864e5).getUTCFullYear()?' back in '+yr:' this year'}.`;
+  if(others.length)t+=` ${p.kid?'My other friends are':'Say hi to my friends'} ${others.map(hbWho).join(', ')}${p.kid?'.':' too!'}`;
+  return`${hbH(s,p.kid?'My Friends':'Friends',R,3)}<p>${hbSayHtml(v,t,R)}</p>`}
+function hbSocNews(s,created,L){const p=s.p,r=hbSocOf(p),o=[];
+  if(r.best&&r.best.since>created&&r.best.since<=L)o.push({d:r.best.since,t:`Made a new friend: ${r.best.q.first}! We met ${hbSocHow(r.best)}.`,ev:1});
+  for(const f of r.feuds){if(f.since>created&&f.since<=L)o.push({d:f.since,t:`Not speaking to ${f.q.first} anymore. It's about ${f.over}. Long story.`,ev:1});
+    if(f.until>created&&f.until<=L)o.push({d:f.until,t:`Made up with ${f.q.first}. We're good now.`,ev:1})}
+  return o}
+HBMOD.push({k:'friends',f:'friends.html',nav:F=>F.p.kid?'My Friends':'Friends',pri:6,when:(s,F)=>{const r=hbSocOf(s.p);return r.list.length>=2||r.feuds.length>0||(r.flames.length>0&&!s.p.kid)},page(s,F,r){
+  const R=hbSocOf(s.p),v=s.v,L=F.now,yr=d=>new Date(d*864e5).getUTCFullYear();let h=`<h2>${hbImg('heart')} ${hbE(hbSay(v,s.p.kid?'MY FRIENDS':'My Friends',r))} ${hbImg('heart')}</h2>`;
+  if(R.list.length)h+=`<table border="1" cellpadding="6">${R.list.slice(0,8).map((e,i)=>`<tr><td align="center"><img src="${hbPortrait(e.q)}" width="96" height="72" class="ph" alt=""></td><td><b>${hbWho(e.q)}</b>${i===0?' &mdash; best friend!':''}<br><font size="2">${hbE(hbSocApt(e.q))}<br>We met ${hbE(hbSocHow(e))}, ${yr(e.since)}.</font></td></tr>`).join('')}</table>`;
+  const fe=R.feuds.filter(f=>L<f.until);if(fe.length&&!s.v.kid)h+=`<h3>The Neighbor Situation</h3>${fe.map(f=>`<p>${hbE(hbSay(v,`${f.q.first} in ${hbSocApt(f.q)}. It's about ${f.over}. Day ${L-f.since}. I am not going to say anything else about it. (Except that I am right.)`,r))}</p>`).join('')}`;
+  const ex=R.feuds.filter(f=>L>=f.until);if(ex.length)h+=`<p><font size="2">${hbE(hbSay(v,`P.S. ${ex[0].q.first} and I made up. ${hbCap(ex[0].over)} is settled.`,r))}</font></p>`;
+  if(R.flames.length&&!s.p.kid&&(v.loud||v.romantic||s.tags.has('romantic')||hash(s.p.id,4968)%100<40))h+=`<h3>${hbE(hbSay(v,'Old Flames (don\'t tell)',r))}</h3>${R.flames.map(f=>`<p>${hbWho(f.q)}, ${f.yr}. ${hbE(f.how)}</p>`).join('')}`;
+  return h}});
+/* ---------- what you hear and what you think of the block ----------
+   Real facts from the simulation: the upstairs neighbor's actual bedtime and wake-up time, the kids, the dog, the
+   guitar, the TV through the wall, the shops on the corner with their real hours. */
+const hbClock=m=>{m=((Math.round(m)%1440)+1440)%1440;const h=Math.floor(m/60),mm=m%60;return`${h%12||12}${mm?':'+String(mm).padStart(2,'0'):''} ${h<12?'AM':'PM'}`};
+const hbHour=h=>hbClock((h%24)*60);
+function hbBedtime(q,L){try{let m=null;for(const sg of planFor(q,L)){if(sg.act!=='sleep')continue;const md=((sg.s%1440)+1440)%1440;if(md>=18*60||md<5*60)m=md}return m}catch(e){return null}}
+function hbWake(q,L){try{for(const sg of planFor(q,L))if(sg.act!=='sleep')return((sg.s%1440)+1440)%1440}catch(e){}return null}
+const hbAptOf=u=>`Apt ${u.f+2}${u.letter||''}`;
+const hbOrd=n=>n+(n%100>=11&&n%100<=13?'th':['th','st','nd','rd'][n%10]||'th');
+function hbGripes(s,F){if(s._gr&&s._grL===F.now)return s._gr;hbSoc();const p=s.p,u=p.u,L=F.now,r=mulberry32(hash(p.id,city.seed,4980)),out=[],T=k=>(p.hobbies||[]).includes(k);
+  const up=hbAbove(u),dn=hbBelow(u),sd=hbBeside(u),e=HB.bld.get(u.b),bn=u.b.name||'the building',nice=(p.traits||[]).some(t=>/cheerful|sociable|easygoing|kind|optimist/.test(t));
+  if(up){const ad=up.people.filter(q=>!q.kid),ks=up.people.filter(q=>q.kid),A=hbAptOf(up);
+    const late=ad.map(q=>[q,hbBedtime(q,L)]).filter(([,m])=>m!==null&&(m>=23*60+15||m<5*60)).sort((a,b)=>((b[1]+720)%1440)-((a[1]+720)%1440))[0];
+    const ex=ad.find(q=>(q.hobbies||[]).some(h=>h==='exercise'||h==='dance')),mu=ad.find(q=>(q.hobbies||[]).some(h=>h==='guitar'||h==='synth'));
+    if(late)out.push({k:'up',q:late[0],u:up,t:hbPick(r,[`The footsteps upstairs (${A}) start at ${hbClock(late[1])} every night. Every. Night.`,`Whoever lives upstairs in ${A} goes to bed at ${hbClock(late[1])}. I know because I hear every single step.`,`Upstairs walks like they're wearing bowling shoes. Usually right around ${hbClock(late[1])}.`])});
+    if(ks.some(q=>q.age<11))out.push({k:'up',q:ks[0],u:up,t:hbPick(r,[`The kids upstairs play what I can only assume is indoor football from 4 to 7 PM.`,`Upstairs (${A}) has small children. I have a ceiling. The ceiling is losing.`])});
+    if(ex){const w=hbWake(ex,L);out.push({k:'up',q:ex,u:up,t:w!==null&&w>=270&&w<=600?`Somebody upstairs does jumping jacks at ${hbClock(w)}. I know because my light fixture does them too.`:'Somebody upstairs does aerobics. My light fixture does them too.'})}
+    if(mu)out.push({k:'up',q:mu,u:up,t:`The ${(mu.hobbies||[]).includes('synth')?'synthesizer':'guitar'} upstairs is getting better. Slowly. Very slowly.`});
+    if((up.pets||[]).some(a=>a.kind==='dog'))out.push({k:'up',q:ad[0],u:up,t:`The dog upstairs has very long nails. I can hear every single one of them.`});
+    if(up.baby||up.due!=null)out.push({k:'up',q:ad[0],u:up,t:`There's a new baby upstairs. Up at 3 AM. I'm not mad. I'm just tired.`})}
+  for(const v of sd){const ad=v.people.filter(q=>!q.kid);if(!ad.length)continue;
+    if(ad.some(q=>q.tvLove>=3))out.push({k:'side',q:ad.find(q=>q.tvLove>=3),u:v,t:hbPick(r,['Through the wall: game shows. At full volume. Every evening.','Next door watches the news so loud I don\'t need a TV.'])});
+    else if(v.rel==='rocky')out.push({k:'side',q:ad[0],u:v,t:'Next door argues about the dishes. I\'ve picked a side. I\'ve never met either of them.'});
+    else if(ad.some(q=>(q.hobbies||[]).includes('phone')))out.push({k:'side',q:ad.find(q=>(q.hobbies||[]).includes('phone')),u:v,t:'I know everything about my next-door neighbor\'s cousin\'s wedding. Thin walls.'});
+    else if((v.pets||[]).some(a=>a.kind==='dog'))out.push({k:'side',q:ad[0],u:v,t:'The dog next door barks at the elevator. Every time it dings.'})}
+  if(dn){const ad=dn.people.filter(q=>!q.kid);if(ad.length)out.push({k:'down',q:ad[0],u:dn,t:T('vacuum')?'Downstairs bangs on the ceiling with a broom when I vacuum. At 2 in the afternoon!':hbPick(r,['Whoever lives downstairs cooks something with a LOT of garlic every night around 7. I\'m not complaining. I\'m hungry.','Downstairs plays the same song every Sunday morning. I know all the words now.'])})}
+  if(u.f>8&&r()<.6)out.push({k:'bld',t:`The elevator in ${bn} has been "out of order" since ${hbPick(r,['spring','the summer','March','who knows when'])}. I live on the ${hbOrd(u.f+2)} floor.`});
+  if(r()<.4)out.push({k:'bld',t:hbPick(r,['The radiator clanks like somebody is in there with a hammer.','The super says he\'ll come Tuesday. He does not say which Tuesday.','The pigeons on my air conditioner have started a family.','Somebody in the building keeps taking my newspaper.'])});
+  const SH={restaurant:[n=>`The line outside ${n} blocks the door every Friday night.`,n=>`${n} knows my order by heart. That's either nice or a problem.`],
+    cafe:[(n,o)=>`${n} starts grinding beans before ${hbHour(o[0])}. I can hear it.`,(n,o)=>`${n} opens at ${hbHour(o[0])}. Bless them.`],
+    takeout:[n=>`The smell from ${n} comes in my window every night. Now I want noodles. Every night.`,(n,o)=>`${n} is open until ${hbHour(o[1])}. This has saved my life more than once.`],
+    nightclub:[(n,o)=>`${n} thumps until ${hbHour(o[1])}. The bass comes up through my feet.`,n=>`Went to ${n} on Saturday. My ears are still ringing.`],
+    bakery:[(n,o)=>`${n} smells amazing at ${hbHour(o[0])}, which is a problem when you're trying to sleep.`,n=>`The bread at ${n}. That's it. That's the review.`],
+    florist:[n=>`${n} puts buckets of flowers on the sidewalk. I have tripped over them twice.`,n=>`Bought flowers at ${n} for no reason. Recommend.`],
+    bookstore:[(n,o)=>`${n} closes at ${hbHour(o[1])}, right when I want a book.`,n=>`Spent two hours in ${n}. Bought one book. They didn't mind.`],
+    hardware:[(n,o)=>`${n} closes at ${hbHour(o[1])}, which is exactly when things break.`,n=>`The guy at ${n} explained my sink to me like I was five. I needed that.`],
+    boutique:[n=>`Everything at ${n} costs $80 and is beige.`,n=>`Found a great jacket at ${n}. Don't ask how much.`],
+    barber:[n=>`The barber pole at ${n} spins all night. Why? Who is it for?`,n=>`Got my hair cut at ${n}. They talked about baseball the whole time. Perfect.`],
+    pharmacy:[n=>`The line at ${n} is twenty minutes no matter what time you go.`,(n,o)=>`${n} is open until ${hbHour(o[1])}. A lifesaver.`],
+    bank:[(n,o)=>`${n} closes at ${hbHour(o[1])}. Who is free before ${hbHour(o[1])}?`,n=>`They give out lollipops at ${n}. I am a grown adult and I took two.`],
+    cleaners:[n=>`${n} lost my good shirt. They say they didn't. They did.`,n=>`${n} got the wine out of my white pants. Heroes.`]};
+  for(const x of(e&&e.shops||[]).slice(0,3)){const f=SH[x.s.type];if(!f)continue;const good=nice?r()<.7:r()<.4;out.push({k:'shop',shop:x.s,mine:x.b===u.b,good,stars:good?4+(r()<.5?1:0):1+Math.floor(r()*3),t:f[good?1:0](x.s.name,x.s.open)})}
+  s._gr=out;s._grL=F.now;return out}
+function hbGripeList(s,F,R,n){const g=hbGripes(s,F).filter(x=>x.k!=='shop'||!x.good);return hbPickN(R,g,Math.min(n,g.length))}
+HBMOD.push({k:'block',f:'block.html',nav:F=>F.p.kid?'My Building':'My Block',pri:6,when:(s,F)=>!s.p.kid&&hash(s.p.id,city.seed,4981)%100<45&&hbGripes(s,F).length>=2,page(s,F,r){
+  const p=s.p,u=p.u,v=s.v,G=hbGripes(s,F),b=u.b,who=x=>x.u.people.filter(q=>!q.kid).map(q=>hbWho(q)).join(' &amp; ')||hbWho(x.q);
+  let h=`<h2>${hbImg('house')} ${hbE(hbSay(v,'My Block',r))} ${hbImg('house')}</h2><p>${hbE(hbSay(v,`I live on the ${hbOrd(u.f+2)} floor of ${b.name||'my building'}${b.floors?`, which has ${b.floors} floors`:''}. Here's the neighborhood report.`,r))}</p>`;
+  const nb=[['Upstairs',hbAbove(u),'up'],['Next door',hbBeside(u)[0],'side'],['Downstairs',hbBelow(u),'down']].filter(x=>x[1]);
+  if(nb.length)h+=`<h3>The Neighbors</h3><ul>${nb.map(([lab,un,k])=>{const g=G.find(x=>x.k===k&&x.u===un);return`<li><b>${lab} (${hbAptOf(un)}):</b> ${un.people.filter(q=>!q.kid).map(q=>hbWho(q)).join(' &amp; ')||'a family'}. ${hbE(hbSay(v,g?g.t:hbPick(r,['Quiet. Suspiciously quiet.','Nice enough. We nod in the elevator.','Never seen them. I hear them, though.']),r))}</li>`}).join('')}</ul>`;
+  const sh=G.filter(x=>x.k==='shop');
+  if(sh.length)h+=`<h3>Around the Corner</h3><table border="1" cellpadding="5">${sh.map(x=>`<tr><td><b>${hbE(x.shop.name)}</b>${x.mine?'<br><font size="1">(downstairs!)</font>':''}</td><td><font size="2">${hbHour(x.shop.open[0])} &ndash; ${hbHour(x.shop.open[1])}</font></td><td><font color="#e0a000">${'&#9733;'.repeat(x.stars)}${'&#9734;'.repeat(5-x.stars)}</font></td><td><font size="2">${hbE(hbSay(v,x.t,r))}</font></td></tr>`).join('')}</table>`;
+  const bug=G.filter(x=>x.k!=='shop');if(bug.length)h+=`<h3>${hbE(hbSay(v,'Things That Bug Me',r))}</h3><ol>${bug.slice(0,6).map(x=>`<li>${hbE(hbSay(v,x.t,r))}</li>`).join('')}</ol>`;
+  return h}});
 
 /* ---------- novels in progress ----------
    Some residents are writing a book and post it a chapter at a time: the ones living a "writing a novel"
@@ -4228,6 +4377,7 @@ function F0(){return Math.floor(simMin/1440)}
 /* neighbors, ring-mates and a fake external link or two */
 function hbFriends(s,F,r,n){const I=HB.idx,o=[],seen=new Set([s.id]);
   const add=x=>{if(x&&!seen.has(x.id)){seen.add(x.id);o.push(x)}};
+  {const S=hbSocOf(s.p);for(const e of S.list.slice(0,5))add(I.byId.get(e.q.id));for(const f of S.flames)if(r()<.35)add(I.byId.get(f.q.id));for(const f of S.feuds)if(F.now<f.until&&r()<.6)add(I.byId.get(f.q.id));hbSoc();const up=hbAbove(F.u);if(up&&r()<.45)for(const q of up.people)if(!q.kid)add(I.byId.get(q.id))}
   for(const q of F.u.people)add(I.byId.get(q.id));
   for(const u2 of F.u.b.units||[]){if(o.length>=n)break;if(u2===F.u)continue;for(const q of u2.people||[])if(r()<.35)add(I.byId.get(q.id))}
   for(const g of s.rings){const m=I.rings[g]||[];for(let k=0;k<3&&m.length;k++)add(m[Math.floor(r()*m.length)])}
@@ -4261,6 +4411,11 @@ function hbGuestbook(s,F){
     const parts=[];const T=k=>s.tags.has(k);
     if(x.u.b===F.u.b)parts.push(hbPick(rr,[`Hi from ${'Apt '+(x.u.f+2)+x.u.letter}! Didn't know you had a homepage!`,'Hey neighbor!',`We should talk in the elevator more!`]));
     else{const g=s.rings.find(q=>x.rings.includes(q));if(g)parts.push(`Found you through the ${g}!`);else parts.push(hbPick(rr,['Great page!','Cool site!','Nice page!','Just surfing by!','Love the graphics!','WOW what a page.']))}
+    {const rl=hbSocRel(s.p,x.p)||(x.u===hbAbove(F.u)?'up':null);if(rl){parts.length=0;parts.push(hbPick(rr,{best:['Best friends forever. Even on the Internet.','Saw your page! You put my picture up? I will get you for this.','Dinner Thursday? My turn to cook.','You still have my casserole dish.'],
+      friend:['Thanks for helping me move the couch!','Saw you in the lobby but you were on the phone. Call me!','HAPPY BIRTHDAY (a little late)!','Great page! You never told me you could do this.','See you Saturday!'],
+      feud:['Nice page. Now please do something about the noise.','I see you have time for a homepage but not for returning my package.','Still waiting on that apology.','Interesting page. Interesting.'],
+      flame:['Saw your page. Hope you\'re doing well.','Long time no see. Your page is nice.','Hi. It\'s me. Hope you\'re good.'],
+      up:['Hi from upstairs! Sorry about the footsteps!!! I got a rug.','What footsteps?','I can hear YOUR TV too, you know.','Is this about the jumping jacks? It\'s about the jumping jacks, isn\'t it.']}[rl]))}}
     if(hash(x.id,s.id,4292)%100<4)parts.push(hbPick(rr,['Found your page through megaZINE!','Saw your page mentioned on the BBS!','Is your page going to be in the next megaZINE??']));
     else if(s.kind==='gk')parts.push(hbPick(rr,['Day Eleven made me laugh out loud!','I got GRACE on your quiz. Obviously.','I was stuck on Day 3 for a week too!','See you on the BBS, sysop!','Number 7 on your top ten is the best one.','Please write another story!']));
     else if(s.kind==='news')parts.push(hbPick(rr,['I get all my news here now.','You should get a job at the paper!','Thanks for the updates!!','Your page is faster than the 6 o\'clock news.','Can you do a weather page too?','Read every story. Then read them again.']));
@@ -4357,8 +4512,10 @@ function hbIndexBody(s,F,mods,r){
   const mePic=hash(p.id,city.seed,4750)%100<(v.quiet?35:v.kid?75:65)?`<table align="left" cellpadding="6"><tr><td align="center"><img src="${hbPortrait(p)}" width="120" height="90" class="ph" border="2" alt=""><br><font size="1">${hbE(hbSay(v,hbPick(R,['This is me!','Me!','Me (on a good day)','Yep, that\'s me.']),R))}</font></td></tr></table>`:'';
   h+=`${hbH(s,'About Me',R)}${th.music?`<table align="right" cellpadding="8"><tr><td>${hbMidiBox(s)}</td></tr></table>`:''}${mePic}<p>${about}</p><br clear="left">`;
   h+=sayp([job,tr.filter(Boolean).join(' '),arc].filter(Boolean).join(' '));
+  h+=hbSocBlurb(s,F,R);
   if(F.p.arc==='dating'&&F.L>=p.arcS&&!v.formal)h+=`<p>${hbImg('heart')} ${hbSay(v,'P.S. I met someone. More soon.',R)}</p>`;
   if(mods.length)h+=`${hbH(s,'On this site',R,3)}<ul>${mods.map(m=>`<li>${m.f==='memorial.html'||R()<.5?'':hbImg('newb',{sc:1})+' '}<a href="${hbUrl(s,m.f)}">${hbE(m.nav(F))}</a>`).join('')}<li><a href="${hbUrl(s,'guestbook.html')}">Sign my guestbook!</a></ul>`;
+  if(!p.kid&&hash(p.id,city.seed,4982)%100<(v.quiet||v.old?50:30)){const g=hbGripeList(s,F,R,3);if(g.length>=2)h+=`${hbH(s,hbSay(v,'Things That Bug Me',R),R,3)}<ol>${g.map(x=>`<li>${hbE(hbSay(v,x.t,R))}</li>`).join('')}</ol>`}
   if(ints.length)h+=`${hbH(s,'My Interests',R,3)}<ul>${ints.slice(0,7).map(x=>`<li>${hbE(hbSay(v,x,R))}`).join('')}</ul>`;
   if(fav.length&&R()<.75)h+=`${hbH(s,'Favorite Things',R,3)}<table border="1" cellpadding="4">${fav.map(([a,b])=>`<tr><td><b>${a}</b></td><td>${hbE(b)}</td></tr>`).join('')}</table>`;
   if(!v.quiet&&R()<.5)h+=`<h3>Quote of the Day</h3><p><i>"${hbE(q[0])}"</i><br>&mdash; ${hbE(q[1])}</p>`;
@@ -4516,7 +4673,8 @@ function hbKDiary(s,F,mods,r){const v=s.v,R=hbR(s.p,83),p=s.p,L=F.L;let h=`<cent
     cheerful:['Great day. Sun came out at lunch.','Laughed so hard at something on TV I snorted.','A stranger complimented my coat.','Found five dollars in an old jacket!','Danced in the kitchen. Nobody saw (I hope).'],
     'over the moon':['BEST DAY. Can\'t even explain.','Everything is wonderful and I don\'t trust it.','I keep smiling at nothing.','Called everyone I know just to say hi.']};const used=new Set();
   const pick=a=>{const c=a.filter(x=>!used.has(x));const x=hbPick(R,c.length?c:a);used.add(x);return x};
-  for(let k=0;k<6;k++){const d=L-k*2-hash(p.id,k)%2;const mw=moodWord(moodOf(p,d));const ev=(F.u.hist||[]).find(([dd])=>dd===d);
+  const gr=hbGripeList(s,F,R,2);
+  for(let k=0;k<6;k++){const d=L-k*2-hash(p.id,k)%2;const mw=moodWord(moodOf(p,d));const ev0=(F.u.hist||[]).find(([dd])=>dd===d);const ev=ev0||((k===1||k===4)&&gr.length&&/low|blue|okay/.test(mw)?[d,gr.shift().t.replace(/\.$/,'.')]:null);
     h+=`<p><b>${hbDate(d)}</b> <font size="2">(mood: ${hbE(mw)})</font><br>${hbE(hbSay(v,ev?ev[1]+' '+hbPick(R,['Big day.','Still thinking about it.','Life, huh?']):pick(B[mw]||B.okay)+(k===2&&p.arc?' '+hbArc(p,F,R):''),R))}</p>`}
   h+=`<p><a href="${hbUrl(s,'guestbook.html')}">${hbE(hbSay(v,'Leave a note in my guestbook',R))}</a></p>`;
   if(mods.length)h+=hbUl(mods.map(m=>`<a href="${hbUrl(s,m.f)}">${hbE(m.nav(F))}</a>`));return h}
@@ -5765,7 +5923,7 @@ function hbBoot(){
   hbSetLoc(HBROOT);
   dragWin(hbEl('web'),hbEl('wTb'));
   hbEl('webBtn').addEventListener('click',()=>{if(HB.open&&!mini.web)hbClose();else if(HB.open){mini.web=false;hbEl('web').hidden=false;renderIcons()}else hbOpen(HBROOT)});
-  hbEl('pbody').addEventListener('click',e=>{const a=e.target.closest('[data-hb]');if(!a)return;e.preventDefault();const s=hbIndex().byId.get(+a.dataset.hb);if(HB.fromWeb&&s){location.href=hbExtUrl(hbUrl(s));return}hbOpenPerson(+a.dataset.hb)});
+  hbEl('pbody').addEventListener('click',e=>{const g=e.target.closest('[data-goto]');if(g){e.preventDefault();hbSocGo(+g.dataset.goto);return}const a=e.target.closest('[data-hb]');if(!a)return;e.preventDefault();const s=hbIndex().byId.get(+a.dataset.hb);if(HB.fromWeb&&s){location.href=hbExtUrl(hbUrl(s));return}hbOpenPerson(+a.dataset.hb)});
   hbEl('wThrob').src=hbSprite('globe').fr[0];hbBuzzFetch();hbNewsFetch();
   setInterval(hbAnimate,80);
 }
