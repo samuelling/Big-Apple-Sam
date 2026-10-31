@@ -1,9 +1,82 @@
 {
+"scene": {
+"day": "2026-10-31",
+"history": [
+{
+"d": "2026-10-31",
+"users": 6,
+"callers": 42,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 4
+}
+],
+"milestones": [],
+"items": [
+{
+"d": "2026-10-01",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE Issue 01",
+"text": "megaZINE Issue 01 is out: one sheet of paper folded into an 8-page mini-zine, with 12 pieces, including (Water) Townies, Big Apple Sam and Orders of Magnitude.",
+"link": "https://megazine.org/?issue=01"
+},
+{
+"d": "2026-10-31",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE readership",
+"text": "megaZINE's website had 100 visits in the past week.",
+"link": "https://megazine.org/"
+},
+{
+"d": "2026-10-31",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE's most popular piece",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 16 clicks.",
+"link": "https://megazine.org/?go=big-apple-sam"
+},
+{
+"d": "2026-10-31",
+"cat": "local",
+"src": "bbs",
+"topic": "MEGAzine BBS",
+"text": "The MEGAzine BBS has had 42 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 4 phone lines; when they're all busy, callers get a busy signal.",
+"link": "https://samuelling.github.io/BBS/"
+}
+]
+},
 "source": "Wikipedia, Portal:Current events",
 "license": "CC BY-SA 4.0",
 "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
+{
+"d": "2026-10-31",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE readership",
+"text": "megaZINE's website had 100 visits in the past week.",
+"link": "https://megazine.org/"
+},
+{
+"d": "2026-10-31",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE's most popular piece",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 16 clicks.",
+"link": "https://megazine.org/?go=big-apple-sam"
+},
+{
+"d": "2026-10-31",
+"cat": "local",
+"src": "bbs",
+"topic": "MEGAzine BBS",
+"text": "The MEGAzine BBS has had 42 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 4 phone lines; when they're all busy, callers get a busy signal.",
+"link": "https://samuelling.github.io/BBS/"
+},
 {
 "d": "2026-10-30",
 "cat": "sports",
@@ -241,6 +314,14 @@
 "topic": "",
 "text": "American visual images company Getty Images announces that it will file for Chapter 11 bankruptcy.",
 "link": "https://en.wikipedia.org/wiki/Getty_Images"
+},
+{
+"d": "2026-10-01",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE Issue 01",
+"text": "megaZINE Issue 01 is out: one sheet of paper folded into an 8-page mini-zine, with 12 pieces, including (Water) Townies, Big Apple Sam and Orders of Magnitude.",
+"link": "https://megazine.org/?issue=01"
 }
 ]
 }

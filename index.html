@@ -4722,7 +4722,8 @@ function hbNewsWho(s){if(s._nw)return s._nw;const p=s.p,T=k=>s.ftags.has(k);let 
   return s._nw={beat}}
 /* this desk's stories as of a day: newest first, its own beat first in line */
 function hbNewsStories(s,L){const W=hbNewsWho(s),all=hbNewsItems().filter(it=>it.day<=L);
-  const mine=all.filter(it=>W.beat==='general'||it.cat===W.beat||hash(s.p.id,it.id,4902)%100<35);return mine.slice(0,24)}
+  const scene=s.zine||s.bbs||hash(s.p.id,4906)%100<30;
+  const mine=all.filter(it=>it.cat==='local'?scene&&(it.src!=='bbs'||s.bbs||hash(s.p.id,it.id,4907)%100<60):W.beat==='general'||it.cat===W.beat||hash(s.p.id,it.id,4902)%100<35);return mine.slice(0,24)}
 const HBNW_LENS={
   science:{sky:['I\'m going to look for it with my telescope tonight. Clouds permitting.','Out on the fire escape with the binoculars tonight, for sure.'],space:['Space news is the best news. I will not be taking questions.','I told my neighbor about this in the elevator. He nodded politely.','I would give anything to go up there. Anything except my lunch.'],
     comp:['Time to update everything. Again.','This is why I back up my files every Sunday.','I unplugged my modem just in case.'],
@@ -4730,6 +4731,11 @@ const HBNW_LENS={
   sports:{fit:['This makes me want to go for a run. Tomorrow.','Inspiring! I did 20 extra sit-ups.'],couch:['I did not move from the couch for this. Worth it.'],any:['What a game!','I followed this on the radio in the kitchen.','My dad would have loved this one.']},
   culture:{music:['I need to hear this right away.'],read:['Somebody is going to write a book about this. Maybe me.'],any:['Adding this to my list.','Sounds like my kind of thing.','I heard about this on the radio first.']},
   business:{money:['As someone who works with numbers all day: wow.'],any:['I don\'t understand the stock market, and at this point I\'m afraid to ask.','Where do they get all that money?','Money, money, money.']},
+  local:{bbs:['I dialed in last night! Busy signal twice, then I got through.','See you in the teleconference.','Still working on my upload ratio. Don\'t ask.','I paged the SysOp at 2 AM and he actually answered.','Somebody beat my score in the door games. I know who you are.'],
+    zine:['I found a copy folded up at the laundromat.','I have every issue. Every single one.','I typed in the address from the back cover. Took me three tries.','Somebody left one on the bus. I took it. Sorry, whoever you were.'],
+    bbsAny:['A BBS? I thought those were gone forever.','I haven\'t heard a modem screech in years. Going to dial in.','Never heard of it until now. Going to check it out.'],
+    zineAny:['A zine? On paper? I love it.','Never heard of it until now. Going to check it out.','My nephew told me about this. He was right, it\'s neat.'],
+    zineBbs:['Saw it mentioned on the BBS first, of course.','The SysOp has been talking about this for weeks.']},
   environment:{plant:['I\'m going to go water my tomatoes and think about this.','My plants agree.'],any:['We only get one planet, people.','Makes me want to plant something.','Somebody tell my landlord.']}};
 function hbNewsTake(s,F,it){const p=s.p,v=s.v,r=mulberry32(hash(p.id,it.id,4903)),T=k=>s.ftags.has(k),t=it.text,L=HBNW_LENS[it.cat]||HBNW_LENS.science;
   const open=v.old?hbPick(r,['I read about this today.','Here is something from the news.','Did you see this?']):v.loud?hbPick(r,['WOW!!! Did you guys see this??','BIG NEWS, everybody!!!','Okay, this is HUGE.']):v.quiet?hbPick(r,['saw this today.','huh.','this one stuck with me.']):hbPick(r,['Did you hear about this?','This caught my eye today.','News flash!','Okay, this is interesting.']);
@@ -4738,6 +4744,7 @@ function hbNewsTake(s,F,it){const p=s.p,v=s.v,r=mulberry32(hash(p.id,it.id,4903)
   else if(it.cat==='sports')lens=T('exercise')||T('marathon')||T('cycle')?L.fit.concat(L.any):T('couch')?L.couch.concat(L.any):L.any;
   else if(it.cat==='culture')lens=T('music')||T('guitar')||T('synth')?L.music.concat(L.any):T('read')?L.read.concat(L.any):L.any;
   else if(it.cat==='business')lens=T('money')?L.money.concat(L.any):L.any;
+  else if(it.cat==='local')lens=it.src==='bbs'?(s.bbs?L.bbs:L.bbsAny):(s.zine?L.zine:s.bbs?L.zineBbs.concat(L.zineAny):L.zineAny);
   else if(it.cat==='environment')lens=T('plants')||T('garden')?L.plant.concat(L.any):L.any;
   const mood=/\bwins?\b|award|champion|prize|title|defeat/i.test(t)?['Congratulations!','Good for them!','Way to go!']:/bankrupt|plummet|falls|drop|record high|highest/i.test(t)?['Yikes.','Ouch.','That doesn\'t sound good.']:/first|oldest|discover|new\b/i.test(t)?['History in the making!','Amazing.','Who knew?']:['Can you believe it?','What a world.','Huh!'];
   const extra=v.old&&r()<.5?hbPick(r,['When I was young, news like this came in the paper the next day.','Things sure have changed.']):'';
@@ -4746,10 +4753,10 @@ function hbNewsTake(s,F,it){const p=s.p,v=s.v,r=mulberry32(hash(p.id,it.id,4903)
 function hbNewsHead(it,r){const w=it.text.split(/[,;:]|\.\s/)[0].split(' '),base=it.topic&&it.topic.length>4?it.topic:w.slice(0,10).join(' ')+(w.length>10?'...':'');
   return hbPick(r,['','','BREAKING: ','NEWS FLASH: ','Did you hear? ','Just in: '])+base.replace(/^(In|At) [^,]+, /,'')}
 function hbNewsPost(s,F,it){const v=s.v,r=mulberry32(hash(s.p.id,it.id,4904));
-  return`<table width="100%" border="1" cellpadding="8" cellspacing="0"><tr><td><font size="4"><b>${hbE(hbNewsHead(it,r))}</b></font><br><font size="1">${hbDate(it.day)} &middot; ${hbE(it.cat.toUpperCase())}</font>
-  <blockquote><font size="2"><b>From the wire:</b> ${hbE(it.text)}${it.link?` <a href="${hbE(it.link)}">[more]</a>`:''}</font></blockquote>
+  return`<table width="100%" border="1" cellpadding="8" cellspacing="0"><tr><td><font size="4"><b>${hbE(hbNewsHead(it,r))}</b></font><br><font size="1">${hbDate(it.day)} &middot; ${it.cat==='local'?'LOCAL SCENE':hbE(it.cat.toUpperCase())}</font>
+  <blockquote><font size="2"><b>${it.src==='bbs'?'From the BBS:':it.src==='zine'?'From megaZINE:':'From the wire:'}</b> ${hbE(it.text)}${it.link?` <a href="${hbE(it.link)}">[more]</a>`:''}</font></blockquote>
   <p><b>${hbE(s.p.first)} says:</b> ${hbE(hbSay(v,hbNewsTake(s,F,it),r))}</p></td></tr></table><br>`}
-const hbNewsCredit=()=>{const N=HB.news||{};return`<p><font size="1">Wire summaries from <a href="https://en.wikipedia.org/wiki/Portal:Current_events">Wikipedia's Current Events portal</a>, used under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Everything after "says:" is mine.</font></p>`};
+const hbNewsCredit=()=>{const N=HB.news||{};return`<p><font size="1">Wire summaries from <a href="https://en.wikipedia.org/wiki/Portal:Current_events">Wikipedia's Current Events portal</a>, used under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Local scene numbers come straight from megaZINE and the MEGAzine BBS. Everything after "says:" is mine.</font></p>`};
 function hbKNews(s,F,mods,r){const v=s.v,R=hbR(s.p,4905),W=hbNewsWho(s),st=hbNewsStories(s,F.now);
   let h=`<center>${hbImg('globe',{sc:2})} ${hbHead(s.th,s.title,R)} ${hbImg('globe',{sc:2})}<br><font size="3"><i>${hbE(hbSay(v,hbPick(R,['All the news that fits on one page.','News you can use. Mostly.','Your neighborhood news source.']),R))}</i></font></center>`;
   if(st.length)h+=`<marquee scrollamount="5" bgcolor="#000080"><font color="#ffff00" face="Arial"><b>*** NEWS FLASH *** ${st.slice(0,6).map(it=>hbE(hbNewsHead(it,()=>.1).toUpperCase())).join(' *** ')} ***</b></font></marquee>`;

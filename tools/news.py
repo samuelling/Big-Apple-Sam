@@ -6,6 +6,11 @@ Source: Wikipedia's Current Events portal (one page per day, CC BY-SA 4.0). Keep
 deaths, violence, disasters, crime, courts, war or elections, so residents never react cheerfully to a tragedy or
 to real politicians. Writes news.json next to index.html; the pages read it at run time.
 
+Also writes a "local scene" beat from public, aggregate numbers only: megaZINE's issues (works.json) and visit
+counts (stats/stats.json), and the MEGAzine BBS's board totals (its /api/info: users, callers, files, posts). A
+daily history of the BBS totals is kept in news.json so the desks can report what changed and when the board
+passes a milestone. No caller names, messages or anything private.
+
 Usage: python3 tools/news.py [days]   (default 21)
 """
 import html, json, re, sys, time, urllib.parse, urllib.request
@@ -86,6 +91,78 @@ def fetch(title):
     return None
 
 
+def get_json(url, body=None):
+    req = urllib.request.Request(url, data=None if body is None else json.dumps(body).encode(),
+                                 headers={'User-Agent': UA, 'Content-Type': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            return json.loads(r.read().decode('utf-8'))
+    except Exception as e:
+        print('  could not read', url, e, file=sys.stderr); return None
+
+
+def scene(old, today):
+    """The local beat: megaZINE issues and readership, and the BBS's board totals, with a daily history."""
+    t = today.isoformat(); prev = (old or {}).get('scene') or {}
+    if prev.get('day') == t:
+        return prev                      # once a day is plenty
+    hist = [h for h in prev.get('history', []) if h.get('d') != t][-120:]
+    miles = prev.get('milestones', [])[-30:]
+    items = []
+    works = get_json('https://megazine.org/works.json')
+    stats = get_json('https://megazine.org/stats/stats.json')
+    bbs = get_json('https://bbs.samuelling.workers.dev/api/info', {})
+    if works:
+        byid = {w['id']: w for w in works.get('works', [])}
+        for iss in works.get('issues', []):
+            m = iss.get('month') or ''
+            if iss.get('draft') or not iss.get('works') or m > t[:7]: continue
+            ws = [byid[i] for i in iss['works'] if i in byid and not byid[i].get('hidden')]
+            names = [w['title'] for w in ws[:3]]
+            items.append({'d': m + '-01', 'cat': 'local', 'src': 'zine', 'topic': f"megaZINE Issue {iss['id']}",
+                          'text': f"megaZINE Issue {iss['id']} is out: one sheet of paper folded into an 8-page mini-zine, with {len(ws)} pieces"
+                                  + (f", including {', '.join(names[:-1])} and {names[-1]}" if len(names) > 1 else '') + '.',
+                          'link': f"https://megazine.org/?issue={iss['id']}"})
+        if stats:
+            days = stats.get('days', {})
+            wk = sum(v for k, v in days.items() if k > (today - timedelta(days=7)).isoformat())
+            if wk:
+                items.append({'d': t, 'cat': 'local', 'src': 'zine', 'topic': 'megaZINE readership',
+                              'text': f"megaZINE's website had {wk} visits in the past week.", 'link': 'https://megazine.org/'})
+            clicks = []
+            for p in stats.get('paths', []):
+                if p.get('path', '').startswith('click/') and p['path'][6:] in byid:
+                    n = sum(v for k, v in (p.get('days') or {}).items() if k > (today - timedelta(days=14)).isoformat())
+                    if n: clicks.append((n, p['path'][6:]))
+            if clicks:
+                n, wid = max(clicks)
+                items.append({'d': t, 'cat': 'local', 'src': 'zine', 'topic': 'megaZINE\'s most popular piece',
+                              'text': f"The most-clicked piece in megaZINE over the past two weeks is {byid[wid]['title']}, with {n} clicks.",
+                              'link': f'https://megazine.org/?go={wid}'})
+    if bbs and 'callers' in bbs:
+        snap = {'d': t, 'users': bbs.get('users', 0), 'callers': bbs.get('callers', 0), 'files': bbs.get('files', 0),
+                'posts': bbs.get('posts', 0), 'bytes': bbs.get('bytes', 0), 'lines': bbs.get('lines', 1)}
+        last = hist[-1] if hist else None
+        for m in (10, 25, 50, 100, 250, 500, 1000, 2500, 5000):
+            if last and last['callers'] < m <= snap['callers']:
+                miles.append({'d': t, 'text': f"The MEGAzine BBS passed {m} callers."})
+        hist.append(snap)
+        week = next((h for h in reversed(hist) if h['d'] <= (today - timedelta(days=7)).isoformat()), None)
+        gb = snap['bytes'] / 1e9
+        txt = (f"The MEGAzine BBS has had {snap['callers']} callers so far. It has {snap['users']} users, {snap['files']} files "
+               f"({gb:.1f} GB) in its file areas and {snap['lines']} phone line{'s' if snap['lines'] != 1 else ''}; when they're all busy, callers get a busy signal.")
+        if week:
+            dc, du, df = snap['callers'] - week['callers'], snap['users'] - week['users'], snap['files'] - week['files']
+            bits = [f"{dc} new caller{'s' if dc != 1 else ''}" if dc > 0 else '', f"{du} new user{'s' if du != 1 else ''}" if du > 0 else '',
+                    f"{df} new file{'s' if df != 1 else ''}" if df > 0 else '']
+            bits = [b for b in bits if b]
+            if bits: txt += ' This week: ' + ', '.join(bits) + '.'
+        items.append({'d': t, 'cat': 'local', 'src': 'bbs', 'topic': 'MEGAzine BBS', 'text': txt, 'link': 'https://samuelling.github.io/BBS/'})
+    for m in miles:
+        items.append({'d': m['d'], 'cat': 'local', 'src': 'bbs', 'topic': 'MEGAzine BBS milestone', 'text': m['text'], 'link': 'https://samuelling.github.io/BBS/'})
+    return {'day': t, 'history': hist, 'milestones': miles, 'items': items}
+
+
 def main():
     days = int(sys.argv[1]) if len(sys.argv) > 1 else 21
     today = date.today(); first = today - timedelta(days=days - 1)
@@ -102,10 +179,17 @@ def main():
         if not it['d'] or it['d'] < first.isoformat() or it['d'] > today.isoformat() or it['text'] in seen: continue
         if per.get(it['d'], 0) >= 14: continue
         seen.add(it['text']); per[it['d']] = per.get(it['d'], 0) + 1; out.append(it)
+    try:
+        old = json.load(open('news.json'))
+    except Exception:
+        old = None
     if not out:
-        print('no items; keeping the old news.json', file=sys.stderr); return
+        print('no wire items; keeping the old ones', file=sys.stderr)
+        out = [i for i in (old or {}).get('items', []) if i.get('cat') != 'local']
+    sc = scene(old, today)
+    out = [i for i in out if i.get('cat') != 'local'] + [i for i in sc['items'] if i['d'] >= first.isoformat() or i.get('src') == 'zine']
     out.sort(key=lambda x: x['d'], reverse=True)
-    doc = {'source': 'Wikipedia, Portal:Current events', 'license': 'CC BY-SA 4.0',
+    doc = {'scene': sc, 'source': 'Wikipedia, Portal:Current events', 'license': 'CC BY-SA 4.0',
            'licenseUrl': 'https://creativecommons.org/licenses/by-sa/4.0/', 'portal': 'https://en.wikipedia.org/wiki/Portal:Current_events',
            'items': out}
     with open('news.json', 'w') as f:
