@@ -3428,7 +3428,7 @@ function hbNewsLine(p,u,t){const f=p.first,me=t.includes(f);let m;
   if((m=t.match(/moved out; (\S+) (\S+) took the spare room/))&&m[1]!==f)return`New roommate! Say hi to ${m[1]}.`;
   if((m=t.match(/^(\S+) turned 18 and moved out/)))return`${m[1]} moved out. The house is quiet. Updated the family page.`;
   return null}
-function hbLapse(s,created=s.created){const p=s.p;return hash(p.id,city.seed,4304)%100<18?created+200+hash(p.id,4305)%900:Infinity}
+function hbLapse(s,created=s.created){const p=s.p;if(s.kind0==='news')return Infinity;return hash(p.id,city.seed,4304)%100<18?created+200+hash(p.id,4305)%900:Infinity}
 function hbNews(s,created,L){
   const p=s.p,u=s.u,v=s.v,out=[{d:created,t:hbPick(hbR(p,4302),['Page created!','Welcome to my new homepage!','My first web page is up!']),ev:1}];
   if(s.kind0==='construction'&&!s.finished)return out;
@@ -3436,6 +3436,7 @@ function hbNews(s,created,L){
   for(const[d,t]of H){const m=hbNewsLine(p,u,t);if(m){const dd=Math.min(L,d+hash(p.id,d,4303)%5);out.push({d:dd,t:m,ev:1})}}
   const B=hbNvBook(s);if(B)B.posts.forEach((d,i)=>{if(d>created&&d<=L){const t=hbNvTitle(B,i+1),w=B.kid?'book':'novel';
     out.push({d,t:i?`Posted Chapter ${i+1} of my ${w}${t?': "'+t+'"':''}!`:`Started posting my ${w}, ${B.title}! Chapter 1 is up.`,ev:1})}});
+  if(s.kind0==='news')for(const it of hbNewsStories(s,L).slice(0,8))if(it.day>created)out.push({d:it.day,t:'New story: '+hbNewsHead(it,()=>.1),ev:1});
   if(s.finished)out.push({d:s.finishDay,t:'Finally finished my page!!! No more Under Construction!',ev:1});
   const base=v.loud||v.young||v.kid?32:v.quiet||v.old?160:75,mult=p.arch==='night'?1.5:1;
   const babies=H.filter(([,x])=>/^Baby .* was born/.test(x)).map(([d])=>d),lapse=hbLapse(s,created);
@@ -4262,6 +4263,7 @@ function hbGuestbook(s,F){
     else{const g=s.rings.find(q=>x.rings.includes(q));if(g)parts.push(`Found you through the ${g}!`);else parts.push(hbPick(rr,['Great page!','Cool site!','Nice page!','Just surfing by!','Love the graphics!','WOW what a page.']))}
     if(hash(x.id,s.id,4292)%100<4)parts.push(hbPick(rr,['Found your page through megaZINE!','Saw your page mentioned on the BBS!','Is your page going to be in the next megaZINE??']));
     else if(s.kind==='gk')parts.push(hbPick(rr,['Day Eleven made me laugh out loud!','I got GRACE on your quiz. Obviously.','I was stuck on Day 3 for a week too!','See you on the BBS, sysop!','Number 7 on your top ten is the best one.','Please write another story!']));
+    else if(s.kind==='news')parts.push(hbPick(rr,['I get all my news here now.','You should get a job at the paper!','Thanks for the updates!!','Your page is faster than the 6 o\'clock news.','Can you do a weather page too?','Read every story. Then read them again.']));
     else if(s.kind==='politics')parts.push(hbPick(rr,['You are WRONG about this and you know it.','Finally someone says it!!!','Great post. Printing it out for my brother-in-law.','I disagree with every word of this, but I will defend your right to say it.','Have you thought about running for City Council?','Get off the computer and go outside.','I called City Hall like you said. They hung up on me.','Same as last time: you are right about the money, wrong about everything else.']));
     else if(s.kind==='lab'&&s.lab==='ling')parts.push(hbPick(rr,['I stared at your stripes for 10 minutes and now everything is stripes.','Are you looking for RAs?','The drifting grating trick WORKED on me!','Can I be in an experiment? I like snacks.','My contrast sensitivity hill is VERY normal, thank you.']));
     else if(s.kind==='lab')parts.push(hbPick(rr,['My Stroop effect was 112 ms. Is that bad?','I could not stop reading the words. You were right.','R forever!','Love the hexagons.','Open science rules!']));
@@ -4435,6 +4437,7 @@ function hbKind(s){
   const r=hbR(s.p,70),T=k=>s.ftags.has(k),v=s.v,p=s.p;if(v.kid)return r()<.25?'construction':'about';
   /* a separate roll, so choosing politics never changes anyone else's kind of site */
   if(hash(p.id,city.seed,4800)%1000<(v.old?80:T('nightowl')||T('couch')?55:35))return'politics';
+  if(hash(p.id,city.seed,4900)%1000<32)return'news';
   const hob=Object.keys(HBHOB).filter(k=>T(k));const biz=!p.kid&&HBBIZ.find(([re])=>re.test(p.foundJob!==undefined?p.foundJob:(p.job||'')));
   const w=[['about',3],['construction',v.young||T('messy')||T('restless')?.9:v.old?.2:.45],['links',.25],['fan',.3]];
   if(hob.length)w.push(['hobby',2.2+(T('bookish')||T('tidy')?.6:0)]);
@@ -4448,7 +4451,7 @@ function hbKindTitle(s,F){const r=hbR(s.p,73),p=s.p;
   switch(s.kind){case'hobby':return hbFill(hbPick(r,HBHOB[s.hob].t),s,F);case'family':return hbPick(r,[`The ${plural(p.last)} Home Page`,`The ${p.last} Family`,`Welcome to the ${p.last} House!`]);
     case'construction':return hbPick(r,[`${p.first}'s Page (UNDER CONSTRUCTION)`,'My First Web Page!!!',`${p.first}'s Home Page`,`Coming Soon: ${p.first}'s Page`]);
     case'diary':return hbPick(r,[`${p.first}'s Online Journal`,'Dear Diary...',`${p.first.toLowerCase()}'s notebook`,'Thoughts From Apartment '+(F?F.u.f+2+F.u.letter:'')]);
-    case'business':return hbFill(s.biz[1],s,F);case'fan':s.fan=s.fan||hbFanName(s);return`The Unofficial ${s.fan} Fan Page`;case'positron':return'POSITRON - Official Home Page';case'gk':return'The Gabriel Knight Home Page';case'lab':return HBLAB[s.lab].title;case'politics':return hbPick(r,hbPolWho(s).P.t).replace('{F}',p.first);case'links':return hbPick(r,[`${p.first}'s Hotlist`,`${p.first}'s Favorite Places on the Web`,'Cool Links!!!'])}
+    case'business':return hbFill(s.biz[1],s,F);case'fan':s.fan=s.fan||hbFanName(s);return`The Unofficial ${s.fan} Fan Page`;case'positron':return'POSITRON - Official Home Page';case'gk':return'The Gabriel Knight Home Page';case'lab':return HBLAB[s.lab].title;case'politics':return hbPick(r,hbPolWho(s).P.t).replace('{F}',p.first);case'news':return hbPick(r,[`${p.first}'s News Desk`,`The ${p.last} Gazette`,'NEWS FLASH!!!',`The Daily ${p.first}`,`${p.first}'s Headline Hotline`,`${p.first} Reports`]);case'links':return hbPick(r,[`${p.first}'s Hotlist`,`${p.first}'s Favorite Places on the Web`,'Cool Links!!!'])}
   return null}
 function hbFanName(s){const r=hbR(s.p,74);return r()<.5?hbBand(r):hbPick(r,HBFANSHOW).replace('{N}',hbPick(r,HBNOUN)).replace('{A}',hbPick(r,HBADJ))}
 /* graphic headers: words drawn as an image, the way people made section titles in paint programs */
@@ -4696,6 +4699,72 @@ HBMOD.unshift(
     return`<h2>Where I Stand</h2><p>No beating around the bush. Here is where I stand on every issue in this city.</p><table border="1" cellpadding="5">${HBPOL_ISSUES.map(k=>{const l=HBPOL_LEAN[W.st][k];return`<tr><td>${hbE(hbCap(C.I[k].name))}</td><td align="center"><b><font color="${l>0?'#2040c0':l<0?'#c02020':'#808080'}">${l>0?'FOR':l<0?'AGAINST':'IT\'S COMPLICATED'}</font></b></td></tr>`}).join('')}</table>`}},
   {k:'polletters',f:'letters.html',nav:()=>'Letters to the Editor',pri:14,when:s=>s.kind==='politics'&&!s.v.kid,page(s,F,r){const C=hbPolCity(),posts=hbPolPosts(s,F).filter(q=>q.lean!==0||q.key==null).slice(-3),R=hbR(s.p,4814);
     return`<h2>Letters to the Editor</h2><p>These are letters I sent to ${hbE(C.paper)}. They did not print them. So I am printing them here.</p>${posts.map(q=>`<table border="1" cellpadding="10" width="90%"><tr><td><font face="Courier New">To the Editor:<br><br>${q.body.slice(0,2).map(t=>hbE(t.replace(/<[^>]+>/g,''))).join('<br><br>')}<br><br>Sincerely,<br>${hbE(s.p.first+' '+s.p.last)}<br>${hbE(F.bld)}</font><br><br><font size="1">(Sent ${hbDate(q.d+1)}. Not printed.)</font></td></tr></table><br>`).join('')}`}});
+
+/* ---------- amateur news desks ----------
+   A few residents run their own news site: real headlines from the wire (Wikipedia's Current Events portal,
+   CC BY-SA, fetched into news.json every few hours by a GitHub workflow), each followed by the resident's own
+   take, through their own life: the stargazer will look for it tonight, the retiree remembers when news came in
+   the paper, the marathoner wants to go for a run. Only lighter news gets in (see tools/news.py), and residents
+   only ever talk about themselves, never put words in the mouths of the real people in the story. */
+HB.news=null;
+try{const c=JSON.parse(localStorage.getItem('big-apple-sam/news')||'null');if(c&&c.items)HB.news=c}catch(e){}
+function hbNewsFetch(){
+  if(typeof fetch!=='function'||location.protocol==='file:')return;const url=/\/web\/?(index\.html)?$/.test(location.pathname)?'../news.json':'news.json';
+  fetch(url,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!Array.isArray(j.items))return;HB.news=j;
+    try{localStorage.setItem('big-apple-sam/news',JSON.stringify(j))}catch(e){}}).catch(()=>{});
+}
+function hbNewsItems(){const N=HB.news;if(!N||!N.items)return[];if(N._d)return N._d;
+  N._d=N.items.map((it,i)=>{const[y,m,d]=it.d.split('-').map(Number);return Object.assign({},it,{day:dayOf(y,m-1,d),id:hash(i,it.text.length,it.text.charCodeAt(3)||1,4901)})});return N._d}
+const HBNW_BEAT={science:['science','stargaze','computer','tech','words'],sports:['exercise','marathon','cycle','couch','runner'],culture:['film','music','read','paint','guitar','synth','poet'],
+  business:['money','office','worker'],environment:['plants','garden','carni','fish','water','cat','dog']};
+function hbNewsWho(s){if(s._nw)return s._nw;const p=s.p,T=k=>s.ftags.has(k);let beat='general',best=0;
+  for(const b in HBNW_BEAT){const n=HBNW_BEAT[b].filter(T).length;if(n>best){best=n;beat=b}}
+  return s._nw={beat}}
+/* this desk's stories as of a day: newest first, its own beat first in line */
+function hbNewsStories(s,L){const W=hbNewsWho(s),all=hbNewsItems().filter(it=>it.day<=L);
+  const mine=all.filter(it=>W.beat==='general'||it.cat===W.beat||hash(s.p.id,it.id,4902)%100<35);return mine.slice(0,24)}
+const HBNW_LENS={
+  science:{sky:['I\'m going to look for it with my telescope tonight. Clouds permitting.','Out on the fire escape with the binoculars tonight, for sure.'],space:['Space news is the best news. I will not be taking questions.','I told my neighbor about this in the elevator. He nodded politely.','I would give anything to go up there. Anything except my lunch.'],
+    comp:['Time to update everything. Again.','This is why I back up my files every Sunday.','I unplugged my modem just in case.'],
+    any:['Science is amazing. That\'s all.','I read the whole thing twice and understood about half of it.','My science teacher would have loved this.']},
+  sports:{fit:['This makes me want to go for a run. Tomorrow.','Inspiring! I did 20 extra sit-ups.'],couch:['I did not move from the couch for this. Worth it.'],any:['What a game!','I followed this on the radio in the kitchen.','My dad would have loved this one.']},
+  culture:{music:['I need to hear this right away.'],read:['Somebody is going to write a book about this. Maybe me.'],any:['Adding this to my list.','Sounds like my kind of thing.','I heard about this on the radio first.']},
+  business:{money:['As someone who works with numbers all day: wow.'],any:['I don\'t understand the stock market, and at this point I\'m afraid to ask.','Where do they get all that money?','Money, money, money.']},
+  environment:{plant:['I\'m going to go water my tomatoes and think about this.','My plants agree.'],any:['We only get one planet, people.','Makes me want to plant something.','Somebody tell my landlord.']}};
+function hbNewsTake(s,F,it){const p=s.p,v=s.v,r=mulberry32(hash(p.id,it.id,4903)),T=k=>s.ftags.has(k),t=it.text,L=HBNW_LENS[it.cat]||HBNW_LENS.science;
+  const open=v.old?hbPick(r,['I read about this today.','Here is something from the news.','Did you see this?']):v.loud?hbPick(r,['WOW!!! Did you guys see this??','BIG NEWS, everybody!!!','Okay, this is HUGE.']):v.quiet?hbPick(r,['saw this today.','huh.','this one stuck with me.']):hbPick(r,['Did you hear about this?','This caught my eye today.','News flash!','Okay, this is interesting.']);
+  let lens=L.any;
+  if(it.cat==='science')lens=/vulnerab|software|security flaw|code|website|\bAI\b|computer|chatbot/i.test(t)?L.comp:/space|planet|star\b|moon|mars|martian|rocket|astronom|meteor|comet|telescope|orbit/i.test(t)&&(T('stargaze')||r()<.6)?(/comet|\bstar\b|planet|eclipse|telescope|astronom|moon\b/i.test(t)&&T('stargaze')?L.sky.concat(L.space):L.space):L.any;
+  else if(it.cat==='sports')lens=T('exercise')||T('marathon')||T('cycle')?L.fit.concat(L.any):T('couch')?L.couch.concat(L.any):L.any;
+  else if(it.cat==='culture')lens=T('music')||T('guitar')||T('synth')?L.music.concat(L.any):T('read')?L.read.concat(L.any):L.any;
+  else if(it.cat==='business')lens=T('money')?L.money.concat(L.any):L.any;
+  else if(it.cat==='environment')lens=T('plants')||T('garden')?L.plant.concat(L.any):L.any;
+  const mood=/\bwins?\b|award|champion|prize|title|defeat/i.test(t)?['Congratulations!','Good for them!','Way to go!']:/bankrupt|plummet|falls|drop|record high|highest/i.test(t)?['Yikes.','Ouch.','That doesn\'t sound good.']:/first|oldest|discover|new\b/i.test(t)?['History in the making!','Amazing.','Who knew?']:['Can you believe it?','What a world.','Huh!'];
+  const extra=v.old&&r()<.5?hbPick(r,['When I was young, news like this came in the paper the next day.','Things sure have changed.']):'';
+  const close=hbPick(r,['What do YOU think? Sign my guestbook!','Discuss! (In my guestbook.)','More news tomorrow.','Stay tuned!','I\'ll keep you posted.']);
+  return[open,hbPick(r,mood),hbPick(r,lens),extra,close].filter(Boolean).join(' ')}
+function hbNewsHead(it,r){const w=it.text.split(/[,;:]|\.\s/)[0].split(' '),base=it.topic&&it.topic.length>4?it.topic:w.slice(0,10).join(' ')+(w.length>10?'...':'');
+  return hbPick(r,['','','BREAKING: ','NEWS FLASH: ','Did you hear? ','Just in: '])+base.replace(/^(In|At) [^,]+, /,'')}
+function hbNewsPost(s,F,it){const v=s.v,r=mulberry32(hash(s.p.id,it.id,4904));
+  return`<table width="100%" border="1" cellpadding="8" cellspacing="0"><tr><td><font size="4"><b>${hbE(hbNewsHead(it,r))}</b></font><br><font size="1">${hbDate(it.day)} &middot; ${hbE(it.cat.toUpperCase())}</font>
+  <blockquote><font size="2"><b>From the wire:</b> ${hbE(it.text)}${it.link?` <a href="${hbE(it.link)}">[more]</a>`:''}</font></blockquote>
+  <p><b>${hbE(s.p.first)} says:</b> ${hbE(hbSay(v,hbNewsTake(s,F,it),r))}</p></td></tr></table><br>`}
+const hbNewsCredit=()=>{const N=HB.news||{};return`<p><font size="1">Wire summaries from <a href="https://en.wikipedia.org/wiki/Portal:Current_events">Wikipedia's Current Events portal</a>, used under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Everything after "says:" is mine.</font></p>`};
+function hbKNews(s,F,mods,r){const v=s.v,R=hbR(s.p,4905),W=hbNewsWho(s),st=hbNewsStories(s,F.now);
+  let h=`<center>${hbImg('globe',{sc:2})} ${hbHead(s.th,s.title,R)} ${hbImg('globe',{sc:2})}<br><font size="3"><i>${hbE(hbSay(v,hbPick(R,['All the news that fits on one page.','News you can use. Mostly.','Your neighborhood news source.']),R))}</i></font></center>`;
+  if(st.length)h+=`<marquee scrollamount="5" bgcolor="#000080"><font color="#ffff00" face="Arial"><b>*** NEWS FLASH *** ${st.slice(0,6).map(it=>hbE(hbNewsHead(it,()=>.1).toUpperCase())).join(' *** ')} ***</b></font></marquee>`;
+  h+=hbHr(s.th,s);
+  h+=`<table width="100%" cellpadding="6"><tr><td valign="top" width="70%"><p>${hbE(hbSay(v,`Welcome to my news page! I'm ${F.first} from the ${F.bld}. I read the news so you don't have to, and then I tell you what I think.`,R))}</p>`;
+  if(!HB.news)h+=`<table border="2" cellpadding="10" width="100%"><tr><td align="center"><b>OUR NEWS FEED IS DOWN!</b><br><font size="2">The wire service isn't answering. Check back soon.</font><br>${hbImg('cons')}</td></tr></table>`;
+  else if(!st.length)h+=`<p><i>${hbE(hbSay(v,'Slow news day. Nothing yet!',R))}</i></p>`;
+  else h+=hbH(s,'Top Stories',R,3)+st.slice(0,5).map(it=>hbNewsPost(s,F,it)).join('')+(st.length>5?`<p><a href="${hbUrl(s,'news-archive.html')}">More stories in the archive</a></p>`:'');
+  h+=`</td><td valign="top" width="30%"><table border="2" cellpadding="6" bgcolor="#ffffff" width="100%"><tr><td><font color="#000000" size="2"><b>MY BEAT:</b> ${hbE(W.beat==='general'?'A little of everything':hbCap(W.beat))}<br><br><b>Last updated:</b><br>${hbDate(F.now)}</font></td></tr></table><br>
+    <table border="2" cellpadding="6" bgcolor="#ffffff" width="100%"><tr><td><font color="#000000" size="2"><b>READER POLL</b><br>Is the news too depressing these days?<br><br>${[['Yes',58],['No',17],['I don\'t watch the news',25]].map(([t,n])=>`${t}: ${n}%<br><table cellspacing="0" cellpadding="0" width="100%"><tr><td bgcolor="#2040c0" width="${n}%" height="8"></td><td></td></tr></table>`).join('')}</font></td></tr></table><br>
+    <center><font size="1">Member of the<br><b>Citizen Reporters Webring</b><br>[ &lt;&lt; | Random | &gt;&gt; ]</font></center></td></tr></table>`+hbNewsCredit();
+  return h}
+HBKIND.news=hbKNews;
+HBMOD.unshift({k:'newsarchive',f:'news-archive.html',nav:()=>'News Archive',pri:16,when:s=>s.kind==='news',page(s,F,r){const st=hbNewsStories(s,F.now);
+  return`<h2>${hbImg('globe')} News Archive</h2><p>Every story I've covered, newest first.</p>${st.length?st.slice(5).map(it=>hbNewsPost(s,F,it)).join(''):'<p><i>Nothing in the archive yet.</i></p>'}${hbNewsCredit()}`}});
 
 const HBGK_CSS=String.raw`:root{--face:#c0c0c0;--hi:#ffffff;--shade:#808080;--dark:#000000;--ink:#000000;--link:#0000ee;--visited:#551a8b;--ui:"MS Sans Serif",Arial,Helvetica,sans-serif;--serif:"Times New Roman",Times,serif;--mono:"Courier New",Courier,monospace}
 *,*::before,*::after{box-sizing:border-box}html{background:#c0c0c0}body.doc{margin:0}
@@ -5657,7 +5726,7 @@ function hbHook(){
   doc.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented)return;const h=a.getAttribute('href');e.preventDefault();if(h.startsWith('#')){hbJump(doc,h);return}
     if(h==='midi:play'){if(HB.cur&&HB.cur.res.s)hbMidiPlay(HB.cur.res.s);return}if(h==='midi:stop'){hbMidiStop();return}
     if(h.startsWith('share:')){hbShareDo(h.slice(6),doc);return}
-    if(/^https?:\/\/(www\.)?(megazine\.org|samuelling\.github\.io|sites\.bu\.edu|crumplab\.com|github\.com)\//i.test(h)){window.open(h.replace(/^http:/,'https:'),'_blank','noopener');return}hbGo(h)});
+    if(/^https?:\/\/(www\.)?(megazine\.org|samuelling\.github\.io|sites\.bu\.edu|crumplab\.com|github\.com|en\.wikipedia\.org|creativecommons\.org)\//i.test(h)){window.open(h.replace(/^http:/,'https:'),'_blank','noopener');return}hbGo(h)});
   doc.addEventListener('mouseover',e=>{const a=e.target.closest&&e.target.closest('a[href]');hbEl('wStat').textContent=a?(/^midi:/.test(a.getAttribute('href'))?'Play MIDI':a.getAttribute('href')):'Document: Done'});
   doc.addEventListener('submit',e=>{e.preventDefault();const f=e.target,fd=new FormData(f);
     if(f.dataset.search)return hbGo(HBROOT+'search?q='+encodeURIComponent((fd.get('q')||'').toString().trim()));
@@ -5690,7 +5759,7 @@ function hbBoot(){
   dragWin(hbEl('web'),hbEl('wTb'));
   hbEl('webBtn').addEventListener('click',()=>{if(HB.open&&!mini.web)hbClose();else if(HB.open){mini.web=false;hbEl('web').hidden=false;renderIcons()}else hbOpen(HBROOT)});
   hbEl('pbody').addEventListener('click',e=>{const a=e.target.closest('[data-hb]');if(!a)return;e.preventDefault();const s=hbIndex().byId.get(+a.dataset.hb);if(HB.fromWeb&&s){location.href=hbExtUrl(hbUrl(s));return}hbOpenPerson(+a.dataset.hb)});
-  hbEl('wThrob').src=hbSprite('globe').fr[0];hbBuzzFetch();
+  hbEl('wThrob').src=hbSprite('globe').fr[0];hbBuzzFetch();hbNewsFetch();
   setInterval(hbAnimate,80);
 }
 
