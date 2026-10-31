@@ -3640,8 +3640,8 @@ const HBMOD=[
     ${vis?`<center>${hbPic(hbPhoto('hermann',1),'Stare at the white lines. See gray dots?',200)}${hbPic(hbPhoto('cafewall',2),'The gray lines are perfectly straight. Really.',200)}</center><p>Neither of those things is actually there. Your visual system adds them. Isn't that something?</p>`:''}
     <h3>Current projects</h3><ul>${hbPickN(r,['A grant proposal (due Friday, of course)','Teaching an intro class of 200 students','Fixing the lab computer again','Writing a paper that reviewers will hate','Mentoring three grad students','Trying to get the new equipment to work'],3).map(x=>`<li>${hbE(x)}`).join('')}</ul>`}},
   {k:'family',f:'family.html',nav:()=>'My Family',pri:6,when:(s,F)=>F.kids.length||F.baby||F.due!==null||F.rel==='newlyweds',page(s,F,r){let h=`<h2>${hbImg('house')} My Family ${hbImg('heart')}</h2>`;
-    if(F.partner)h+=`<h3>${F.rel==='newlyweds'?'Just married!':'My partner'}</h3><p>${hbPic(hbPhoto('me',F.partner.id,{c:F.partner.cK||'#a03030',skin:F.partner.cS}),F.partner.first,110)}<br>${hbWho(F.partner)} ${F.rel==='newlyweds'?'and I got married this year. Best day ever.':`and I have been together ${F.since||'many'} years.`}</p>`;
-    for(const k of F.kids)h+=`<h3>${hbE(k.first)}, age ${k.age}</h3><p>${hbPic(hbPhoto('me',k.id,{c:k.cK||'#30a050',skin:k.cS}),k.first,100)}<br>${hbE(k.first)} is ${hbE((k.traits[0]||'a handful').replace(/^a /,'a '))}. ${hbE(hbPick(r,['Loves dinosaurs.','Wants to be an astronaut.','Lost a tooth last week!','Draws on everything.','Reads under the covers with a flashlight.','Is learning to ride a bike.']))}${k.age>=8&&HB.idx&&HB.idx.byId.get(k.id)?` ${hbE(k.first)} has a page too: ${hbWho(k)}!`:''}</p>`;
+    if(F.partner)h+=`<h3>${F.rel==='newlyweds'?'Just married!':'My partner'}</h3><p>${hbPic(hbPortrait(F.partner),F.partner.first,128)}<br>${hbWho(F.partner)} ${F.rel==='newlyweds'?'and I got married this year. Best day ever.':`and I have been together ${F.since||'many'} years.`}</p>`;
+    for(const k of F.kids)h+=`<h3>${hbE(k.first)}, age ${k.age}</h3><p>${hbPic(hbPortrait(k),k.first,112)}<br>${hbE(k.first)} is ${hbE((k.traits[0]||'a handful').replace(/^a /,'a '))}. ${hbE(hbPick(r,['Loves dinosaurs.','Wants to be an astronaut.','Lost a tooth last week!','Draws on everything.','Reads under the covers with a flashlight.','Is learning to ride a bike.']))}${k.age>=8&&HB.idx&&HB.idx.byId.get(k.id)?` ${hbE(k.first)} has a page too: ${hbWho(k)}!`:''}</p>`;
     if(F.due!==null)h+=`<h3>${hbImg('baby')} Baby countdown</h3><p><font size="6" color="#ff3399"><b>${F.due}</b></font> days until we meet baby ${hbE(F.babyName||'?')}!</p>`;
     else if(F.baby)h+=`<h3>${hbImg('baby')} Baby ${hbE(F.baby)}</h3><p>${hbE(F.baby)} is here and we are SO tired. Worth it.</p>`;
     return h}},
@@ -3689,6 +3689,208 @@ const HBMOD=[
 
 /* the pages a site has, in nav order */
 function hbMods(s,F){if(s.kind==='construction')return[];const m=HBMOD.filter(x=>x.when(s,F)&&!(s.kind==='family'&&x.k==='family')).sort((a,b)=>b.pri-a.pri||hash(s.id,a.k.length)%3-1);return m.slice(0,s.v.kid?2:s.v.old?3:4)}
+
+/* ---------- fake photos: pixel portraits and family snapshots ----------
+   Everybody is drawn from their own look in the simulation (skin, hair, shirt, long or short hair, hats), plus a
+   few things that stay fixed per person (glasses, hairstyle, beard, earrings, freckles, eye color). A household's
+   photo album comes from its own history: moving day, the new baby, the new cat, graduations and retirements,
+   then birthdays, Halloween, the holidays and summer trips, year after year. The pictures look like snapshots:
+   flash, red eye, a faded tint, film grain, the orange date stamp, the odd blink or thumb over the lens. */
+const HBF_W=96,HBF_H=72;
+function hbLook(p){
+  if(p._lk)return p._lk;const h=n=>hash(p.id|0,n,4700)%100,kid=!!p.kid,age=p.age||30,long=!!p.longHair,tr=p.traits||[];
+  const style=kid?(long?['long','pony','bangs','curly','pony'][h(1)%5]:['short','spiky','bangs','short','curly'][h(1)%5])
+    :long?['long','long','pony','bun','curly','bangs'][h(1)%6]:(age>45&&h(2)<38)?'bald':['short','short','side','spiky','curly','buzz'][h(3)%6];
+  return p._lk={skin:p.cS||'#e0b090',hair:p.cH||'#3a2a1c',shirt:(kid&&p.cK)||p.cT||'#3050c0',long,kid,age,style,hat:p.hat||null,
+    glasses:h(4)<(p.reader||tr.includes('bookish')?45:(age>55?40:16)),beard:!long&&!kid&&age>=20&&h(5)<20,stache:!long&&!kid&&age>=25&&h(6)<12,
+    earrings:long&&!kid&&h(7)<35,freckles:h(8)<14,eye:['#1e1a1a','#2a4a8a','#3a6a3a','#5a3a1a','#1e1a1a'][h(9)%5],grin:h(10)<40}}
+/* one person from the chest up: cx = center, top = top of the head, k = head size (about half its width) */
+function hbBust(P,cx,top,k,L,o={}){
+  const S=L.skin,Sd=hbMix(S,'#000000',.25),H=L.hair,Hd=hbMix(H,'#000000',.25),sh=o.shirt||L.shirt,st=L.hat?'hat':L.style;
+  // hair that falls behind the shoulders goes first, so the body covers it
+  if(!o.ghost){if(st==='long')P.oval(cx,top+k*1.7,k*1.12,k*1.6,H);
+    if(st==='curly'&&L.long)P.disc(cx,top+k*1.35,k*1.3,H);
+    if(st==='curly'&&!L.long)P.disc(cx,top+k*.75,k*1.02,H);
+    if(st==='pony')P.oval(cx+k*1.0,top+k*1.4,k*.32,k*.75,H);
+    if(st==='bun')P.disc(cx,top-k*.05,Math.max(1,k*.42),H)}
+  // body
+  if(o.ghost){P.oval(cx,top+k*1.6,k*1.25,k*1.7,'#f4f4f4');P.oval(cx,top+k*3.6,k*2,k*1.6,'#f4f4f4');P.disc(cx-k*.4,top+k*1.2,Math.max(1,k*.2),'#101010');P.disc(cx+k*.4,top+k*1.2,Math.max(1,k*.2),'#101010');P.oval(cx,top+k*1.9,k*.2,k*.3,'#101010');return}
+  P.oval(cx,top+k*3.4,k*2.05,k*1.55,sh);P.oval(cx,top+k*3.0,k*1.6,k*.7,sh);
+  if(o.cape){P.oval(cx,top+k*3.5,k*2.2,k*1.6,'#101010');P.r(cx-k*.9,top+k*1.9,k*1.8,k*.5,'#a01010')}
+  if(o.gown){P.oval(cx,top+k*3.4,k*2.05,k*1.55,'#181828')}
+  if(o.sweater){for(let x=-2;x<=2;x++)P.r(cx+x*k*.7-1,top+k*2.7,2,2,x%2?'#e8e8e8':'#d02020')}
+  if(o.bib){P.r(cx-k*.6,top+k*2.6,k*1.2,k*.8,'#ffffff');P.r(cx-k*.3,top+k*2.85,k*.6,1,'#000000')}
+  if(o.medal){P.line(cx-k*.4,top+k*2,cx,top+k*2.8,'#2050c0');P.line(cx+k*.4,top+k*2,cx,top+k*2.8,'#2050c0');P.disc(cx,top+k*2.9,Math.max(1,k*.22),'#ffc020')}
+  P.r(cx-k*.32,top+k*1.75,k*.64,k*.55,Sd);
+  // head
+  P.oval(cx,top+k*1.1,k*.88,k*1.08,S);P.disc(cx-k*.9,top+k*1.15,Math.max(1,k*.17),S);P.disc(cx+k*.9,top+k*1.15,Math.max(1,k*.17),S);
+  if(L.earrings&&k>=6){P.px(cx-k*.92,top+k*1.42,'#ffd040');P.px(cx+k*.92,top+k*1.42,'#ffd040')}
+  // hair on top
+  if(st==='bald'){P.r(cx-k*.95,top+k*.75,k*.22,k*.55,H);P.r(cx+k*.73,top+k*.75,k*.22,k*.55,H)}
+  else if(st==='buzz')P.oval(cx,top+k*.42,k*.86,k*.42,hbMix(H,S,.35));
+  else if(st==='hat'){P.oval(cx,top+k*.4,k*.95,k*.5,L.hat);P.r(cx-k*1.1,top+k*.68,k*2.2,Math.max(1,k*.18),hbMix(L.hat,'#000000',.2))}
+  else{P.oval(cx,top+k*.42,k*.96,k*.5,H);
+    if(st==='side')P.oval(cx-k*.35,top+k*.55,k*.62,k*.35,H);
+    if(st==='bangs'||st==='long')P.r(cx-k*.78,top+k*.45,k*1.56,k*.32,H);
+    if(st==='long'){P.r(cx-k*.98,top+k*.6,k*.24,k*1.35,H);P.r(cx+k*.74,top+k*.6,k*.24,k*1.35,H)}
+    if(st==='spiky')for(let i=-2;i<=2;i++)P.r(cx+i*k*.36-1,top-k*.15,2,k*.35,H);
+    if(st==='curly')for(let i=-2;i<=2;i++)P.disc(cx+i*k*.38,top+k*.25,Math.max(1,k*.22),Hd)}
+  if(o.witch){P.r(cx-k*1.3,top+k*.35,k*2.6,Math.max(1,k*.22),'#181818');for(let y=0;y<k*1.3;y++)P.r(cx-k*.7+y*.5,top+k*.35-y,k*1.4-y,1,'#181818')}
+  if(o.ears){P.oval(cx-k*.6,top,k*.25,k*.4,'#202020');P.oval(cx+k*.6,top,k*.25,k*.4,'#202020')}
+  if(o.cap){P.r(cx-k*1.1,top+k*.1,k*2.2,Math.max(1,k*.25),'#101018');P.r(cx-k*.5,top+k*.3,k*1,k*.3,'#101018');P.px(cx+k*.9,top+k*.5,'#ffd040');P.px(cx+k*.9,top+k*.7,'#ffd040')}
+  if(o.santa){P.oval(cx,top+k*.3,k*.98,k*.45,'#d02020');P.r(cx-k*1.0,top+k*.62,k*2,Math.max(1,k*.22),'#ffffff');P.disc(cx+k*1.0,top-k*.05,Math.max(1,k*.2),'#ffffff')}
+  // face
+  const ey=top+k*1.08,ex=k*.36,es=Math.max(1,Math.round(k/7));
+  for(const sx of[-1,1]){const x=cx+sx*ex;
+    if(k>=7)P.r(x-es,ey-es+1,es*2+1,es+1,o.blink?S:'#f8f8f8');
+    if(o.blink)P.r(x-es,ey,es*2+1,1,Sd);else{P.r(x-(es>1?0:0),ey-es+1,es,es,o.redEye?'#e81818':L.eye);if(k>=9)P.px(x,ey-es+1,'#ffffff')}
+    if(k>=7)P.r(x-es,ey-es-Math.max(1,k*.12),es*2+1,1,hbMix(H,'#000000',.3));
+    if(L.glasses&&k>=5){const gw=Math.max(3,k*.5),gh=Math.max(2,k*.36),gx=x-gw/2,gy=ey-gh/2;P.r(gx,gy,gw,1,'#202020');P.r(gx,gy+gh,gw,1,'#202020');P.r(gx,gy,1,gh,'#202020');P.r(gx+gw,gy,1,gh+1,'#202020')}
+    if(L.kid&&k>=6)P.r(x-es,ey+k*.3,es*2,Math.max(1,k*.12),hbMix(S,'#ff6070',.35))}
+  if(L.glasses&&k>=5)P.r(cx-k*.1,ey-1,k*.2,1,'#202020');
+  P.r(cx,ey+k*.3,1,Math.max(1,k*.18),Sd);
+  if(L.freckles&&k>=7)for(const d of[-.5,-.35,.35,.5])P.px(cx+d*k,ey+k*.38,hbMix(S,'#803000',.45));
+  if(L.beard)P.oval(cx,top+k*1.72,k*.72,k*.42,H);
+  const my=top+k*1.62;
+  if(o.mouth==='o')P.disc(cx,my,Math.max(1,k*.13),'#5a1a1a');
+  else if(L.grin||o.grin){P.r(cx-k*.3,my-1,k*.6,Math.max(2,k*.2),'#5a1a1a');if(k>=7)P.r(cx-k*.25,my-1,k*.5,1,'#ffffff')}
+  else{P.r(cx-k*.28,my,k*.56,1,'#7a2a2a');P.px(cx-k*.33,my-1,'#7a2a2a');P.px(cx+k*.3,my-1,'#7a2a2a')}
+  if(L.stache)P.r(cx-k*.32,my-Math.max(2,k*.18),k*.64,Math.max(1,k*.14),H);
+  if(L.age>62&&k>=8){P.px(cx-ex-es-1,ey+1,Sd);P.px(cx+ex+es+1,ey+1,Sd)}
+}
+/* a baby in a blanket, a cat or a dog, for the front of a photo */
+function hbBaby(P,cx,cy,k,skin){P.oval(cx,cy,k*1.1,k*.75,'#c8e0ff');P.disc(cx-k*.35,cy-k*.05,Math.max(1,k*.42),skin||'#f0c8a0');P.px(cx-k*.5,cy-k*.1,'#202020');P.px(cx-k*.2,cy-k*.1,'#202020')}
+function hbPetHead(P,cx,cy,k,a){const c=a.col||'#d08a3a',dk=hbMix(c,'#000000',.3);
+  if(a.kind==='dog'){P.oval(cx,cy,k*.9,k*.8,c);P.oval(cx-k*.8,cy,k*.3,k*.6,dk);P.oval(cx+k*.8,cy,k*.3,k*.6,dk);P.px(cx-k*.3,cy-k*.15,'#000');P.px(cx+k*.3,cy-k*.15,'#000');P.oval(cx,cy+k*.3,k*.22,k*.15,'#000');P.r(cx-1,cy+k*.5,2,Math.max(1,k*.25),'#e05070')}
+  else{P.oval(cx,cy,k*.85,k*.75,c);for(const s of[-1,1])for(let i=0;i<k*.6;i++)P.r(cx+s*k*.55-(s<0?i*.5:0),cy-k*.6-i*.6+k*.1,Math.max(1,i*.5),1,c);
+    P.px(cx-k*.3,cy-k*.1,'#40c040');P.px(cx+k*.3,cy-k*.1,'#40c040');P.px(cx,cy+k*.2,'#ff90a0');P.line(cx-k*.9,cy+k*.25,cx-k*.4,cy+k*.3,'#202020');P.line(cx+k*.4,cy+k*.3,cx+k*.9,cy+k*.25,'#202020')}}
+/* tiny orange date stamp, like a disposable camera's */
+const HBF_DIG=['111101101101111','010110010010111','111001111100111','111001111001111','101101111001001','111100111001111','111100111101111','111001010010010','111101111101111','111101111001111'];
+function hbStamp(P,d,x,y){const t=new Date(d*864e5),s=`'${String(t.getUTCFullYear()).slice(2)} ${t.getUTCMonth()+1} ${t.getUTCDate()}`;let cx=x-s.length*4;
+  for(const ch of s){if(ch>='0'&&ch<='9'){const g=HBF_DIG[+ch];for(let i=0;i<15;i++)if(g[i]==='1')P.px(cx+i%3,y+Math.floor(i/3),'#ff9020')}else if(ch==="'")P.px(cx+1,y,'#ff9020');cx+=4}}
+/* backdrops */
+function hbBackdrop(P,R,sc,day){const W=HBF_W,H=HBF_H,sky=(a,b,h=H)=>{for(let y=0;y<h;y++)P.r(0,y,W,1,hbMix(a,b,y/h))};
+  switch(sc){
+    case'school':for(let y=0;y<H;y++)P.r(0,y,W,1,hbMix('#3a2a8a','#2a6ab0',y/H));for(let k=0;k<7;k++){const y0=R()*H;for(let x=0;x<W;x++)P.px(x,y0+x*.35-12,'#80c0ff')}for(let k=0;k<40;k++)P.px(R()*W,R()*H,'#9ad0ff');break;
+    case'studio':for(let y=0;y<H;y++)for(let x=0;x<W;x+=8)P.r(x,y,8,1,hbMix('#506878','#a0b0c0',(Math.sin(x*.07+y*.05)+1)/3+y/H/3));break;
+    case'beach':sky('#58a8f0','#c0e8ff',30);P.r(0,30,W,10,'#2070c0');for(let x=0;x<W;x+=6)P.r(x+R()*3,32+R()*6,3,1,'#80c0ff');P.r(0,40,W,32,'#f0d890');P.disc(80,10,5,'#ffff80');break;
+    case'lake':sky('#88b8e8','#d8ecff',28);P.r(0,22,W,8,'#2a5a2a');for(let x=0;x<W;x+=7)P.disc(x+R()*4,22,3+R()*3,'#204a20');P.r(0,30,W,42,'#3a6a9a');for(let k=0;k<12;k++)P.r(R()*W,32+R()*30,4,1,'#6a9aca');break;
+    case'mountain':sky('#70a8e8','#e0f0ff',40);for(let x=0;x<W;x++){const h=22+Math.abs(((x*1.7)%60)-30)*.8;P.r(x,40-h+20,1,h,'#7a8a9a');if(h>34)P.r(x,40-h+20,1,4,'#ffffff')}P.r(0,52,W,20,'#4a8a3a');break;
+    case'city':sky('#90c0f0','#e0f0ff',50);for(let x=0;x<W;){const w=7+R()*9|0,h=18+R()*30|0;P.r(x,52-h,w,h,['#8a8a9a','#a09a8a','#7a8090'][x%3]);for(let y=52-h+2;y<50;y+=3)for(let q=x+1;q<x+w-1;q+=2)P.px(q,y,'#c8d8e8');x+=w+1}P.r(0,52,W,20,'#9a9a9a');break;
+    case'park':sky('#80c0ff','#d0f0ff',36);for(let x=0;x<W;x+=14)P.disc(x+R()*6,30,8+R()*4,'#2f8a2f');P.r(0,36,W,36,'#50a040');break;
+    case'snow':sky('#b8c8d8','#e8eef4',40);P.r(0,40,W,32,'#f4f8ff');for(let k=0;k<60;k++)P.px(R()*W,R()*H,'#ffffff');break;
+    case'halloween':P.r(0,0,W,H,'#1a0a2a');P.disc(82,10,6,'#f0e0a0');for(let k=0;k<20;k++)P.px(R()*W,R()*30,'#ffffff');P.r(0,58,W,14,'#2a1a10');break;
+    case'party':P.r(0,0,W,H,'#3a2a4a');for(let k=0;k<14;k++)P.r(R()*W,R()*40,2,2,['#ff4080','#40c0ff','#ffe040','#80ff60'][k%4]);for(let x=0;x<W;x+=12)P.line(x,0,x+6,8,'#ffe040');break;
+    case'xmas':P.r(0,0,W,H,'#6a3a2a');P.r(0,0,W,H*.7,'#8a5a3a');{const tx=12;for(let y=0;y<34;y++)P.r(tx-y*.35,14+y,y*.7+1,1,'#1a6a2a');P.r(tx-1,48,3,5,'#5a3a1a');for(let k=0;k<10;k++)P.px(tx-10+R()*20,18+R()*28,['#ff4040','#ffe040','#40a0ff'][k%3]);P.px(tx,13,'#ffe040')}break;
+    case'moving':P.r(0,0,W,H,'#d8d0c0');P.r(0,52,W,20,'#a08060');break;
+    case'room':P.r(0,0,W,H,['#d8c8a8','#c8d0b8','#d0c0c8','#b8c8d8'][R()*4|0]);P.r(64,12,18,14,'#6a4a2a');P.r(66,14,14,10,hbMix('#80b0e0','#ffffff',R()*.5));P.r(0,58,W,14,'#7a5a3a');break;
+    case'restaurant':P.r(0,0,W,H,'#3a1a1a');for(let k=0;k<6;k++)P.disc(R()*W,R()*30,1,'#ffc060');P.r(0,54,W,18,'#f0f0f0');P.r(46,46,2,8,'#f0f0e0');P.px(47,45,'#ffc040');break;
+    case'stage':P.r(0,0,W,H,'#0a0a14');for(let k=0;k<3;k++){const x=20+k*28;for(let y=0;y<40;y++)P.r(x-y*.3,y,y*.6+1,1,hbMix('#202040',['#ff4060','#40a0ff','#ffe060'][k],.35))}P.r(0,56,W,16,'#202020');break;
+    case'finish':sky('#80b8f0','#d8ecff',40);P.r(0,40,W,32,'#707070');P.r(8,6,80,10,'#d02020');for(let x=14;x<82;x+=6)P.r(x,9,4,4,'#ffffff');P.r(8,6,2,40,'#404040');P.r(86,6,2,40,'#404040');break;
+    case'hospital':P.r(0,0,W,H,'#e8f0f0');P.r(0,0,W,6,'#c0d0d0');P.r(70,10,16,20,'#b0d8f0');break;
+    case'garden':sky('#a0d0ff','#e0f0ff',40);P.r(0,40,W,32,'#6a4a2a');for(let x=4;x<W;x+=7){P.line(x,40,x,30,'#30a030');P.disc(x,28,2,['#e03060','#f0d020','#8040e0'][x%3])}break;
+    case'wedding':P.r(0,0,W,H,'#f0f0ff');for(let a=0;a<40;a++){const t=Math.PI*a/39;P.disc(48+Math.cos(t)*40,48-Math.sin(t)*38,2,['#ffffff','#ffb0c8','#c0e8c0'][a%3])}P.r(0,62,W,10,'#d8d8e8');break;
+    default:P.r(0,0,W,H,'#c0c0c0');
+  }}
+/* lay out a group: adults in back, kids in front */
+function hbGroup(P,ppl,o={}){const n=ppl.length;if(!n)return[];const out=[];
+  const big=n===1?11:n===2?9:n>=5?6:7,gap=HBF_W/(n+1);
+  ppl.forEach((q,i)=>{const L=hbLook(q),k=q.kid?(q.ageAt<6?big*.62:big*.8):big,cx=gap*(i+1)+(n===1?0:(i%2?1:-1)),top=(n===1?13:q.kid?28+(big-k):17)+(o.drop||0);out.push([cx,top,k,L,q])});
+  out.sort((a,b)=>a[4].kid-b[4].kid);return out}
+/* render one photo item to a data URL */
+function hbSnap(it){
+  const key='snap|'+it.key;let t=HBG.tile.get(key);if(t)return t.url;
+  const cv=hbCv(HBF_W,HBF_H),ctx=cv.getContext('2d'),P=hbPen(ctx),R=mulberry32(it.seed>>>0);
+  hbBackdrop(P,R,it.sc,it.d);
+  const flash=['party','xmas','room','moving','restaurant','hospital','halloween','stage'].includes(it.sc),red=flash&&R()<.35,blink=R()<.12;
+  const ppl=it.who.map(q=>Object.assign(Object.create(q),{orig:q,ageAt:Math.max(0,Math.floor(ageAt(q,it.d))),kid:ageAt(q,it.d)<17}));
+  if(it.sc==='moving')for(let k=0;k<5;k++){const x=R()*80,w=10+R()*10;P.r(x,50-R()*8,w,10,'#b08850');P.r(x,52,w,1,'#d8c890')}
+  const G=hbGroup(P,ppl,{drop:it.crop?-8:0}),opt=it.o||{};
+  G.forEach(([cx,top,k,L,q],i)=>hbBust(P,cx,top,k,L,Object.assign({},opt,{redEye:red&&R()<.7,blink:blink&&i===G.length-1,
+    ghost:opt.costume==='ghost'&&i===0,cape:opt.costume==='vampire'&&i%2===0,witch:opt.costume==='witch'&&i%2===1,ears:opt.costume==='cat'&&q.kid,
+    cap:opt.cap&&q.orig===it.who[0],gown:opt.cap&&q.orig===it.who[0],santa:opt.santa&&i===0,bib:opt.race&&q.orig===it.who[0],medal:opt.race&&q.orig===it.who[0]})));
+  if(it.sc==='party'&&opt.cake!==false){P.r(30,56,36,16,'#f8d0e0');P.r(30,56,36,3,'#ffffff');const n=Math.min(9,Math.max(1,opt.candles||5));for(let k=0;k<n;k++){const x=34+k*(28/n);P.r(x,50,1,6,'#80c0ff');P.px(x,49,'#ffb000')}}
+  if(it.baby&&G.length)hbBaby(P,G[0][0]+4,G[0][1]+G[0][2]*2.9,Math.max(4,G[0][2]*.8),it.baby);
+  if(it.pet&&G.length)hbPetHead(P,G[0][0]+G[0][2]*1.4,HBF_H-12,7,it.pet);
+  if(opt.guitar&&G.length){const[cx,top,k]=G[0];P.oval(cx+k*.4,top+k*3.3,k*.9,k*.7,'#a0602a');P.disc(cx+k*.4,top+k*3.3,Math.max(1,k*.25),'#2a1a0a');P.r(cx+k*.9,top+k*2.2,k*1.8,Math.max(1,k*.18),'#5a3a1a')}
+  if(opt.easel){P.r(70,20,22,26,'#f8f8f0');for(let k=0;k<6;k++)P.oval(74+R()*14,24+R()*18,2+R()*3,1+R()*2,`hsl(${R()*360|0},60%,55%)`);P.line(72,46,68,66,'#6a4a2a');P.line(90,46,94,66,'#6a4a2a')}
+  if(opt.pumpkin){P.oval(84,64,7,5,'#f08020');P.px(82,62,'#201000');P.px(86,62,'#201000');P.r(82,65,5,1,'#201000');P.r(84,58,1,2,'#306020')}
+  // film: flash falloff, tint, grain, sometimes a thumb
+  const im=ctx.getImageData(0,0,HBF_W,HBF_H),d=im.data,tint=it.tint;
+  for(let y=0;y<HBF_H;y++)for(let x=0;x<HBF_W;x++){const i=(y*HBF_W+x)*4,dx=(x-48)/48,dy=(y-36)/36,v=flash?1.18-.5*(dx*dx+dy*dy):1-.12*(dx*dx+dy*dy),g=(R()-.5)*14;
+    d[i]=Math.min(255,Math.max(0,d[i]*v*tint[0]+g+tint[3]));d[i+1]=Math.min(255,Math.max(0,d[i+1]*v*tint[1]+g+tint[3]));d[i+2]=Math.min(255,Math.max(0,d[i+2]*v*tint[2]+g+tint[3]))}
+  ctx.putImageData(im,0,0);
+  if(it.thumb){P.oval(-2,HBF_H-6,18,22,'#c87868');P.oval(0,HBF_H-4,14,18,'#d89080')}
+  if(it.stamp)hbStamp(P,it.d,HBF_W-3,HBF_H-8);
+  const url=cv.toDataURL();HBG.tile.set(key,{url});return url}
+/* a single person's portrait: school picture for kids, studio portrait for grown-ups */
+function hbPortrait(q,o={}){const d=o.d||Math.floor(simMin/1440);return hbSnap({key:'pt|'+q.id+'|'+(o.sc||'')+'|'+Math.floor(ageAt(q,d)),seed:hash(q.id|0,4710,Math.floor(ageAt(q,d))),sc:o.sc||(q.kid?'school':'studio'),d,who:[q],o:{},tint:[1,1,1,0],stamp:false})}
+/* the album: built from the household's own history, then the rhythm of the year */
+function hbAlbum(s,F){
+  if(s._alb&&s._albL===F.L)return s._alb;const p=s.p,u=s.u,L=F.L,R=mulberry32(hash(p.id,city.seed,4720)),moved=F.moved;
+  const fam=u.people.filter(q=>!q.mega),alive=d=>fam.filter(q=>q.bd<=d),kids=fam.filter(q=>q.kid&&q!==p);
+  const items=[],add=(d,sc,who,cap,o={},x={})=>{if(d>L||d<moved-200||!who.length)return;items.push(Object.assign({d,sc,who,cap,o},x))};
+  const nm=q=>q===p?'me':q.first,list=a=>a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+  for(const[d,t]of(u.hist||[])){let m;if(d>L)continue;
+    if(/ moved in\.$/.test(t)&&!/moved in with/.test(t))add(d+1,'moving',alive(d),hbPick(R,['Moving day! So many boxes.','Our new place!!!','Day one in the new apartment.']));
+    else if((m=t.match(/^(\S+) moved in with (\S+)\./))){const a=fam.find(q=>q.first===m[1]),b=fam.find(q=>q.first===m[2]);if(a&&b)add(d+3,'restaurant',[b,a],`${m[1]} and ${m[2]}`)}
+    else if((m=t.match(/^Baby (\S+) was born/))){const ps=fam.filter(q=>!q.kid).slice(0,2),b=fam.find(q=>q.first===m[1]);add(d+2,'hospital',ps,`Welcome to the world, ${m[1]}!`,{},{baby:b?b.cS:'#f0c8a0'})}
+    else if((m=t.match(/^Adopted an? (cat|dog) named (\S+)\./))){const a=(u.pets||[]).find(x=>x.name===m[2])||{kind:m[1],col:'#d08a3a',name:m[2]};add(d+4,'room',[p],`Meet ${m[2]}!!!`,{},{pet:a})}
+    else if((m=t.match(/^(\S+) graduated and started work/))){const a=fam.find(q=>q.first===m[1]);if(a)add(d-2,'park',[a],`${a===p?'My':m[1]+"'s"} graduation!`,{cap:true})}
+    else if((m=t.match(/^(\S+) retired after/))){const a=fam.find(q=>q.first===m[1]);if(a)add(d+1,'party',alive(d).slice(0,4),`${a===p?'My':m[1]+"'s"} retirement party`,{candles:9})}
+    else if((m=t.match(/^(\S+) signed up for a marathon/))){const a=fam.find(q=>q.first===m[1]);if(a)add(d+100+hash(a.id,d)%60,'finish',[a],'I FINISHED!!! 26.2 miles!!',{race:true})}
+    else if((m=t.match(/^(\S+) started learning guitar/))){const a=fam.find(q=>q.first===m[1]);if(a)add(d+40,'room',[a],`${nm(a)==='me'?'Me':m[1]} and the new guitar`,{guitar:true})}
+    else if((m=t.match(/^(\S+) started learning to paint/))){const a=fam.find(q=>q.first===m[1]);if(a)add(d+30,'room',[a],`${nm(a)==='me'?'My':m[1]+"'s"} first painting`,{easel:true})}
+    else if((m=t.match(/^(\S+) turned 18 and moved out/)))add(d-1,'room',alive(d-1),'One last family picture before the big move')}
+  if(F.rel==='newlyweds'&&F.partner&&u.relSince)add(u.relSince,'wedding',[p,F.partner],'Our wedding day!');
+  const y1=new Date(L*864e5).getUTCFullYear(),y0=Math.max(new Date(Math.max(moved,L-4*365)*864e5).getUTCFullYear(),y1-4),day=(y,m,dd)=>dayOf(y,m-1,dd);
+  for(let y=y0;y<=y1;y++){const r2=mulberry32(hash(p.id,y,4721));
+    const bd=day(y,1,1)+(p.bday||0);if((!p.kid||p.age>=8)&&r2()<.6)add(bd,'party',[p].concat(fam.filter(q=>q!==p).slice(0,r2()<.5?2:0)),p.kid?`My birthday! I'm ${Math.round(ageAt(p,bd))}!`:hbPick(r2,['My birthday','Another year older...','Birthday cake!']),{candles:Math.min(9,Math.round(ageAt(p,bd)/(p.kid?1:10))||3)});
+    for(const k of kids){const kb=day(y,1,1)+(k.bday||0);if(kb>=k.bd+365&&r2()<.7)add(kb,'party',[k],`${k.first} turns ${Math.round(ageAt(k,kb))}!`,{candles:Math.min(9,Math.round(ageAt(k,kb)))})}
+    if(kids.length)add(day(y,9,12),'school',[kids[y%kids.length]],`${kids[y%kids.length].first}'s school picture`);
+    if(r2()<(s.tags.has('spooky')?1:.45)){const c=hbPick(r2,['ghost','witch','vampire','cat']);add(day(y,10,31),'halloween',alive(day(y,10,31)).slice(0,4),hbPick(r2,['Happy Halloween!!!','Trick or treat!','Our costumes this year']),{costume:c,pumpkin:true})}
+    if(r2()<.6)add(day(y,12,24),u.xmas?'xmas':'snow',alive(day(y,12,24)).slice(0,5),u.xmas?hbPick(r2,['Merry Christmas from all of us!','Holiday photo','Christmas morning']):hbPick(r2,['First snow!','Snow day!']),{santa:u.xmas&&r2()<.3,sweater:u.xmas});
+    if(r2()<.7){const sc=hbPick(r2,['beach','beach','lake','mountain','city']);add(day(y,7,10)+(r2()*40|0),sc,alive(day(y,7,1)).slice(0,5),{beach:'Vacation!!! At the beach',lake:'At the lake',mountain:'Hiking in the mountains',city:'Our big trip to the city'}[sc])}
+    if(r2()<.35)add(day(y,5,1)+(r2()*30|0),hbPick(r2,['park','garden']),alive(day(y,5,1)).slice(0,4),hbPick(r2,['Picnic in the park','Spring!','Sunday afternoon']))}
+  items.sort((a,b)=>a.d-b.d);
+  const cap=s.v.old?9:s.v.quiet?6:s.v.loud||s.v.kid?16:12,keep=items.slice(-cap);
+  keep.forEach((it,i)=>{const r3=mulberry32(hash(p.id,it.d,4722,i));it.key=p.id+'|'+it.d+'|'+it.sc+'|'+i;it.seed=hash(p.id,it.d,4723,i);
+    it.tint=r3()<.5?[1.06,1,.9,6]:r3()<.5?[.95,1,1.06,0]:[1,1,1,-4];it.stamp=r3()<.55;it.thumb=r3()<.04;it.crop=r3()<.06;
+    it.n=i+1;it.who=it.who.slice(0,5)});
+  s._alb=keep;s._albL=L;return keep}
+const hbAlbumWants=(s,F)=>!s.p.kid?(F.kids.length>0||F.partner||hash(s.p.id,city.seed,4724)%100<50):hash(s.p.id,city.seed,4725)%100<40;
+function hbAlbumPage(s,F,r){const A=hbAlbum(s,F),v=s.v;
+  const intro=v.old?'Pictures of the family. My grandson put them in the computer for me.':v.quiet?'some pictures.':v.loud?'PICTURES!!! Click on a picture to see it BIGGER!!!':v.kid?'here are my pictures! click on them!':hbPick(r,['Here are some pictures! Click on one to see it bigger.','My photo album. Click any picture for the big version.','I finally got a scanner! Here are some pictures.']);
+  let h=`<h2>${hbImg('camera')} ${hbE(hbSay(v,F.kids.length?'Family Photo Album':'My Photo Album',r))} ${hbImg('camera')}</h2><p>${hbE(hbSay(v,intro,r))}</p>`;
+  if(!v.quiet&&r()<.5)h+=`<p><font size="1">(Sorry if these take a long time to load on a modem!)</font></p>`;
+  h+=`<table cellpadding="4"><tr>${A.map((it,i)=>`${i&&i%3===0?'</tr><tr>':''}<td align="center" valign="top"><a href="${hbUrl(s,`photo${it.n}.html`)}"><img src="${hbSnap(it)}" width="144" height="108" class="ph" border="2" alt=""></a><br><font size="2">${hbE(hbSay(v,it.cap,r))}</font><br><font size="1">${hbDateS(it.d)}</font></td>`).join('')}</tr></table>`;
+  return h+`<p><i>${hbE(hbSay(v,hbPick(r,['More pictures coming soon!','I will scan more when I get them developed.','More to come!']),r))}</i> ${hbImg('cons',{sc:1})}</p>`}
+function hbPhotoPage(s,F,n){const A=hbAlbum(s,F),it=A.find(x=>x.n===n);if(!it)return null;const v=s.v,r=hbR(s.p,4730+n);
+  const who=it.who.map(q=>q===s.p?(v.old?'me':'me'):q.first),note=who.length>1?`That's ${who.slice(0,-1).join(', ')} and ${who[who.length-1]}.`:who[0]==='me'?'That\'s me!':`That's ${who[0]}.`;
+  const extra=hbPick(r,['','','The flash went off right in our eyes.','I took about ten of these and this was the best one.','Got these developed at the drugstore.','You can kind of see the date in the corner.','I look terrible in this one but everyone else looks good.']);
+  return`<p align="center"><font size="2">${n>1?`<a href="${hbUrl(s,`photo${n-1}.html`)}">&lt;&lt; Previous</a> | `:''}<a href="${hbUrl(s,'album.html')}">Back to the album</a>${n<A.length?` | <a href="${hbUrl(s,`photo${n+1}.html`)}">Next &gt;&gt;</a>`:''}</font></p>
+  <center><table border="3" cellpadding="6" bgcolor="#ffffff"><tr><td><img src="${hbSnap(it)}" width="384" height="288" class="ph" alt=""></td></tr></table>
+  <h3>${hbE(hbSay(v,it.cap,r))}</h3><p>${hbE(hbSay(v,(note+' '+extra).trim(),r))}</p><p><font size="1">Photo ${n} of ${A.length} &middot; taken ${hbDate(it.d)}</font></p></center>`}
+/* the webcam: what the page owner is doing in the city right now */
+function hbWebcam(s,F){const p=s.p,t=simMin,sg=(()=>{try{return segAt(p,t)}catch(e){return null}})(),act=sg?sg.act:'home',min=Math.floor(t);
+  const key='cam|'+p.id+'|'+Math.floor(min/2)+'|'+act;let url=(HBG.tile.get(key)||{}).url;
+  const hr=new Date(t*60000).getUTCHours(),dark=act==='sleep'||(hr<6||hr>21)&&act!=='computer';
+  if(!url){const cv=hbCv(80,60),ctx=cv.getContext('2d'),P=hbPen(ctx),R=mulberry32(hash(p.id,min,4740));
+    P.r(0,0,80,60,dark?'#101018':'#c8c0b0');P.r(0,44,80,16,dark?'#08080c':'#7a5a3a');P.r(56,8,18,14,dark?'#202040':'#a0c8f0');
+    if(act==='sleep'){P.r(8,36,56,10,'#303050');P.oval(18,34,6,4,'#404060');for(let k=0;k<3;k++)P.px(40+k*5,20-k*4,'#8080c0')}
+    else if(act==='away'||act==='work'){P.r(30,30,16,14,'#3a2a2a');P.r(32,20,12,12,'#3a2a2a')}
+    else{const L=hbLook(p);hbBust(P,40,12,8,L,{mouth:act==='eat'?'o':undefined});if(act==='tv'||act==='game'){for(let y=0;y<60;y++)P.r(0,y,80,1,'rgba(80,120,255,0.08)')}if(act==='read')P.r(34,44,14,8,'#e8e0c0');if(act==='computer')P.r(26,46,28,6,'#c0c0c0')}
+    const im=ctx.getImageData(0,0,80,60),d=im.data;for(let i=0;i<d.length;i+=4){const g=(R()-.5)*22;d[i]+=g;d[i+1]+=g;d[i+2]+=g}ctx.putImageData(im,0,0);
+    url=cv.toDataURL();HBG.tile.set(key,{url})}
+  const hh=new Date(t*60000),clock=`${hh.getUTCHours()%12||12}:${String(hh.getUTCMinutes()).padStart(2,'0')} ${hh.getUTCHours()<12?'AM':'PM'}`;
+  const say={sleep:'Zzzzz. I\'m asleep. (Probably.)',away:'I\'m not home right now. The cam keeps watching anyway.',work:'At work. Back later!',computer:'At the computer. Hi!!!',tv:'Watching TV. Don\'t judge.',read:'Reading.',cook:'Making dinner.',eat:'Eating. Sorry.'}[act]||'Just hanging out.';
+  return`<h2>${hbImg('camera')} ${hbE(hbSay(s.v,F.first+"'s WebCam!",hbR(p,4741)))}</h2><p>LIVE from my apartment in the ${hbE(F.bld)}! The picture updates every 2 minutes. Press <b>Reload</b> to see the newest one.</p>
+  <center><table border="4" bgcolor="#000000" cellpadding="4"><tr><td><img src="${url}" width="320" height="240" class="ph" alt=""></td></tr><tr><td align="center"><font face="Courier New" size="2" color="#40ff40">CAM 1 &middot; ${clock}</font></td></tr></table>
+  <p><b>Right now:</b> ${hbE(hbSay(s.v,say,hbR(p,4742)))}</p></center><p><font size="2">Yes, it's a real camera. It's pointed at my desk. It is not pointed anywhere else, so don't ask.</font></p>`}
+
+HBMOD.push(
+  {k:'album',f:'album.html',nav:F=>F.kids.length?'Family Photos':'Photo Album',pri:8,when:(s,F)=>hbAlbumWants(s,F)&&hbAlbum(s,F).length>=3,page(s,F,r){return hbAlbumPage(s,F,r)}},
+  {k:'webcam',f:'webcam.html',nav:()=>'WebCam!',pri:7,when:(s,F)=>!s.p.kid&&(s.tags.has('computer')||s.tags.has('nightowl'))&&hash(s.p.id,city.seed,4743)%100<30,page(s,F,r){return hbWebcam(s,F)}});
 
 /* ---------- novels in progress ----------
    Some residents are writing a book and post it a chapter at a time: the ones living a "writing a novel"
@@ -4060,6 +4262,7 @@ function hbGuestbook(s,F){
     else{const g=s.rings.find(q=>x.rings.includes(q));if(g)parts.push(`Found you through the ${g}!`);else parts.push(hbPick(rr,['Great page!','Cool site!','Nice page!','Just surfing by!','Love the graphics!','WOW what a page.']))}
     if(hash(x.id,s.id,4292)%100<4)parts.push(hbPick(rr,['Found your page through megaZINE!','Saw your page mentioned on the BBS!','Is your page going to be in the next megaZINE??']));
     else if(s.kind==='gk')parts.push(hbPick(rr,['Day Eleven made me laugh out loud!','I got GRACE on your quiz. Obviously.','I was stuck on Day 3 for a week too!','See you on the BBS, sysop!','Number 7 on your top ten is the best one.','Please write another story!']));
+    else if(s.kind==='politics')parts.push(hbPick(rr,['You are WRONG about this and you know it.','Finally someone says it!!!','Great post. Printing it out for my brother-in-law.','I disagree with every word of this, but I will defend your right to say it.','Have you thought about running for City Council?','Get off the computer and go outside.','I called City Hall like you said. They hung up on me.','Same as last time: you are right about the money, wrong about everything else.']));
     else if(s.kind==='lab'&&s.lab==='ling')parts.push(hbPick(rr,['I stared at your stripes for 10 minutes and now everything is stripes.','Are you looking for RAs?','The drifting grating trick WORKED on me!','Can I be in an experiment? I like snacks.','My contrast sensitivity hill is VERY normal, thank you.']));
     else if(s.kind==='lab')parts.push(hbPick(rr,['My Stroop effect was 112 ms. Is that bad?','I could not stop reading the words. You were right.','R forever!','Love the hexagons.','Open science rules!']));
     else if(s.kind==='positron')parts.push(hbPick(rr,['POSITRON RULES!!!','Play Abercrombian Bitch at the next show!!','My Little Friend is stuck in my head. Thanks a lot.','When is the next show???','Saw you guys in Rochester, you were SO loud.','Tell Brody and Nate to show up more.']));
@@ -4095,6 +4298,7 @@ function hbPage(s,file){
   else if(file==='guestbook.html')body=hbGbPage(s,F);
   else if(file==='links.html')body=`<center>${hbHead(th,hbSay(v,'Cool Links',r),r,5)}</center><ul>${hbLinks(s,F,hbR(s.p,41)).map(x=>`<li>${x}`).join('')}</ul>${s.rings.map(g=>hbRing(s,g)).join('<br>')}`;
   else if(mod)body=mod.page(s,F,r);
+  else if(/^photo\d+\.html$/.test(file)&&mods.some(m=>m.k==='album')){body=hbPhotoPage(s,F,+file.match(/\d+/)[0]);if(!body)return null}
   else if(/^chapter\d+\.html$/.test(file)&&mods.some(m=>m.k==='novel')){body=hbNvChapterPage(s,F,+file.match(/\d+/)[0]);if(!body)return null}
   else return null;
   const navH=nav.map(([f,t])=>(f===file||(f==='main.html'&&file==='index.html'))?`<b>${hbE(t)}</b>`:`<a href="${hbUrl(s,f)}">${hbE(t)}</a>`);
@@ -4148,7 +4352,8 @@ function hbIndexBody(s,F,mods,r){
   if(th.marquee)h+=`<marquee scrollamount="${4+hash(s.id,9)%5}" behavior="${R()<.3?'alternate':'scroll'}"><font size="4" color="${th.link}">${hbE(hbSay(v,hbPick(R,[`Welcome to ${F.first}'s page!!!`,'Thanks for stopping by!',`Greetings from the ${F.bld}!`,'Sign my guestbook!!!','Under construction (forever)!']),R))}</font></marquee>`;
   h+=hbHr(th,s);
   const nbTop=R()<.6;if(nbTop)h+=hbNewsBox(s,F,R);
-  h+=`${hbH(s,'About Me',R)}${th.music?`<table align="right" cellpadding="8"><tr><td>${hbMidiBox(s)}</td></tr></table>`:''}<p>${about}</p>`;
+  const mePic=hash(p.id,city.seed,4750)%100<(v.quiet?35:v.kid?75:65)?`<table align="left" cellpadding="6"><tr><td align="center"><img src="${hbPortrait(p)}" width="120" height="90" class="ph" border="2" alt=""><br><font size="1">${hbE(hbSay(v,hbPick(R,['This is me!','Me!','Me (on a good day)','Yep, that\'s me.']),R))}</font></td></tr></table>`:'';
+  h+=`${hbH(s,'About Me',R)}${th.music?`<table align="right" cellpadding="8"><tr><td>${hbMidiBox(s)}</td></tr></table>`:''}${mePic}<p>${about}</p><br clear="left">`;
   h+=sayp([job,tr.filter(Boolean).join(' '),arc].filter(Boolean).join(' '));
   if(F.p.arc==='dating'&&F.L>=p.arcS&&!v.formal)h+=`<p>${hbImg('heart')} ${hbSay(v,'P.S. I met someone. More soon.',R)}</p>`;
   if(mods.length)h+=`${hbH(s,'On this site',R,3)}<ul>${mods.map(m=>`<li>${m.f==='memorial.html'||R()<.5?'':hbImg('newb',{sc:1})+' '}<a href="${hbUrl(s,m.f)}">${hbE(m.nav(F))}</a>`).join('')}<li><a href="${hbUrl(s,'guestbook.html')}">Sign my guestbook!</a></ul>`;
@@ -4228,6 +4433,8 @@ const HBFANSHOW=['The {N} Files','Late Night at the {N}','{A} Heights','Captain 
 function hbKind(s){
   if(hbIsKev(s.p))return'positron';if(hbIsSam(s.p))return'gk';if(hbLabOf(s.p)){s.lab=hbLabOf(s.p);return'lab'}
   const r=hbR(s.p,70),T=k=>s.ftags.has(k),v=s.v,p=s.p;if(v.kid)return r()<.25?'construction':'about';
+  /* a separate roll, so choosing politics never changes anyone else's kind of site */
+  if(hash(p.id,city.seed,4800)%1000<(v.old?80:T('nightowl')||T('couch')?55:35))return'politics';
   const hob=Object.keys(HBHOB).filter(k=>T(k));const biz=!p.kid&&HBBIZ.find(([re])=>re.test(p.foundJob!==undefined?p.foundJob:(p.job||'')));
   const w=[['about',3],['construction',v.young||T('messy')||T('restless')?.9:v.old?.2:.45],['links',.25],['fan',.3]];
   if(hob.length)w.push(['hobby',2.2+(T('bookish')||T('tidy')?.6:0)]);
@@ -4241,7 +4448,7 @@ function hbKindTitle(s,F){const r=hbR(s.p,73),p=s.p;
   switch(s.kind){case'hobby':return hbFill(hbPick(r,HBHOB[s.hob].t),s,F);case'family':return hbPick(r,[`The ${plural(p.last)} Home Page`,`The ${p.last} Family`,`Welcome to the ${p.last} House!`]);
     case'construction':return hbPick(r,[`${p.first}'s Page (UNDER CONSTRUCTION)`,'My First Web Page!!!',`${p.first}'s Home Page`,`Coming Soon: ${p.first}'s Page`]);
     case'diary':return hbPick(r,[`${p.first}'s Online Journal`,'Dear Diary...',`${p.first.toLowerCase()}'s notebook`,'Thoughts From Apartment '+(F?F.u.f+2+F.u.letter:'')]);
-    case'business':return hbFill(s.biz[1],s,F);case'fan':s.fan=s.fan||hbFanName(s);return`The Unofficial ${s.fan} Fan Page`;case'positron':return'POSITRON - Official Home Page';case'gk':return'The Gabriel Knight Home Page';case'lab':return HBLAB[s.lab].title;case'links':return hbPick(r,[`${p.first}'s Hotlist`,`${p.first}'s Favorite Places on the Web`,'Cool Links!!!'])}
+    case'business':return hbFill(s.biz[1],s,F);case'fan':s.fan=s.fan||hbFanName(s);return`The Unofficial ${s.fan} Fan Page`;case'positron':return'POSITRON - Official Home Page';case'gk':return'The Gabriel Knight Home Page';case'lab':return HBLAB[s.lab].title;case'politics':return hbPick(r,hbPolWho(s).P.t).replace('{F}',p.first);case'links':return hbPick(r,[`${p.first}'s Hotlist`,`${p.first}'s Favorite Places on the Web`,'Cool Links!!!'])}
   return null}
 function hbFanName(s){const r=hbR(s.p,74);return r()<.5?hbBand(r):hbPick(r,HBFANSHOW).replace('{N}',hbPick(r,HBNOUN)).replace('{A}',hbPick(r,HBADJ))}
 /* graphic headers: words drawn as an image, the way people made section titles in paint programs */
@@ -4282,7 +4489,8 @@ function hbKHobby(s,F,mods,r){const H=HBHOB[s.hob],v=s.v,R=hbR(s.p,81),fl=t=>hbE
 function hbKFamily(s,F,mods,r){const v=s.v,R=hbR(s.p,82),p=s.p,L=F.L,fam=[p].concat(F.partner?[F.partner]:[],F.kids);
   let h=`<center>${hbImg('house')} ${hbHead(s.th,s.title,R)} ${hbImg('heart')}</center>`+hbHr(s.th,s);
   h+=`<p align="center">${hbE(hbSay(v,hbPick(R,['Welcome to our little corner of the Internet!','Welcome, friends and family!','Hello from the '+F.bld+'!']),R))}</p>`;
-  h+=hbH(s,'Meet the Family',R)+`<center>${fam.map(m=>hbPic(hbPhoto('me',m.id,{c:m.cK||'#3050c0',skin:m.cS}),`${m.first}${m.kid?', '+m.age:''}`,m.kid?90:110)).join('')}${F.pets.map(a=>hbPic(hbPhoto('pet',s.id,{c:a.col,dog:a.kind==='dog'}),a.name+' ('+a.kind+')',90)).join('')}</center>`;
+  h+=hbH(s,'Meet the Family',R)+`<center>${fam.map(m=>hbPic(hbPortrait(m),`${m.first}${m.kid?', '+m.age:''}`,m.kid?96:120)).join('')}${F.pets.map(a=>hbPic(hbPhoto('pet',s.id,{c:a.col,dog:a.kind==='dog'}),a.name+' ('+a.kind+')',90)).join('')}</center>`;
+  {const A=hbAlbum(s,F).filter(it=>it.who.length>1);if(A.length){const it=A[A.length-1];h+=`<center>${hbH(s,'Our Latest Family Photo',R,3)}<a href="${hbUrl(s,'photo'+it.n+'.html')}"><img src="${hbSnap(it)}" width="288" height="216" class="ph" border="3" alt=""></a><br><font size="2">${hbE(hbSay(v,it.cap,R))}</font></center>`}}
   h+=hbUl(fam.map(m=>`<b>${hbWho(m)}</b>${m===p?' (that\'s me!)':''}: ${hbE(m.kid?`${m.age} years old, ${(m.traits[0]||'a handful')}.`:(m.job?hbCap(m.job)+'.':'')+(m.traits.length?' '+hbCap(m.traits[0])+'.':''))}`));
   const yr=new Date(L*864e5).getUTCFullYear(),news=(F.u.hist||[]).filter(([d])=>d<=L&&d>L-420).map(([,t])=>t);
   const dear=[`Dear friends and family,`,`What a year it has been here in ${F.aptS}!`];
@@ -4345,7 +4553,7 @@ function hbKPositron(s,F,mods,r){const R=hbR(s.p,95),th=s.th,yrs=new Date(F.L*86
   <center><img src="${hbSprite('rainbow').fr[0]}" data-s="rainbow|" width="80%" height="6" class="spr" alt=""></center>
   <table align="right" cellpadding="10"><tr><td>${hbMidiBox(s)}</td></tr></table>
   <p><font size="4">Welcome to the official (and only) home page of <b>POSITRON</b>, straight outta Rochester, NY. This page is maintained by Kevin, who lives in ${hbE(F.apt)} now but will always be from the 716.</font></p>
-  ${hbH(s,'The Band',R)}<center>${mem.map(([n,,],i)=>hbPic(hbPhoto('me',s.id*13+i,{c:['#202020','#a01010','#202060','#305030','#604020'][i],skin:['#e0b090','#d8a070','#f0c8a0','#c08860','#e8c0a0'][i]}),n,96)).join('')}</center>
+  ${hbH(s,'The Band',R)}<center>${(()=>{const bp=mem.map(([n,,p],i)=>p||{id:s.id*13+i,first:n,bd:F.L-Math.round((44+i)*365),cS:['#e0b090','#d8a070','#f0c8a0','#c08860','#e8c0a0'][i],cH:['#2a1a10','#6a4a2a','#1a1a1a','#a07040','#3a2a1c'][i],cT:['#202020','#a01010','#202060','#305030','#604020'][i],longHair:i===2});return hbPic(hbSnap({key:'band|'+s.id,seed:s.id*7,sc:'stage',d:F.L,who:bp.slice(0,3),o:{},tint:[1,1,1,0],stamp:true}),'POSITRON, live!',288)+'<br>'+bp.map(q=>hbPic(hbPortrait(q),q.first,96)).join('')})()}</center>
   <table border="2" cellpadding="6" align="center" bgcolor="#000000">${mem.map(([n,x,p])=>`<tr><td><font color="#ffff00"><b>${p?hbWho(p):hbE(n)}</b></font></td><td><font color="#ffffff">${x?hbE(x):'&nbsp;'}</font></td></tr>`).join('')}</table>
   <p align="center"><font size="2">(Brody and Nate are in the band when they show up.)</font></p>
   ${hbH(s,'Songs',R)}<table border="3" cellpadding="6" align="center" bgcolor="#200000">${songs.map(([n,l],i)=>`<tr><td><font color="#ff8000">${i+1}.</font></td><td><font color="#ffffff" size="4"><b>${hbE(n)}</b></font></td><td><font color="#c0c0c0">${l}</font></td><td>${hbImg('newb',{sc:1})}</td></tr>`).join('')}</table>
@@ -4356,6 +4564,138 @@ function hbKPositron(s,F,mods,r){const R=hbR(s.p,95),th=s.th,yrs=new Date(F.L*86
   <p align="center"><font size="2">POSITRON &copy; ${yrs}. Best viewed LOUD.</font></p>
   ${mods.length?hbUl(mods.map(m=>`<a href="${hbUrl(s,m.f)}">${hbE(m.nav(F))}</a>`)):''}`}
 HBKIND.positron=hbKPositron;
+
+/* ---------- political obsessives ----------
+   A few residents can't stop writing about politics. Every city has its own: a mayor, a council, and a news cycle
+   of local fights that changes month to month (a stadium bond, a fare hike, bike lanes, a luxury tower, term
+   limits...). Bloggers from all over the spectrum post about whatever is hot that month, each from their own
+   corner, so you can read the same fight from six sides. Nobody real is named: the city's politicians are as
+   made up as its residents. */
+HBS.flag={w:20,h:14,n:4,ms:180,d(P,f){for(let x=0;x<20;x++){const o=Math.round(Math.sin((x+f*2.5)/3)*1.2);for(let y=0;y<11;y++)P.px(x,y+1+o,Math.floor(y*7/11)%2?'#f8f8f8':'#d02020');if(x<8)for(let y=0;y<6;y++)P.px(x,y+1+o,(x+y)%3===0?'#f8f8f8':'#203890')}}};
+function hbPolCity(){
+  if(HB.pol&&HB.pol.seed===city.seed)return HB.pol;const r=mulberry32(hash(city.seed,4801)),L=()=>hbPick(r,LAST);
+  const C={seed:city.seed,mayor:'Mayor '+L(),council:[0,1,2,3,4].map(()=>'Councilmember '+L()),team:hbPick(r,['Comets','Rivermen','Pigeons','Night Owls','Bridgemen','Stingers']),
+    tower:L()+' Tower',street:hbPick(r,HBNV_STREET),fare:hbPick(r,['$1.75','$2.00','$2.25','$2.50']),cost:(300+Math.floor(r()*500))+' million',paper:'the Daily '+hbPick(r,['Courier','Ledger','Clarion','Herald-Star']),
+    prop:{stadium:2+Math.floor(r()*20),tax:22+Math.floor(r()*20),limits:44+Math.floor(r()*20)},pothole:hbPick(r,HBNV_STREET)};
+  C.I={
+    stadium:{name:`the ${C.team} stadium bond`,short:'the stadium',q:`Should the city spend $${C.cost} on a new stadium for the ${C.team}?`,prop:C.prop.stadium,
+      yes:['It means jobs. Real jobs, for real people.','A real city has a real team, and a real team needs a real stadium.','Every Sunday the whole city would be in one place. When was the last time that happened?'],
+      no:[`$${C.cost}. For a ballpark. Let that sink in.`,'The owners are rich. Let THEM build it.','Traffic is bad enough on game days already. Imagine 81 more of them.']},
+    fare:{name:`the fare hike to ${C.fare}`,short:'the fare hike',q:`Should the bus and subway fare go up to ${C.fare}?`,
+      yes:['The trains are falling apart. Somebody has to pay to fix them.','Fares haven\'t gone up in years. Nothing is free.'],
+      no:['Who rides the bus? Working people. Who pays? Working people.','They raise the fare and the trains are still late. Explain that.']},
+    bikes:{name:`bike lanes on ${C.street}`,short:'the bike lanes',q:`Should ${C.street} get bike lanes?`,
+      yes:['Fewer cars, cleaner air, nobody gets doored. What is the problem?','My nephew bikes to work. I would like him to keep doing that.'],
+      no:[`They want to take away the parking on ${C.street}. ALL of it.`,'Where are the delivery trucks supposed to go? Think it through.']},
+    library:{name:'the plan to cut library hours',short:'the library cuts',q:'Should the city cut library hours to save money?',
+      yes:['Money doesn\'t grow on trees, and neither do books, technically.','Fewer people go to the library now that we have the Internet.'],
+      no:['The library is the only place in this city where you can sit down without buying anything.','Kids do their homework there. Seniors use the computers there. Close it at 5 and see what happens.']},
+    tower:{name:`the ${C.tower}`,short:`the ${C.tower}`,q:`Should the city approve the 44-story ${C.tower}?`,
+      yes:['We need more apartments. This is more apartments. Simple.','More people downtown means more customers for the shops.'],
+      no:['It will put half the block in shadow until 3 PM.','"Luxury" units. Who here can afford luxury?']},
+    limits:{name:'term limits for the City Council',short:'term limits',q:'Should City Council members be limited to two terms?',prop:C.prop.limits,
+      yes:['Some of these people have been on the Council since disco.','Fresh blood. Fresh ideas. Fresh air.'],
+      no:['We already have term limits. They\'re called elections.','You fire the experienced ones and the lobbyists run the show.']},
+    noise:{name:'the new noise ordinance',short:'the noise ordinance',q:'Should the city ban loud music and leaf blowers after 9 PM?',
+      yes:['I would like to sleep. That is all. Just sleep.','My neighbor plays the drums at midnight. I rest my case.'],
+      no:['So now City Hall decides when I can vacuum?','Cities are loud. That is the deal. Move to the country.']},
+    nettax:{name:'the proposed tax on Internet access',short:'the Internet tax',q:'Should Internet access be taxed like the phone?',prop:C.prop.tax,
+      yes:['The roads need paving. So does the information superhighway.','Everything else is taxed. Why not the modem?'],
+      no:['Tax the Internet and you tax the future.','I pay for my phone line, my modem AND my provider. Enough.']},
+    recycling:{name:'mandatory recycling',short:'recycling',q:'Should recycling be mandatory, with fines?',
+      yes:['The landfill is full. Rinse your cans.','It takes ten seconds to sort your trash. Ten seconds.'],
+      no:['Fines? For putting a can in the wrong bin?','Half of it ends up in the landfill anyway. Look it up.']},
+    curfew:{name:'the youth curfew',short:'the curfew',q:'Should anyone under 17 be off the streets by 10 PM?',
+      yes:['Nothing good happens after 10 PM. Nothing.','Parents should know where their kids are. This helps.'],
+      no:['Punishing every kid for what a few do? Come on.','Some of those kids are coming home from their jobs.']},
+    meters:{name:'parking meters running until midnight',short:'midnight meters',q:'Should parking meters run until midnight?',
+      yes:['The money goes to the buses. Good.','Maybe people will take the train for once.'],
+      no:['Dinner and a movie now costs dinner, a movie and $14 in quarters.','It is a tax on going out. Call it what it is.']},
+    budget:{name:'the new city budget',short:'the budget',q:'Should the Council pass the new city budget as written?',
+      yes:['You get what you pay for: potholes, or roads.','Cut the budget and see who gets cut first. Hint: not the Council.'],
+      no:['The budget went up again. Did your paycheck?','There is waste in every line of that thing. I read it. All 400 pages.']}};
+  return HB.pol=C}
+const hbTC=t=>t.replace(/\b([a-z])([a-z]*)/g,(m,a,b,i)=>i>0&&/^(the|a|an|of|on|to|for|and|or|in|at)$/.test(m)?m:a.toUpperCase()+b);
+const HBPOL_ISSUES=['stadium','fare','bikes','library','tower','limits','noise','nettax','recycling','curfew','meters','budget'];
+/* what's in the news on a given day: two fights a month */
+function hbPolHot(d){const m=Math.floor(d/30.44),a=hash(city.seed,m,4802)%HBPOL_ISSUES.length,b=(a+1+hash(city.seed,m,4803)%(HBPOL_ISSUES.length-1))%HBPOL_ISSUES.length;return[HBPOL_ISSUES[a],HBPOL_ISSUES[b]]}
+/* where each kind of blogger stands: +1 for, -1 against, 0 "both sides" */
+const HBPOL_LEAN={
+  watchdog:{stadium:-1,fare:1,bikes:-1,library:1,tower:1,limits:1,noise:-1,nettax:-1,recycling:-1,curfew:1,meters:-1,budget:-1},
+  progressive:{stadium:-1,fare:-1,bikes:1,library:-1,tower:-1,limits:0,noise:1,nettax:-1,recycling:1,curfew:-1,meters:1,budget:1},
+  libertarian:{stadium:-1,fare:1,bikes:-1,library:1,tower:1,limits:1,noise:-1,nettax:-1,recycling:-1,curfew:-1,meters:-1,budget:-1},
+  green:{stadium:-1,fare:-1,bikes:1,library:-1,tower:1,limits:0,noise:1,nettax:0,recycling:1,curfew:0,meters:1,budget:1},
+  centrist:{stadium:0,fare:0,bikes:0,library:-1,tower:0,limits:1,noise:0,nettax:0,recycling:0,curfew:0,meters:0,budget:0},
+  oldtimer:{stadium:1,fare:-1,bikes:-1,library:-1,tower:-1,limits:1,noise:1,nettax:-1,recycling:1,curfew:1,meters:-1,budget:-1}};
+const HBPOL_P={
+  watchdog:{t:['The Taxpayer\'s Corner','WHERE DOES YOUR MONEY GO?','{F}\'s Watchdog Report','The Bottom Line'],ring:'Taxpayers United Webring',tag:'Follow the money.',sign:['Stay vigilant.','Watch your wallet.','Follow the money, people.'],
+    open:['Well, they\'re at it again.','Grab your wallet. City Hall is hungry.','I read the fine print so you don\'t have to.'],frame:['That\'s YOUR money they\'re spending.','Nobody at City Hall ever spent their own money on anything.']},
+  progressive:{t:['Voice of the People','{F}\'s Soapbox','People Power!','The Other Side of the Story'],ring:'People\'s Voice Ring',tag:'Power to the people.',sign:['Power to the people!','Organize!','Solidarity.'],
+    open:['Here we go again.','Somebody has to say it.','Ask yourself one question: who benefits?'],frame:['Who pays for this? Working people. Every time.','The downtown crowd always gets their way. Not this time.']},
+  libertarian:{t:['Don\'t Tread On My Modem','Live Free or Log Off','The Freedom Page','Leave Me Alone, City Hall'],ring:'Liberty Online Ring',tag:'Live and let live.',sign:['Live free.','Mind your own business, City Hall.','Liberty!'],
+    open:['City Hall has another bright idea.','Guess who wants to run your life this week.','Here is a radical idea: let people decide for themselves.'],frame:['Whose business is it? Not the city\'s.','Every rule they pass is one more rule.']},
+  green:{t:['The Green City Report','Think Globally, Post Locally','{F}\'s Earth Page','The Green Report'],ring:'Green Web Ring',tag:'Think green.',sign:['Think green!','Reduce, reuse, recycle.','For the river.'],
+    open:['Let\'s talk about the future for a minute.','This one matters for our kids.','Take a deep breath. Now imagine the air was cleaner.'],frame:['Think about the river. Think about your kids.','What kind of city are we leaving behind?']},
+  centrist:{t:['The Radical Middle','Common Sense with {F}','Both Sides Now','{F}\'s Independent Voice'],ring:'Independent Thinkers Ring',tag:'Both parties are the same.',sign:['Just my two cents.','Think for yourself.','Vote the person, not the party.'],
+    open:['Everybody is yelling about this. Let\'s calm down.','Here\'s what neither side will tell you.','Unpopular opinion, as usual.'],frame:['The truth is somewhere in the middle, as usual.','Both sides have a point. Neither side will admit it.']},
+  oldtimer:{t:['Citizen {F}','{F}\'s Civic Corner','Letters from a Concerned Citizen','The Way It Ought to Be'],ring:'Concerned Citizens Ring',tag:'Write your Councilmember!',sign:['God bless and good night.','Write your Councilmember!','Vote. It\'s your duty.'],
+    open:['When I was young, this city worked.','I have lived in this city for a long time and I have never seen anything like it.','I went to the hearing. I was the only one there under 80. I am 79.'],frame:['Back in my day we would have marched on City Hall.','Nobody reads the paper anymore. That is the problem.']},
+  gadfly:{t:['The Pothole Page','POTHOLE WATCH','{F}\'s Pothole Report'],ring:'Fix It Already Ring',tag:'Fix it already.',sign:['Fix it already.','Still waiting.','I will not stop.']},
+  crank:{t:['THE TRUTH IS DOWNTOWN','What They Don\'t Want You To Know','{F}\'s Strange Files','Wake Up, People!'],ring:'Ask Questions Ring',tag:'I\'m just asking questions.',sign:['Wake up, people!','I\'m just asking questions.','Think about it.']}};
+const HBPOL_CRANK=['Have you ever noticed that every traffic light on {street} turns red right when you get there? I timed them for a week. It is NOT an accident.',
+  'Why does the city repave {street} every single spring? Follow the asphalt money.','The new parking meters have a little hole in the front. What is it for? Nobody at City Hall will say.',
+  'The pigeons downtown have gotten very organized lately. I am not saying anything. I am just saying.','There is an antenna on top of the {tower} that is not on the plans. I have the plans. I checked.',
+  'The clock on City Hall has been four minutes fast since last Tuesday. Somebody did that on purpose.','Ever notice the city only fixes the sidewalks right before an election? Write that down.'];
+function hbPolWho(s){if(s._pol)return s._pol;const p=s.p,h=hash(p.id,city.seed,4805)%100;
+  const st=h<15?'watchdog':h<30?'progressive':h<42?'libertarian':h<54?'green':h<68?'centrist':h<84?'oldtimer':h<92?'gadfly':'crank';
+  return s._pol={st,P:HBPOL_P[st]}}
+/* the posts, oldest first: one every so often, about whatever is in the news that week */
+function hbPolPosts(s,F){if(s._pp&&s._ppL===F.L)return s._pp;
+  const C=hbPolCity(),W=hbPolWho(s),p=s.p,v=s.v,out=[],gap=v.loud?8:v.quiet?30:v.old?20:14;let d=s.created+3,k=0;
+  const city0='this city';
+  while(d<=F.L&&k<400){const r=mulberry32(hash(p.id,d,4806));const hot=hbPolHot(d),key=W.st==='gadfly'?'pothole':W.st==='crank'?'crank':hot[r()<.6?0:1];
+    out.push(hbPolPost(s,F,C,W,key,d,k,r,city0));k++;d+=Math.round(gap*(.5+r()*1.2))}
+  s._pp=out;s._ppL=F.L;return out}
+function hbPolPost(s,F,C,W,key,d,k,r,city0){const X=t=>t.replace(/\{street\}/g,C.street).replace(/\{tower\}/g,C.tower).replace(/\{city\}/g,city0).replace(/\{F\}/g,s.p.first),P=W.P;
+  if(key==='pothole'){const n=d-s.created+41;return{d,head:hbPick(r,[`Day ${n}`,`Pothole Update: Day ${n}`,`STILL THERE (Day ${n})`]),
+    body:[`It has now been <b>${n} days</b> since I reported the pothole on ${C.pothole} to the city.`,hbPick(r,['This week a man on a bicycle went in and came out with a different bicycle.','I called City Hall again. I was on hold for 40 minutes. They played the same song the whole time.','Somebody put a traffic cone in it. The cone is now also part of the pothole.','I measured it. It is now 31 inches across. It was 18 in the spring.','A kid asked me if it was a pond.']),`${hbPick(r,C.council)} has not returned my calls. I will keep calling.`],sign:hbPick(r,P.sign),lean:0}}
+  if(key==='crank'){return{d,head:hbPick(r,['Something Is Going On','Just Asking Questions','THINK ABOUT IT','They Hope You Won\'t Notice','Connect the Dots']),
+    body:[X(HBPOL_CRANK[(hash(s.p.id,4808)+k)%HBPOL_CRANK.length]),hbPick(r,['I wrote to the paper. They did not print my letter. Interesting, isn\'t it?','I am not saying it is a conspiracy. I am saying it is a coincidence that keeps happening.','Do your own research. Then do it again.']),'More soon. If I am still allowed to post.'],sign:hbPick(r,P.sign),lean:0}}
+  const I=C.I[key],lean=HBPOL_LEAN[W.st][key],yes=lean>0,SH=I.short.replace(/^the /,'').toUpperCase(),Sh=hbTC(I.short.replace(/^the /,'')),N=hbTC(I.name),S=hbTC(I.short);
+  const head=hbPick(r,lean>0?[`YES on ${S}!`,`Why I Support ${N}`,`${SH}: It's About Time`,`Stop Whining and Pass ${S}`]
+    :lean<0?[`NO on ${S}!`,`${SH}: A RIP-OFF`,`The Truth About ${N}`,`Stop ${N} NOW`,`${Sh}? Over My Dead Body`]
+    :[`${Sh}: Both Sides Are Wrong`,`What Nobody Is Saying About ${S}`,`Let's Be Reasonable About ${S}`]);
+  const actor=hbPick(r,[C.mayor].concat(C.council)),intro=hbPick(r,[`${actor} wants ${I.name}.`,`${actor} held a hearing on ${I.name} last ${hbPick(r,HBNV_DAY)}. I was there. Were you?`,`Big news from City Hall: ${I.name}.`,`Everybody is talking about ${I.name}.`]);
+  const reasons=lean===0?[hbPick(r,I.yes)+' Fair enough.',hbPick(r,I.no)+' Also fair.']:hbPickN(r,yes?I.yes:I.no,2);
+  const act=lean===0?'Read both sides before you decide. Then decide.':I.prop?`Vote ${yes?'YES':'NO'} on Proposition ${I.prop}!`:hbPick(r,[`Call ${hbPick(r,C.council)} at City Hall and tell them ${yes?'YES':'NO'}.`,`Come to the hearing and say ${yes?'yes':'no'}. Bring a friend.`,`Write to ${C.paper}. I did.`]);
+  const body=[`${hbPick(r,P.open)} ${intro}`,`${reasons.join(' ')} ${hbPick(r,P.frame)}`,act];
+  if(F.L-d>25&&r()<.55){const won=hash(city.seed,key,Math.floor(d/30.44),4807)%2===0,v1=3+(won?1:0),v2=5-v1;const mine=lean===0?null:(won===yes);
+    body.push(`<b>UPDATE:</b> The Council voted ${Math.max(v1,v2)}-${Math.min(v1,v2)} ${won?'in favor':'against'}. ${mine===null?'Nobody is happy. Good.':mine?hbPick(r,['VICTORY!!!','We did it! Thank you to everyone who called.','Common sense wins for once.']):hbPick(r,['This isn\'t over.','Disappointed but not surprised.','We will remember this in November.'])}`)}
+  return{d,head,body,sign:hbPick(r,P.sign),lean,key}}
+/* next Election Day: the Tuesday after the first Monday in November */
+function hbPolElection(L){let y=new Date(L*864e5).getUTCFullYear();for(let k=0;k<2;k++,y++){let d=dayOf(y,10,1);while(new Date(d*864e5).getUTCDay()!==1)d++;d++;if(d>=L)return d}return L}
+function hbPolPostHtml(s,q,v,r){return`<table width="100%" border="1" cellpadding="8" cellspacing="0"><tr><td><font size="4"><b>${hbE(hbSay(v,q.head,r))}</b></font><br><font size="1">Posted ${hbDate(q.d)}</font>
+  ${q.body.map(t=>`<p>${t.startsWith('<b>')?t:hbE(hbSay(v,t,r)).replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/g,'<b>$1</b>')}</p>`).join('')}<p><i>${hbE(hbSay(v,q.sign,r))} &mdash; ${hbE(s.p.first)}</i></p></td></tr></table><br>`}
+function hbKPolitics(s,F,mods,r){const C=hbPolCity(),W=hbPolWho(s),v=s.v,R=hbR(s.p,4810),posts=hbPolPosts(s,F),L=F.L,E=hbPolElection(F.now),hot=hbPolHot(F.now),I=C.I[hot[0]];
+  let h=`<center>${hbImg('flag',{sc:2})} ${hbHead(s.th,s.title,R)} ${hbImg('flag',{sc:2})}<br><font size="3"><i>${hbE(W.P.tag)}</i></font></center>`+hbHr(s.th,s);
+  h+=`<table width="100%" cellpadding="6"><tr><td valign="top" width="68%">`;
+  h+=`<p>${hbE(hbSay(v,`Welcome to my page. I'm ${F.first}, I live in the ${F.bld}, and I have opinions. This is where I put them.`,R))}</p>`;
+  if(posts.length)h+=hbH(s,'Latest',R,3)+posts.slice(-5).reverse().map(q=>hbPolPostHtml(s,q,v,R)).join('');else h+=`<p><i>First post coming soon!</i></p>`;
+  if(posts.length>5)h+=`<p><a href="${hbUrl(s,'archive.html')}">Read all ${posts.length} posts in the archive</a></p>`;
+  h+=`</td><td valign="top" width="32%"><table border="2" cellpadding="6" bgcolor="#ffffff" width="100%"><tr><td align="center"><font color="#000000" size="2"><b>${Math.max(0,E-F.now)}</b> DAYS UNTIL<br>ELECTION DAY!<br><br>Are YOU registered?</font></td></tr></table><br>`;
+  if(W.st!=='gadfly'&&W.st!=='crank'){const a=20+hash(city.seed,hot[0].length,Math.floor(F.now/7),4811)%55,b=Math.max(5,90-a-hash(s.id,4812)%15),c=100-a-b;
+    h+=`<table border="2" cellpadding="6" bgcolor="#ffffff" width="100%"><tr><td><font color="#000000" size="2"><b>THIS WEEK'S POLL</b><br>${hbE(I.q)}<br><br>${[['Yes',a],['No',b],['Not sure',c]].map(([t,n])=>`${t}: ${n}%<br><table cellspacing="0" cellpadding="0" width="100%"><tr><td bgcolor="${t==='Yes'?'#2040c0':t==='No'?'#c02020':'#909090'}" width="${n}%" height="8"></td><td></td></tr></table>`).join('')}<br><font size="1">${300+hash(s.id,F.now>>3)%900} votes so far</font></font></td></tr></table><br>`}
+  h+=`<table border="2" cellpadding="6" bgcolor="#ffffff" width="100%"><tr><td><font color="#000000" size="2"><b>In the news:</b><ul>${hot.map(k=>`<li>${hbE(hbCap(C.I[k].name))}`).join('')}</ul><b>Your Councilmembers:</b><br>${C.council.map(hbE).join('<br>')}</font></td></tr></table><br>`;
+  h+=`<center><table bgcolor="#ffffff" border="1" cellpadding="4"><tr><td align="center"><font color="#d02020" face="Arial Black,Arial" size="3">I VOTED</font></td></tr></table><br><font size="1">${hbE(W.P.ring)}<br>[ &lt;&lt; Prev | Random | Next &gt;&gt; ]</font></center></td></tr></table>`;
+  return h}
+HBKIND.politics=hbKPolitics;
+HBMOD.unshift(
+  {k:'polarchive',f:'archive.html',nav:()=>'Archive',pri:16,when:s=>s.kind==='politics',page(s,F,r){const posts=hbPolPosts(s,F),R=hbR(s.p,4813);
+    return`<h2>${hbImg('flag')} The Archive ${hbImg('flag')}</h2><p>Every post, newest first. ${posts.length} and counting. (Older posts got lost when I switched providers.)</p><ul>${posts.slice(-60).reverse().map(q=>`<li><b>${hbDateS(q.d)}</b> ${hbE(hbSay(s.v,q.head,R))}`).join('')}</ul>${posts.slice(-15,-5).reverse().map(q=>hbPolPostHtml(s,q,s.v,R)).join('')}`}},
+  {k:'polstand',f:'issues.html',nav:()=>'Where I Stand',pri:15,when:s=>s.kind==='politics'&&!['gadfly','crank'].includes(hbPolWho(s).st),page(s,F,r){const C=hbPolCity(),W=hbPolWho(s);
+    return`<h2>Where I Stand</h2><p>No beating around the bush. Here is where I stand on every issue in this city.</p><table border="1" cellpadding="5">${HBPOL_ISSUES.map(k=>{const l=HBPOL_LEAN[W.st][k];return`<tr><td>${hbE(hbCap(C.I[k].name))}</td><td align="center"><b><font color="${l>0?'#2040c0':l<0?'#c02020':'#808080'}">${l>0?'FOR':l<0?'AGAINST':'IT\'S COMPLICATED'}</font></b></td></tr>`}).join('')}</table>`}},
+  {k:'polletters',f:'letters.html',nav:()=>'Letters to the Editor',pri:14,when:s=>s.kind==='politics'&&!s.v.kid,page(s,F,r){const C=hbPolCity(),posts=hbPolPosts(s,F).filter(q=>q.lean!==0||q.key==null).slice(-3),R=hbR(s.p,4814);
+    return`<h2>Letters to the Editor</h2><p>These are letters I sent to ${hbE(C.paper)}. They did not print them. So I am printing them here.</p>${posts.map(q=>`<table border="1" cellpadding="10" width="90%"><tr><td><font face="Courier New">To the Editor:<br><br>${q.body.slice(0,2).map(t=>hbE(t.replace(/<[^>]+>/g,''))).join('<br><br>')}<br><br>Sincerely,<br>${hbE(s.p.first+' '+s.p.last)}<br>${hbE(F.bld)}</font><br><br><font size="1">(Sent ${hbDate(q.d+1)}. Not printed.)</font></td></tr></table><br>`).join('')}`}});
 
 const HBGK_CSS=String.raw`:root{--face:#c0c0c0;--hi:#ffffff;--shade:#808080;--dark:#000000;--ink:#000000;--link:#0000ee;--visited:#551a8b;--ui:"MS Sans Serif",Arial,Helvetica,sans-serif;--serif:"Times New Roman",Times,serif;--mono:"Courier New",Courier,monospace}
 *,*::before,*::after{box-sizing:border-box}html{background:#c0c0c0}body.doc{margin:0}
