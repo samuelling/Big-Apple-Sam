@@ -7,7 +7,17 @@
 <meta name="description" content="Free homesteads for every block in the city: the homepages of everyone living in Big Apple Sam.">
 <style>
 html,body{margin:0;height:100%;background:#808080;font:13px Arial,sans-serif}
-#f{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff}
+#f{position:fixed;left:0;right:0;bottom:0;top:36px;width:100%;height:calc(100% - 36px);border:0;background:#fff}
+/* a slim, present-day bar above the 1998 web: where this person lives in Big Apple Sam */
+#bas{position:fixed;top:0;left:0;right:0;height:36px;display:flex;align-items:center;gap:10px;padding:0 10px 0 14px;box-sizing:border-box;
+  background:#14161c;color:#c9ced8;font:500 13px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;border-bottom:1px solid #262a33;z-index:2}
+#bas .lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1;opacity:.8}
+#bas .lbl b{color:#fff;font-weight:600}
+#bas a{flex:none;display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border-radius:13px;background:#f5c542;color:#14161c;text-decoration:none;font-weight:600;white-space:nowrap}
+#bas a:hover{background:#ffd75e}
+#bas a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#bas[hidden]{display:none}
+@media (max-width:520px){#bas .lbl{display:none}#bas{justify-content:flex-end}}
 #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
 .box{width:min(420px,90vw);background:#c0c0c0;border:2px outset #fff}
 .box .t{background:#000080;color:#fff;font-weight:bold;padding:3px 6px}
@@ -19,6 +29,7 @@ html,body{margin:0;height:100%;background:#808080;font:13px Arial,sans-serif}
 </head>
 <body>
 <div id="load"><div class="box"><div class="t">NetSurfer</div><div class="b"><div id="msg">Contacting host: www.homeblocks.com...</div><div class="bar"><span id="prog"></span></div></div></div></div>
+<div id="bas" hidden><span class="lbl" id="basLbl"></span><a id="basGo" href="../">Open the city</a></div>
 <iframe id="f" title="HomeBlocks" hidden></iframe>
 <script>
 'use strict';
@@ -34,10 +45,14 @@ function toHash(url){const m=String(url).match(/^https?:\/\/(?:www\.)?homeblocks
 function fromHash(){const h=decodeURIComponent(location.hash.slice(1)),i=h.search(/[\/!]/);const rest=i<0?'/':h.slice(i);
   return rest[0]==='!'?rest.slice(1):'http://www.homeblocks.com'+rest}
 function liveSim(){return W$.sim0+(Date.now()-W$.t0)/60000}
+function bar(res){const s=res&&res.s,a=$('basGo'),l=$('basLbl'),city='../#city-'+W$.code;$('bas').hidden=false;
+  if(s&&s.u&&s.p){const who=s.p.first,apt=`Apt ${s.u.f+2}${s.u.letter||''}`,bld=s.u.b&&s.u.b.name?s.u.b.name:'';
+    l.innerHTML=`<b>${hbE(who)}</b> lives in ${hbE(apt)}${bld?', '+hbE(bld):''}, in Big Apple Sam.`;a.href=city+'/apt-'+s.u.id;a.textContent=`See ${who}'s apartment \u2192`}
+  else{l.innerHTML='These homepages belong to the people of <b>Big Apple Sam</b>.';a.href=city;a.textContent='Open the city \u2192'}}
 function show(url,push){
   simMin=liveSim();hbMidiStop();
   let res;try{res=hbRoute(url)}catch(e){console.error(e);res=hbErr('Error','Something went wrong loading this page.')}
-  W$.cur={url,res};W$.doc=null;$('f').srcdoc=res.html;document.title=res.title;
+  W$.cur={url,res};W$.doc=null;$('f').srcdoc=res.html;document.title=res.title;bar(res);
   const h=toHash(url);if(push)history.pushState(null,'',h);else if(location.hash!==h)history.replaceState(null,'',h);
   if(res.s&&res.file==='index.html'){const g=hbGbLoad(),k=city.seed+':'+res.s.id+':v';g[k]=(g[k]||0)+1;hbGbSave(g)}
 }

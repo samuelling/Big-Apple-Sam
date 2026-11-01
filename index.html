@@ -3544,11 +3544,12 @@ function hbHouse(p,F,v){
   if(F.partner){const n=hbWho(F.partner);w+=F.rel==='newlyweds'?` with ${n}. We just got married!`:` with my ${hbPick(hbR(p,9),['partner','sweetie','better half','significant other'])} ${n}.`;
     if(F.rel==='steady'&&F.since)w+=` We've been together ${F.since} year${F.since>1?'s':''}.`;if(F.rel==='rocky'&&!v.formal)w+=' Things are a little rocky right now, but we\'re working on it.'}
   else if(F.mates.length)w+=` with my roommate${F.mates.length>1?'s':''} ${hbList(F.mates.map(hbWho))}.`;
+  else if(F.kids.length)w+=` with my kid${F.kids.length>1?'s':''} ${hbList(F.kids.map(k=>`${hbWho(k)} (${Math.max(0,Math.floor(ageAt(k,F.L)))})`))}.`;
   else w+=F.pets.length?'':' all by myself.';
-  if(!F.partner&&!F.mates.length&&F.pets.length)w+=` with my ${F.pets[0].kind} ${hbE(F.pets[0].name)}.`;
+  if(!F.partner&&!F.mates.length&&!F.kids.length&&F.pets.length)w+=` with my ${F.pets[0].kind} ${hbE(F.pets[0].name)}.`;
   else if(F.pets.length)w+=` Also ${hbE(F.pets[0].name)} the ${F.pets[0].kind}, who thinks it's in charge.`;
   a.push(w);
-  if(F.kids.length)a.push(`${F.kids.length>1?'Our kids are':'Our kid is'} ${hbList(F.kids.map(k=>`${hbWho(k)} (${Math.max(0,Math.floor(ageAt(k,F.L)))})`))}.`);
+  if(F.kids.length&&(F.partner||F.mates.length))a.push(`${F.partner?(F.kids.length>1?'Our kids are':'Our kid is'):(F.kids.length>1?'My kids are':'My kid is')} ${hbList(F.kids.map(k=>`${hbWho(k)} (${Math.max(0,Math.floor(ageAt(k,F.L)))})`))}.`);
   if(F.due!==null)a.push(`We're expecting a baby! ${F.due} day${F.due===1?'':'s'} to go!`);
   else if(F.baby)a.push(`And baby ${hbE(F.baby)} is here!`);
   return a.join(' ');
