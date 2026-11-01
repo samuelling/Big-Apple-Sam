@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-10-31",
+"day": "2026-11-01",
 "history": [
 {
 "d": "2026-10-31",
@@ -10,6 +10,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 4
+},
+{
+"d": "2026-11-01",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -23,27 +32,35 @@
 "link": "https://megazine.org/?issue=01"
 },
 {
-"d": "2026-10-31",
+"d": "2026-11-01",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE Issue 02",
+"text": "megaZINE Issue 02 is out: one sheet of paper folded into an 8-page mini-zine, with 12 pieces, including Gag Machine, ChairQuest and Last Skip.",
+"link": "https://megazine.org/?issue=02"
+},
+{
+"d": "2026-11-01",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 100 visits in the past week.",
+"text": "megaZINE's website had 120 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-10-31",
+"d": "2026-11-01",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 16 clicks.",
-"link": "https://megazine.org/?go=big-apple-sam"
+"text": "The most-clicked piece in megaZINE over the past two weeks is (Water) Townies, with 16 clicks.",
+"link": "https://megazine.org/?go=townies"
 },
 {
-"d": "2026-10-31",
+"d": "2026-11-01",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 42 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 4 phone lines; when they're all busy, callers get a busy signal.",
+"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
 }
 ]
@@ -54,28 +71,134 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-10-31",
+"d": "2026-11-01",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE Issue 02",
+"text": "megaZINE Issue 02 is out: one sheet of paper folded into an 8-page mini-zine, with 12 pieces, including Gag Machine, ChairQuest and Last Skip.",
+"link": "https://megazine.org/?issue=02"
+},
+{
+"d": "2026-11-01",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 100 visits in the past week.",
+"text": "megaZINE's website had 120 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-10-31",
+"d": "2026-11-01",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 16 clicks.",
-"link": "https://megazine.org/?go=big-apple-sam"
+"text": "The most-clicked piece in megaZINE over the past two weeks is (Water) Townies, with 16 clicks.",
+"link": "https://megazine.org/?go=townies"
 },
 {
-"d": "2026-10-31",
+"d": "2026-11-01",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 42 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 4 phone lines; when they're all busy, callers get a busy signal.",
+"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "2026 Breeders' Cup",
+"text": "In thoroughbred horse racing, thoroughbred racehorse Sovereignty wins the Breeders' Cup classic at the Keeneland racetrack in Lexington, Kentucky, U.S.",
+"link": "https://en.wikipedia.org/wiki/Thoroughbred_racing"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "2026 Summer Youth Olympics",
+"text": "The 2026 Summer Youth Olympics opens in Dakar, Senegal, marking the first IOC event in Africa.",
+"link": "https://en.wikipedia.org/wiki/Summer_Youth_Olympics"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "Iran–United States peace negotiations",
+"link": "https://en.wikipedia.org/wiki/2025%E2%80%932026_Iran%E2%80%93United_States_negotiations#2026_negotiations"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "16–17: Czech Republic, Senate (2nd round)",
+"link": "https://en.wikipedia.org/wiki/Elections_in_the_Czech_Republic"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "03: United States, Senate, House of Representatives",
+"link": "https://en.wikipedia.org/wiki/Elections_in_the_United_States"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "05: Grenada, House of Representatives",
+"link": "https://en.wikipedia.org/wiki/Elections_in_Grenada"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "07: New Zealand, House of Representatives",
+"link": "https://en.wikipedia.org/wiki/Elections_in_New_Zealand"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2026 NCAA Division I FBS season",
+"link": "https://en.wikipedia.org/wiki/2026_NCAA_Division_I_FBS_football_season"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2026–27 UEFA Women's Champions League",
+"link": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Women%27s_Champions_League"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2026–27 UEFA Women's Europa Cup",
+"link": "https://en.wikipedia.org/wiki/2026%E2%80%9327_UEFA_Women%27s_Europa_Cup"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2026 Major League Soccer season",
+"link": "https://en.wikipedia.org/wiki/2026_Major_League_Soccer_season"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2026 National Women's Soccer League season",
+"link": "https://en.wikipedia.org/wiki/2026_National_Women%27s_Soccer_League_season"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2027 WBSC Premier12 qualification",
+"link": "https://en.wikipedia.org/wiki/2027_WBSC_Premier12_qualification"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2025–27 ICC World Test Championship",
+"link": "https://en.wikipedia.org/wiki/2025%E2%80%932027_World_Test_Championship"
 },
 {
 "d": "2026-10-30",
