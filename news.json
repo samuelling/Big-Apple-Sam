@@ -81,6 +81,13 @@
 "items": [
 {
 "d": "2026-11-02",
+"cat": "environment",
+"topic": "",
+"text": "The United States Food and Drug Administration approves the first generic version of lenacapavir, a twice-yearly HIV prevention injection expected to cost about US$40 annually in 120 low- and middle-income countries.",
+"link": "https://en.wikipedia.org/wiki/United_States"
+},
+{
+"d": "2026-11-02",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
@@ -107,14 +114,14 @@
 "d": "2026-11-01",
 "cat": "sports",
 "topic": "2026–27 ISU Grand Prix of Figure Skating",
-"text": "In figure skating, Japan's Mao Shimada wins the women's singles title at Skate Canada in her senior Grand Prix debut, finishing ahead of South Korea's Kim Chae-yeon and Japan's Rion Sumiyoshi.",
+"text": "In figure skating, Japan's figure skater Mao Shimada wins the women's singles title at Skate Canada in her senior Grand Prix debut, finishing ahead of Estonia's Niina Petrõkina and America's Isabeau Levito",
 "link": "https://en.wikipedia.org/wiki/Figure_skating"
 },
 {
 "d": "2026-11-01",
 "cat": "sports",
 "topic": "2026 Formula One World Championship",
-"text": "In open-wheel racing, Italian driver Kimi Antonelli, driving for Mercedes, wins the Formula One World Drivers' Championship after finishing third at the Mexico City Grand Prix, becoming the youngest Drivers' Champion at the age of 20 years, 68 days.",
+"text": "In open-wheel racing, Italian driver Kimi Antonelli, driving for Mercedes, wins the Formula One World Drivers' Championship after finishing third at the Mexico City Grand Prix, becoming the youngest Drivers' Champion at the age of 20 years and 68 days.",
 "link": "https://en.wikipedia.org/wiki/Open-wheel_racing"
 },
 {
