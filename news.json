@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-01",
+"day": "2026-11-02",
 "history": [
 {
 "d": "2026-10-31",
@@ -13,6 +13,15 @@
 },
 {
 "d": "2026-11-01",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
+},
+{
+"d": "2026-11-02",
 "users": 6,
 "callers": 43,
 "files": 145,
@@ -40,23 +49,23 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-01",
+"d": "2026-11-02",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 120 visits in the past week.",
+"text": "megaZINE's website had 159 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-01",
+"d": "2026-11-02",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is (Water) Townies, with 16 clicks.",
-"link": "https://megazine.org/?go=townies"
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 18 clicks.",
+"link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-01",
+"d": "2026-11-02",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -71,36 +80,50 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
+"d": "2026-11-02",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE readership",
+"text": "megaZINE's website had 159 visits in the past week.",
+"link": "https://megazine.org/"
+},
+{
+"d": "2026-11-02",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE's most popular piece",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 18 clicks.",
+"link": "https://megazine.org/?go=big-apple-sam"
+},
+{
+"d": "2026-11-02",
+"cat": "local",
+"src": "bbs",
+"topic": "MEGAzine BBS",
+"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
+"link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-01",
+"cat": "sports",
+"topic": "2026–27 ISU Grand Prix of Figure Skating",
+"text": "In figure skating, Japan's Mao Shimada wins the women's singles title at Skate Canada in her senior Grand Prix debut, finishing ahead of South Korea's Kim Chae-yeon and Japan's Rion Sumiyoshi.",
+"link": "https://en.wikipedia.org/wiki/Figure_skating"
+},
+{
+"d": "2026-11-01",
+"cat": "sports",
+"topic": "2026 Formula One World Championship",
+"text": "In open-wheel racing, Italian driver Kimi Antonelli, driving for Mercedes, wins the Formula One World Drivers' Championship after finishing third at the Mexico City Grand Prix, becoming the youngest Drivers' Champion at the age of 20 years, 68 days.",
+"link": "https://en.wikipedia.org/wiki/Open-wheel_racing"
+},
+{
 "d": "2026-11-01",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE Issue 02",
 "text": "megaZINE Issue 02 is out: one sheet of paper folded into an 8-page mini-zine, with 12 pieces, including Gag Machine, ChairQuest and Last Skip.",
 "link": "https://megazine.org/?issue=02"
-},
-{
-"d": "2026-11-01",
-"cat": "local",
-"src": "zine",
-"topic": "megaZINE readership",
-"text": "megaZINE's website had 120 visits in the past week.",
-"link": "https://megazine.org/"
-},
-{
-"d": "2026-11-01",
-"cat": "local",
-"src": "zine",
-"topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is (Water) Townies, with 16 clicks.",
-"link": "https://megazine.org/?go=townies"
-},
-{
-"d": "2026-11-01",
-"cat": "local",
-"src": "bbs",
-"topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
-"link": "https://samuelling.github.io/BBS/"
 },
 {
 "d": "2026-10-31",
@@ -430,20 +453,6 @@
 "topic": "",
 "text": "In auto racing, Formula 1 announces a new grand prix in Kigali, Rwanda, to run for at least 10 years starting in the early 2030s with a new track. This would be the first F1 grand prix in Africa since South Africa in 1993.",
 "link": "https://en.wikipedia.org/wiki/Auto_racing"
-},
-{
-"d": "2026-10-12",
-"cat": "business",
-"topic": "2026 Nobel Prizes",
-"text": "American economists Robert Ernest Hall and Michael Dean Woodford are jointly awarded the Nobel Memorial Prize in Economic Sciences for their work on \"microeconomic foundations of macroeconomic stabilisation\".",
-"link": "https://en.wikipedia.org/wiki/Robert_Ernest_Hall"
-},
-{
-"d": "2026-10-12",
-"cat": "business",
-"topic": "",
-"text": "American visual images company Getty Images announces that it will file for Chapter 11 bankruptcy.",
-"link": "https://en.wikipedia.org/wiki/Getty_Images"
 },
 {
 "d": "2026-10-01",
