@@ -23,8 +23,21 @@ final class BigAppleSamView: ScreenSaverView {
     private var hostWindow: NSWindow?
     private var frameImage: CGImage?
     private var snapping = false
+    private var lastSnapFrame = -1
+    /// Snapshots are shown on this layer, so the GPU puts them on screen instead of draw() copying every pixel.
+    private let imageLayer: CALayer = {
+        let l = CALayer()
+        l.contentsGravity = .resize
+        l.magnificationFilter = .nearest
+        l.actions = ["contents": NSNull(), "bounds": NSNull(), "position": NSNull(), "frame": NSNull()]
+        return l
+    }()
+    /// For the test harness: how many new pictures were shown, and the average time a snapshot took.
+    @objc private(set) var framesShown = 0
+    @objc private(set) var snapMillis = 0.0
+    private static var renderMode: String? { ProcessInfo.processInfo.environment["BAS_RENDER"] }
     private var snapshotMode: Bool {
-        if let forced = ProcessInfo.processInfo.environment["BAS_RENDER"] { return forced == "snapshot" }
+        if let forced = BigAppleSamView.renderMode { return forced == "snapshot" }
         if #available(macOS 26.0, *) { return true }
         return false
     }
@@ -57,6 +70,7 @@ final class BigAppleSamView: ScreenSaverView {
         animationTimeInterval = 1.0 / 30.0
         wantsLayer = true
         layer?.backgroundColor = NSColor.black.cgColor
+        layer?.addSublayer(imageLayer)
         // Since Sonoma, legacyScreenSaver can keep running a saver after it is dismissed.
         // Quit the host process shortly after the system says the screen saver is stopping.
         if !isPreview && BigAppleSamView.stopObserver == nil {
@@ -89,6 +103,14 @@ final class BigAppleSamView: ScreenSaverView {
     override func resizeSubviews(withOldSize oldSize: NSSize) {
         super.resizeSubviews(withOldSize: oldSize)
         sizeWebView()
+    }
+
+    override func layout() {
+        super.layout()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        imageLayer.frame = bounds
+        CATransaction.commit()
     }
 
     override func viewDidMoveToWindow() {
@@ -127,18 +149,36 @@ final class BigAppleSamView: ScreenSaverView {
 
     override func animateOneFrame() {
         guard let wv = webView else { return }
-        wv.evaluateJavaScript("window.BAS_TICK && window.BAS_TICK()", completionHandler: nil)
-        guard hostWindow != nil, !snapping else { return }
+        guard hostWindow != nil else {
+            wv.evaluateJavaScript("window.BAS_TICK && window.BAS_TICK()", completionHandler: nil)
+            return
+        }
+        // Snapshot mode: tick the page, then photograph it only if it drew a new frame. One round at a time, so a
+        // slow snapshot never queues up behind another.
+        guard !snapping else { return }
         snapping = true
-        let cfg = WKSnapshotConfiguration()
-        cfg.rect = wv.bounds
-        cfg.afterScreenUpdates = false
-        wv.takeSnapshot(with: cfg) { [weak self] image, _ in
-            guard let self = self else { return }
-            self.snapping = false
-            if let image = image, let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+        wv.evaluateJavaScript("window.BAS_TICK ? window.BAS_TICK() : -1") { [weak self] result, _ in
+            guard let self = self, let wv = self.webView else { return }
+            let n = (result as? NSNumber)?.intValue ?? -1
+            if n >= 0 && n == self.lastSnapFrame { self.snapping = false; return }
+            let cfg = WKSnapshotConfiguration()
+            cfg.rect = wv.bounds
+            cfg.afterScreenUpdates = false
+            let t0 = CACurrentMediaTime()
+            wv.takeSnapshot(with: cfg) { [weak self] image, _ in
+                guard let self = self else { return }
+                self.snapping = false
+                guard self.webView != nil, let image = image,
+                      let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+                self.lastSnapFrame = n
+                self.snapMillis += ((CACurrentMediaTime() - t0) * 1000 - self.snapMillis) / Double(min(self.framesShown + 1, 30))
+                self.framesShown += 1
                 self.frameImage = cg
-                self.needsDisplay = true
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
+                self.imageLayer.frame = self.bounds
+                self.imageLayer.contents = cg
+                CATransaction.commit()
             }
         }
     }
@@ -152,7 +192,9 @@ final class BigAppleSamView: ScreenSaverView {
         hostWindow?.close()
         hostWindow = nil
         frameImage = nil
+        imageLayer.contents = nil
         snapping = false
+        lastSnapFrame = -1
     }
 
     private func loadPage() {
@@ -185,6 +227,14 @@ final class BigAppleSamView: ScreenSaverView {
         let wv = PassiveWebView(frame: NSRect(origin: .zero, size: size), configuration: config)
         wv.setValue(false, forKey: "drawsBackground")
         if #available(macOS 13.3, *) { wv.isInspectable = true }
+        if BigAppleSamView.renderMode == "direct-noocc" {
+            // Experiment: keep WebKit from deciding the screen saver's window is covered up and stopping drawing.
+            let sel = NSSelectorFromString("_setWindowOcclusionDetectionEnabled:")
+            if wv.responds(to: sel) {
+                typealias Setter = @convention(c) (AnyObject, Selector, Bool) -> Void
+                unsafeBitCast(wv.method(for: sel), to: Setter.self)(wv, sel, false)
+            }
+        }
         if snapshotMode {
             // Off-screen, never ordered in: the page renders here and the screen saver draws snapshots of it.
             let hw = NSWindow(contentRect: NSRect(origin: NSPoint(x: -20000, y: -20000), size: size),

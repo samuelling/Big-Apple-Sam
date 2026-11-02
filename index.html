@@ -3040,14 +3040,15 @@ function retroPass(){
 function setGfx(g){if(g==='cga'&&GFX==='cga')CGAP^=1;GFX=g;
   for(const b of document.querySelectorAll('[data-gfx]'))b.setAttribute('aria-pressed',String(b.dataset.gfx===GFX));saveState()}
 /* One animation frame is scheduled at a time. The macOS screen saver host can treat the page as hidden and stop
-   requestAnimationFrame altogether, so it also calls BAS_TICK on its own timer; that draws a frame whenever the
-   browser hasn't for a moment. */
-let rafPend=false,lastFrameAt=0;
+   requestAnimationFrame altogether, so it also calls BAS_TICK on its own timer (30 a second); that draws a frame
+   whenever the browser hasn't just drawn one, and returns how many frames have been drawn, so the screen saver
+   only takes a new snapshot when there is a new picture. */
+let rafPend=false,lastFrameAt=0,frameNo=0;
 function schedFrame(){if(rafPend)return;rafPend=true;requestAnimationFrame(t=>{rafPend=false;frame(t)})}
-window.BAS_TICK=()=>{const t=performance.now();if(t-lastFrameAt>90)frame(t)};
+window.BAS_TICK=()=>{const t=performance.now();if(t-lastFrameAt>12)frame(t);return frameNo};
 function frame(ms){
   lastFrameAt=performance.now();
-  if(SAVER&&ms-lastMs<31){schedFrame();return}lastMs=ms;
+  if(SAVER&&ms-lastMs<24){schedFrame();return}lastMs=ms;frameNo++;
   const now=ms/1000;rnow=now;
   const wall=Date.now(),wd=(wall-lastWall)/1000;lastWall=wall;
   if(wd>2){if(!paused)simMin+=wd/60}else if(!paused)simMin+=wd*speed/60;

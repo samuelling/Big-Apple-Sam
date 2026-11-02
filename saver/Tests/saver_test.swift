@@ -63,6 +63,10 @@ for (i, t) in [3.0, seconds].enumerated() {
     final = (s, d)
 }
 tick.invalidate()
+if view.responds(to: NSSelectorFromString("framesShown")),
+   let n = view.value(forKey: "framesShown") as? Int, n > 0, let ms = view.value(forKey: "snapMillis") as? Double {
+    report.append(String(format: "snapshots: %.1f new frames a second, %.0f ms each", Double(n) / seconds, ms))
+}
 view.stopAnimation()
 print(report.joined(separator: " | "))
 // Pass if a real picture is there at the end: a black screen is 0% lit, the city at night still shows lit windows and stars.
