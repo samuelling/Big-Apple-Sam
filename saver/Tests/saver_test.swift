@@ -55,17 +55,20 @@ func drawn() -> Double {
     return lit(rep)
 }
 
-var report: [String] = [], final = (-1.0, -1.0)
+var report: [String] = [], final = (-1.0, -1.0), shown3s = 0
+let counts = view.responds(to: NSSelectorFromString("framesShown"))
+func shown() -> Int { counts ? (view.value(forKey: "framesShown") as? Int ?? 0) : 0 }
 for (i, t) in [3.0, seconds].enumerated() {
     RunLoop.main.run(until: Date(timeIntervalSinceNow: i == 0 ? t : t - 3.0))
     let s = screen(i == 0 ? out.replacingOccurrences(of: ".png", with: "-3s.png") : out), d = drawn()
     report.append(String(format: "%.0fs: screen %.0f%% lit, view %.0f%% lit", t, s * 100, d * 100))
     final = (s, d)
+    if i == 0 { shown3s = shown() }
 }
 tick.invalidate()
-if view.responds(to: NSSelectorFromString("framesShown")),
-   let n = view.value(forKey: "framesShown") as? Int, n > 0, let ms = view.value(forKey: "snapMillis") as? Double {
-    report.append(String(format: "snapshots: %.1f new frames a second, %.0f ms each", Double(n) / seconds, ms))
+if counts, shown() > 0, let ms = view.value(forKey: "snapMillis") as? Double {
+    report.append(String(format: "snapshots after 3s: %.1f new frames a second, %.0f ms each",
+                         Double(shown() - shown3s) / (seconds - 3), ms))
 }
 view.stopAnimation()
 print(report.joined(separator: " | "))

@@ -24,6 +24,11 @@ final class BigAppleSamView: ScreenSaverView {
     private var frameImage: CGImage?
     private var snapping = false
     private var lastSnapFrame = -1
+    private var latestFrame = -1
+    /// Fraction of full resolution snapshots are taken at. Drops to 1x pixels on a Retina screen if
+    /// full-resolution snapshots turn out too slow to keep up.
+    private var snapScale: CGFloat = 1
+    private var timedSnaps = 0
     /// Snapshots are shown on this layer, so the GPU puts them on screen instead of draw() copying every pixel.
     private let imageLayer: CALayer = {
         let l = CALayer()
@@ -153,33 +158,52 @@ final class BigAppleSamView: ScreenSaverView {
             wv.evaluateJavaScript("window.BAS_TICK && window.BAS_TICK()", completionHandler: nil)
             return
         }
-        // Snapshot mode: tick the page, then photograph it only if it drew a new frame. One round at a time, so a
-        // slow snapshot never queues up behind another.
-        guard !snapping else { return }
-        snapping = true
+        // Snapshot mode: tick the page on every frame; BAS_TICK says how many frames it has drawn, and a new one
+        // gets photographed as soon as the last snapshot is done.
         wv.evaluateJavaScript("window.BAS_TICK ? window.BAS_TICK() : -1") { [weak self] result, _ in
-            guard let self = self, let wv = self.webView else { return }
-            let n = (result as? NSNumber)?.intValue ?? -1
-            if n >= 0 && n == self.lastSnapFrame { self.snapping = false; return }
-            let cfg = WKSnapshotConfiguration()
-            cfg.rect = wv.bounds
-            cfg.afterScreenUpdates = false
-            let t0 = CACurrentMediaTime()
-            wv.takeSnapshot(with: cfg) { [weak self] image, _ in
-                guard let self = self else { return }
-                self.snapping = false
-                guard self.webView != nil, let image = image,
-                      let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
-                self.lastSnapFrame = n
-                self.snapMillis += ((CACurrentMediaTime() - t0) * 1000 - self.snapMillis) / Double(min(self.framesShown + 1, 30))
-                self.framesShown += 1
-                self.frameImage = cg
-                CATransaction.begin()
-                CATransaction.setDisableActions(true)
-                self.imageLayer.frame = self.bounds
-                self.imageLayer.contents = cg
-                CATransaction.commit()
-            }
+            guard let self = self else { return }
+            self.latestFrame = (result as? NSNumber)?.intValue ?? -1
+            self.snapIfNeeded()
+        }
+    }
+
+    private func snapIfNeeded() {
+        guard let wv = webView, !snapping else { return }
+        let n = latestFrame
+        if n >= 0 && n == lastSnapFrame { return }
+        snapping = true
+        let cfg = WKSnapshotConfiguration()
+        cfg.rect = wv.bounds
+        cfg.afterScreenUpdates = false
+        if snapScale < 1 { cfg.snapshotWidth = NSNumber(value: Double(wv.bounds.width * snapScale)) }
+        let t0 = CACurrentMediaTime()
+        wv.takeSnapshot(with: cfg) { [weak self] image, _ in
+            guard let self = self else { return }
+            self.snapping = false
+            guard self.webView != nil, let image = image,
+                  let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+            self.lastSnapFrame = n
+            self.timed((CACurrentMediaTime() - t0) * 1000)
+            self.framesShown += 1
+            self.frameImage = cg
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            self.imageLayer.frame = self.bounds
+            self.imageLayer.contents = cg
+            CATransaction.commit()
+            self.snapIfNeeded()
+        }
+    }
+
+    /// Keeps a running average of snapshot times; if full-resolution snapshots on a Retina screen average
+    /// more than about a frame, switch to 1x pixels, which takes a quarter of the work.
+    private func timed(_ ms: Double) {
+        timedSnaps += 1
+        snapMillis += (ms - snapMillis) / Double(min(timedSnaps, 30))
+        let scale = hostWindow?.backingScaleFactor ?? 1
+        if snapScale == 1, scale > 1, timedSnaps >= 20, snapMillis > 28 {
+            snapScale = 1 / scale
+            timedSnaps = 0
         }
     }
 
@@ -195,6 +219,9 @@ final class BigAppleSamView: ScreenSaverView {
         imageLayer.contents = nil
         snapping = false
         lastSnapFrame = -1
+        latestFrame = -1
+        snapScale = 1
+        timedSnaps = 0
     }
 
     private func loadPage() {
