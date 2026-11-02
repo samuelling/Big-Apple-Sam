@@ -83,6 +83,8 @@ final class BigAppleSamView: ScreenSaverView {
     private var nightBox: NSButton!
     private var captionBox: NSButton!
     private var cyberBox: NSButton!
+    private var drawLabel: NSTextField!
+    private var retryButton: NSButton!
 
     private lazy var defaults: ScreenSaverDefaults? = {
         let id = Bundle(for: BigAppleSamView.self).bundleIdentifier ?? "com.samuelling.BigAppleSam"
@@ -393,6 +395,12 @@ final class BigAppleSamView: ScreenSaverView {
         let speed = defaults?.integer(forKey: "speed") ?? 1
         speedPopup.selectItem(withTag: [1, 10, 60].contains(speed) ? speed : 1)
         displayPopup.selectItem(withTag: max(0, min(3, defaults?.integer(forKey: "display") ?? 1)))
+        let fell = defaults?.string(forKey: "snapshotFallbackOS") == BigAppleSamView.osVersion
+        var newOS = false
+        if #available(macOS 26.0, *) { newOS = true }
+        drawLabel.isHidden = !newOS
+        drawLabel.stringValue = fell ? "Drawing: snapshots" : "Drawing: smooth"
+        retryButton.isHidden = !(newOS && fell)
         return sheet
     }
 
@@ -461,10 +469,31 @@ final class BigAppleSamView: ScreenSaverView {
         ok.keyEquivalent = "\r"
         v.addSubview(ok)
 
+        // macOS 26: says whether the screen saver had to fall back to snapshots, and lets you try smooth again.
+        drawLabel = NSTextField(labelWithString: "")
+        drawLabel.frame = NSRect(x: 20, y: 21, width: 120, height: 16)
+        drawLabel.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
+        drawLabel.textColor = .secondaryLabelColor
+        v.addSubview(drawLabel)
+
+        retryButton = NSButton(title: "Try smooth", target: self, action: #selector(retrySmooth))
+        retryButton.controlSize = .small
+        retryButton.font = NSFont.systemFont(ofSize: NSFont.smallSystemFontSize)
+        retryButton.frame = NSRect(x: 128, y: 15, width: 82, height: 28)
+        v.addSubview(retryButton)
+
         sheet = w
     }
 
     @objc private func cancelSheet() { closeSheet() }
+
+    @objc private func retrySmooth() {
+        defaults?.removeObject(forKey: "snapshotFallbackOS")
+        defaults?.synchronize()
+        drawLabel.stringValue = "Drawing: smooth"
+        retryButton.isHidden = true
+        if isPreview { teardown(); loadPage() }
+    }
 
     @objc private func saveSheet() {
         let code = codeField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
