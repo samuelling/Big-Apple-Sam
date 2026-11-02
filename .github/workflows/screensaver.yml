@@ -50,7 +50,7 @@ jobs:
         run: |
           swiftc -O Tests/saver_test.swift -framework ScreenSaver -o "$RUNNER_TEMP/saver_test"
           mkdir -p "$RUNNER_TEMP/shots"
-          for m in direct snapshot; do
+          for m in direct direct-watch snapshot; do
             BAS_RENDER=$m "$RUNNER_TEMP/saver_test" "build/Release/Big Apple Sam.saver" "$RUNNER_TEMP/shots/$(sw_vers -productVersion)-$m.png" 12 \
               || { echo "::warning::$m rendering drew nothing on macOS $(sw_vers -productVersion)"; [ $m = snapshot ] && exit 1; true; }
           done
@@ -154,7 +154,7 @@ jobs:
           xcodebuild -project BigAppleSam.xcodeproj -target BigAppleSam -configuration Release SYMROOT="$PWD/build" build | tail -n 5
           swiftc -O Tests/saver_test.swift -framework ScreenSaver -o "$RUNNER_TEMP/saver_test"
           mkdir -p "$RUNNER_TEMP/shots"
-          for m in default direct direct-noocc snapshot; do
+          for m in default direct direct-watch snapshot; do
             if [ $m = default ]; then unset BAS_RENDER; else export BAS_RENDER=$m; fi
             "$RUNNER_TEMP/saver_test" "build/Release/Big Apple Sam.saver" "$RUNNER_TEMP/shots/$(sw_vers -productVersion)-$m.png" 12 \
               || echo "::warning::$m rendering drew nothing on macOS $(sw_vers -productVersion)"

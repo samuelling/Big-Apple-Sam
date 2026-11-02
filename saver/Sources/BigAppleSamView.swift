@@ -11,10 +11,12 @@ final class PassiveWebView: WKWebView {
 /// Big Apple Sam as a macOS screen saver: hosts the bundled index.html in autopilot mode.
 ///
 /// Two ways to show the page:
-/// - Direct (macOS 12-15): the web view sits inside the screen saver view.
-/// - Snapshot (macOS 26 and later): since macOS 26.4, a web view inside a screen saver view goes blank a few
-///   seconds after it appears. There the web view lives in an off-screen window instead, and the screen saver
-///   draws snapshots of it.
+/// - Direct: the web view sits inside the screen saver view. Smooth, and what macOS 12-15 always use.
+/// - Snapshot: the web view lives in an off-screen window and the screen saver shows snapshots of it. Slower.
+/// Since macOS 26.4 a web view inside a screen saver goes blank a few seconds after it appears, because WebKit
+/// decides the window is covered up. On macOS 26 the saver turns WebKit's occlusion detection off and stays
+/// direct, while a watchdog compares what the view shows with a snapshot of the page every few seconds; if the
+/// view has gone black while the page hasn't, it moves to snapshot mode, and remembers that for this macOS version.
 /// Either way the screen saver host can treat the page as hidden and stop its animation frames, so the page is
 /// told it is visible, and animateOneFrame drives it through window.BAS_TICK.
 @objc(BigAppleSamView)
@@ -37,14 +39,33 @@ final class BigAppleSamView: ScreenSaverView {
         l.actions = ["contents": NSNull(), "bounds": NSNull(), "position": NSNull(), "frame": NSNull()]
         return l
     }()
-    /// For the test harness: how many new pictures were shown, and the average time a snapshot took.
+    /// For the test harness: how many new pictures were shown, the average time a snapshot took, and whether
+    /// the watchdog moved a direct web view to snapshot mode.
     @objc private(set) var framesShown = 0
     @objc private(set) var snapMillis = 0.0
-    private static var renderMode: String? { ProcessInfo.processInfo.environment["BAS_RENDER"] }
-    private var snapshotMode: Bool {
-        if let forced = BigAppleSamView.renderMode { return forced == "snapshot" }
-        if #available(macOS 26.0, *) { return true }
-        return false
+    @objc private(set) var fellBack = false
+    private var watching = false
+    private var checking = false
+    private var strikes = 0
+    private var startedAt = 0.0
+    private var lastCheck = 0.0
+    private static let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
+
+    /// How to show the page: (snapshot, occlusion detection off, watchdog). BAS_RENDER (snapshot, direct,
+    /// direct-noocc, direct-watch) forces one for testing.
+    private var renderPlan: (snapshot: Bool, noOcclusion: Bool, watch: Bool) {
+        switch ProcessInfo.processInfo.environment["BAS_RENDER"] {
+        case "snapshot": return (true, false, false)
+        case "direct": return (false, false, false)
+        case "direct-noocc": return (false, true, false)
+        case "direct-watch": return (false, false, true)
+        default: break
+        }
+        if #available(macOS 26.0, *) {
+            if defaults?.string(forKey: "snapshotFallbackOS") == BigAppleSamView.osVersion { return (true, false, false) }
+            return (false, true, true)
+        }
+        return (false, false, false)
     }
     private static var stopObserver: NSObjectProtocol?
     private static let visibleScript = """
@@ -156,6 +177,11 @@ final class BigAppleSamView: ScreenSaverView {
         guard let wv = webView else { return }
         guard hostWindow != nil else {
             wv.evaluateJavaScript("window.BAS_TICK && window.BAS_TICK()", completionHandler: nil)
+            if watching {
+                // Every 3 seconds for the first half minute (when the blanking shows up), then every 15.
+                let t = CACurrentMediaTime()
+                if t - lastCheck >= (t - startedAt < 30 ? 3 : 15) { lastCheck = t; checkDirect() }
+            }
             return
         }
         // Snapshot mode: tick the page on every frame; BAS_TICK says how many frames it has drawn, and a new one
@@ -207,6 +233,79 @@ final class BigAppleSamView: ScreenSaverView {
         }
     }
 
+    /// Fraction of sampled pixels that aren't (nearly) black.
+    private static func lit(_ rep: NSBitmapImageRep) -> Double {
+        let w = rep.pixelsWide, h = rep.pixelsHigh
+        guard w > 0, h > 0 else { return 0 }
+        let step = max(1, Int((Double(w * h) / 4000).squareRoot()))
+        var on = 0, n = 0
+        if rep.bitsPerSample == 8, !rep.isPlanar, rep.samplesPerPixel >= 3, let d = rep.bitmapData {
+            let bpr = rep.bytesPerRow, spp = rep.samplesPerPixel
+            let alphaFirst = rep.bitmapFormat.contains(.alphaFirst) && rep.hasAlpha
+            let o = alphaFirst ? 1 : 0
+            for y in stride(from: 0, to: h, by: step) {
+                for x in stride(from: 0, to: w, by: step) {
+                    let p = d + y * bpr + x * spp + o
+                    n += 1
+                    if Int(p[0]) + Int(p[1]) + Int(p[2]) > 40 { on += 1 }
+                }
+            }
+        } else {
+            for y in stride(from: 0, to: h, by: step * 2) {
+                for x in stride(from: 0, to: w, by: step * 2) {
+                    guard let c = rep.colorAt(x: x, y: y)?.usingColorSpace(.deviceRGB) else { continue }
+                    n += 1
+                    if c.redComponent + c.greenComponent + c.blueComponent > 0.15 { on += 1 }
+                }
+            }
+        }
+        return n > 0 ? Double(on) / Double(n) : 0
+    }
+
+    /// Watchdog for direct mode: compares a band across the middle of what the view shows with a small snapshot
+    /// of the same band of the page. Twice in a row black on screen while the page isn't means WebKit has blanked
+    /// the view, so switch to snapshots.
+    private func checkDirect() {
+        guard let wv = webView, hostWindow == nil, !checking, bounds.width > 10, bounds.height > 10 else { return }
+        let band = NSRect(x: bounds.width * 0.3, y: bounds.height * 0.42, width: bounds.width * 0.4, height: bounds.height * 0.16)
+        guard let rep = bitmapImageRepForCachingDisplay(in: band) else { return }
+        cacheDisplay(in: band, to: rep)
+        let shown = BigAppleSamView.lit(rep)
+        checking = true
+        let cfg = WKSnapshotConfiguration()
+        cfg.rect = wv.convert(band, from: self)
+        cfg.afterScreenUpdates = false
+        cfg.snapshotWidth = 240
+        wv.takeSnapshot(with: cfg) { [weak self] image, _ in
+            guard let self = self else { return }
+            self.checking = false
+            guard self.webView != nil, self.hostWindow == nil,
+                  let cg = image?.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+            let truth = BigAppleSamView.lit(NSBitmapImageRep(cgImage: cg))
+            self.strikes = (truth > 0.02 && shown < 0.002) ? self.strikes + 1 : 0
+            if self.strikes >= 2 { self.switchToSnapshots() }
+        }
+    }
+
+    private func switchToSnapshots() {
+        guard let wv = webView, hostWindow == nil else { return }
+        watching = false
+        fellBack = true
+        if !isPreview { defaults?.set(BigAppleSamView.osVersion, forKey: "snapshotFallbackOS"); defaults?.synchronize() }
+        wv.removeFromSuperview()
+        hostWindow = makeHostWindow(wv, size: targetSize())
+        sizeWebView()
+    }
+
+    /// Off-screen, never ordered in: the page renders here and the screen saver shows snapshots of it.
+    private func makeHostWindow(_ wv: WKWebView, size: NSSize) -> NSWindow {
+        let hw = NSWindow(contentRect: NSRect(origin: NSPoint(x: -20000, y: -20000), size: size),
+                          styleMask: .borderless, backing: .buffered, defer: false)
+        hw.isReleasedWhenClosed = false
+        hw.contentView = wv
+        return hw
+    }
+
     private func teardown() {
         webView?.stopLoading()
         webView?.navigationDelegate = nil
@@ -222,6 +321,9 @@ final class BigAppleSamView: ScreenSaverView {
         latestFrame = -1
         snapScale = 1
         timedSnaps = 0
+        watching = false
+        checking = false
+        strikes = 0
     }
 
     private func loadPage() {
@@ -254,23 +356,22 @@ final class BigAppleSamView: ScreenSaverView {
         let wv = PassiveWebView(frame: NSRect(origin: .zero, size: size), configuration: config)
         wv.setValue(false, forKey: "drawsBackground")
         if #available(macOS 13.3, *) { wv.isInspectable = true }
-        if BigAppleSamView.renderMode == "direct-noocc" {
-            // Experiment: keep WebKit from deciding the screen saver's window is covered up and stopping drawing.
+        let plan = renderPlan
+        if plan.noOcclusion {
+            // Keep WebKit from deciding the screen saver's window is covered up and blanking the page.
             let sel = NSSelectorFromString("_setWindowOcclusionDetectionEnabled:")
             if wv.responds(to: sel) {
                 typealias Setter = @convention(c) (AnyObject, Selector, Bool) -> Void
                 unsafeBitCast(wv.method(for: sel), to: Setter.self)(wv, sel, false)
             }
         }
-        if snapshotMode {
-            // Off-screen, never ordered in: the page renders here and the screen saver draws snapshots of it.
-            let hw = NSWindow(contentRect: NSRect(origin: NSPoint(x: -20000, y: -20000), size: size),
-                              styleMask: .borderless, backing: .buffered, defer: false)
-            hw.isReleasedWhenClosed = false
-            hw.contentView = wv
-            hostWindow = hw
+        if plan.snapshot {
+            hostWindow = makeHostWindow(wv, size: size)
         } else {
             addSubview(wv)
+            watching = plan.watch
+            startedAt = CACurrentMediaTime()
+            lastCheck = startedAt
         }
         webView = wv
 

@@ -65,6 +65,28 @@ for (i, t) in [3.0, seconds].enumerated() {
     final = (s, d)
     if i == 0 { shown3s = shown() }
 }
+// Is it still moving? Compare what the view shows half a second apart.
+func pixels() -> NSBitmapImageRep? {
+    guard let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return nil }
+    view.cacheDisplay(in: view.bounds, to: rep); return rep
+}
+if let a = pixels() {
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.5))
+    if let b = pixels() {
+        var diff = 0, n = 0
+        for y in stride(from: 0, to: min(a.pixelsHigh, b.pixelsHigh), by: 7) {
+            for x in stride(from: 0, to: min(a.pixelsWide, b.pixelsWide), by: 7) {
+                guard let c = a.colorAt(x: x, y: y), let d = b.colorAt(x: x, y: y) else { continue }
+                n += 1
+                if c != d { diff += 1 }
+            }
+        }
+        report.append(String(format: "%.2f%% of pixels changed in 0.5s", n > 0 ? 100 * Double(diff) / Double(n) : -1))
+    }
+}
+if view.responds(to: NSSelectorFromString("fellBack")), view.value(forKey: "fellBack") as? Bool == true {
+    report.append("watchdog moved it to snapshots")
+}
 tick.invalidate()
 if counts, shown() > 0, let ms = view.value(forKey: "snapMillis") as? Double {
     report.append(String(format: "snapshots after 3s: %.1f new frames a second, %.0f ms each",
