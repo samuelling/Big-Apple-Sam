@@ -1449,6 +1449,8 @@ function holidayEvents(u,L,o){const{H,put,free,ch,ad,kids}=o;const h=holidayOn(L
     for(const p of home(H(11),ad)){if(!ch(.4))continue;const s0=H(10.8+o.r()*2);const old=p.age>=72;
       hol(s0,s0+(old?25:30),[p],u.ri.tv,{sp:'sofa',prop:old?'photo':'phone',emo:old?['heart','tear']:['heart','ha'],lab:[old?`Looking at old photos of ${M}`:`Calling ${M} for ${D}`],chip:D})}
     if(kids.length)hol(H(9.2),H(9.8),home(H(9.2),kids),u.ri.tv,{sp:'table',arm:1,emo:['heart','sparkle'],lab:[`Making a ${D} card`],chip:D})}
+  {const fw=fwShow(L);if(fw&&!fw.big){const t=H(fw.s/60),who=home(t).filter(p=>segAt(p,t).act!=='sleep'&&ch(.4));
+    hol(t,H(fw.e/60)+2,who,u.ri.tv,{sp:'window',emo:['!','sparkle'],lab:['Fireworks! Watching from the window','Where are those fireworks coming from?'],log:'Fireworks out of nowhere tonight. Watched from the window.',chip:'Fireworks'})}}
   if(h==='july4'&&!away){const who=home(H(21.2)).filter(p=>segAt(p,H(21.2)).act!=='sleep');hol(H(21.25),H(21.8),who,u.ri.tv,{sp:'window',emo:['!','sparkle','ha'],lab:['Watching the fireworks from the window','Ooh. Aah.'],log:'Fireworks over the city. Watched from the window.',chip:'Fireworks'})}
   if(h==='nye'){const who=home(H(23.85),ad).filter(p=>segAt(p,H(23.85)).act!=='sleep');hol(H(23.85),H(24.25),who,u.ri.tv,{sp:'sofa',tv:1,emo:['!','ha','heart','sparkle'],lab:['Counting down to midnight','Happy New Year!'],log:'Counted down to midnight. Happy New Year!',chip:'Countdown to midnight'})}
 }
@@ -2157,11 +2159,16 @@ function drawCling(k,R,u){const L=(x,y,rows,pal)=>rows.forEach((row,j)=>{for(let
     case'turkey':L(left?1:11,1,['rogy','rogy','.bbh','.bb.'],{r:'#e04a2a',o:'#f0a020',g:'#f0d040',y:'#40a040',b:'#8a5a2a',h:'#c03020'});break;
     case'flag':L(left?2:11,1,['pbbrrr','pbbwww','prrrrr','p.....','p.....'],{p:'#c0c0c0',b:'#2a3a9a',r:'#d02020',w:'#f0f0f0'});break;
     case'dstar':L(left?1:11,1,['..b..','bbbbb','.b.b.','bbbbb','..b..'],{b:'#3a6adf'});break}}
-/* fireworks over the city: the Fourth of July (9:15 to 9:50 PM) and the first minutes of New Year's Day */
+/* fireworks over the city: always on the Fourth of July (9:15 to 9:50 PM) and at midnight on New Year's Eve (11:59 PM to 12:20 AM);
+   otherwise rare, a short show on maybe four summer nights a year and once in a blue moon the rest of the year */
 const FWC=['#ff4848','#48ff88','#4888ff','#ffd848','#ff68ff','#ffffff','#48ffff','#ff9a30'];
-function fireworksK(){const L=Math.floor(simMin/1440),t=mod(simMin,1440),[,m,d]=ymd(L);
-  if(m===6&&d===4&&t>=1275&&t<1310)return(t-1275)/35;if(m===0&&d===1&&t<15)return t/15;return-1}
-function drawFireworks(now){const k=fireworksK();if(k<0||reduce)return;const ps=Math.max(3,Math.round(2.5*DPR)),rate=k>.8?4.5:2.2,slot=Math.floor(now*rate);
+function fwShow(L){const[,m,d]=ymd(L);if(m===6&&d===4)return{s:1275,e:1310,big:1};if(m===11&&d===31)return{s:1439,e:1460,big:1,nye:1};
+  if(m===0&&d===1||(m===6&&(d===3||d===5)))return null;const summer=m>=4&&m<=8;
+  if(hr(city.seed,L,991)<(summer?.025:.004)){const s=1260+Math.floor(hr(city.seed,L,992)*100);return{s,e:s+6+Math.floor(hr(city.seed,L,993)*6),big:0}}return null}
+function fireworksK(){const t=simMin,D=Math.floor(t/1440);for(const L of[D,D-1]){const f=fwShow(L);if(!f)continue;const a=L*1440+f.s,b=L*1440+f.e;
+  if(t>=a&&t<b)return{k:(t-a)/(b-a),big:f.big,nye:f.nye}}return null}
+function drawFireworks(now){const F=fireworksK();if(!F||reduce)return;const k=F.k,ps=Math.max(3,Math.round(2.5*DPR)),
+    rate=F.big?(k>.8||(F.nye&&k<.12)?4.5:2.2):(k>.75?1.5:.7),slot=Math.floor(now*rate);
   for(let j=0;j<7;j++){const n=slot-j,t=now-n/rate;if(t<0||t>2.8)continue;const h=hash(n,77,city.seed)>>>0,
       x=W*(.08+.84*((h%997)/997)),y=H*(.06+.26*(((h>>>10)%991)/991)),col=FWC[(h>>>4)%FWC.length],c2=FWC[(h>>>8)%FWC.length],np=26+(h%14),big=.8+((h>>>14)%5)/10;
     if(t<.6){ctx.globalAlpha=.9;ctx.fillStyle='#ffe0a0';const yy=y+H*.45*(1-t/.6);ctx.fillRect(Math.round(x/ps)*ps,Math.round(yy/ps)*ps,ps,ps*2);
