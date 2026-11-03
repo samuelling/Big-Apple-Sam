@@ -3390,6 +3390,7 @@ function hbTheme(s){
   if(s.kind==='business'){th.marquee=false;th.cons=false;th.trail=false}
   if(s.kind==='gk'){const c=hbCv(2,2),x=c.getContext('2d');x.fillStyle='#c0c0c0';x.fillRect(0,0,2,2);Object.assign(th,{tile:'gray',tl:{url:c.toDataURL(),base:'#c0c0c0',dark:false,side:0},dark:false,ink:'#000000',link:'#0000ee',vlink:'#551a8b',font:'Times New Roman',head:'plain',layout:'plain',panel:'',music:false,marquee:false,cons:false,splash:false,awards:false,counter:true,trail:false,gfx:null,align:'left',bullet:null,hr:'hr',mail:true})}
   if(s.kind==='positron'){const t2=hbTile('flames',null,2);Object.assign(th,{tile:'flames',tl:t2,dark:true,ink:'#ffffff',link:'#ffff00',vlink:'#ff8000',font:'Arial Black',head:'big',layout:'table',panel:'#000000',music:true,marquee:false,cons:false,splash:false,awards:true,counter:true,trail:true,gfx:['#ffff00','#ff2000','#400000'],align:'left',bullet:'#ff2020'})}
+  hbFixContrast(s,th);
   if(th.panel&&th.dark!==(hbLum(th.panel)<.45)){const p2=th.dark?HBPAL:HBPALL;const q=hbLum(th.panel)<.45?hbPick(r,HBPAL):hbPick(r,HBPALL);th.ink=q[0];th.link=q[1];th.vlink=q[2]}
   return th;
 }
@@ -4461,15 +4462,19 @@ function hbPage(s,file){
   else if(/^chapter\d+\.html$/.test(file)&&mods.some(m=>m.k==='novel')){body=hbNvChapterPage(s,F,+file.match(/\d+/)[0]);if(!body)return null}
   else return null;
   const navH=nav.map(([f,t])=>(f===file||(f==='main.html'&&file==='index.html'))?`<b>${hbE(t)}</b>`:`<a href="${hbUrl(s,f)}">${hbE(t)}</a>`);
-  const foot=`${file==='index.html'?hbBuzz(s,F):''}${hbHr(th,s)}<center><font size="2">${th.counter?`You are visitor number ${hbCounter(s,F)}<br>`:''}${th.mail?`${hbImg('mail',{sc:1})} <a href="mailto:${hbE((F.first+'_'+F.last).toLowerCase().replace(/[^a-z_]/g,''))}@homeblocks.com">Email me!</a><br>`:''}
+  let foot=`${file==='index.html'?hbBuzz(s,F):''}${hbHr(th,s)}<center><font size="2">${th.counter?`You are visitor number ${hbCounter(s,F)}<br>`:''}${th.mail?`${hbImg('mail',{sc:1})} <a href="mailto:${hbE((F.first+'_'+F.last).toLowerCase().replace(/[^a-z_]/g,''))}@homeblocks.com">Email me!</a><br>`:''}
     ${hbSendLink(s,file)}This page was last updated on ${hbDate(F.updated)}.<br>${v.old?'Best viewed with your glasses on.':hbPick(r,['Best viewed at 800x600 in 256 colors.','Best viewed with your eyes.','This page is best viewed at 640x480.','Made with Notepad and love.'])}<br>
     <a href="${HBROOT}">${'&#9668;'} Back to HomeBlocks</a> | <a href="${HBROOT}${s.nb.id}/">${hbE(s.nb.nm)} Neighborhood</a>${hbAptLink(s)}</font></center>`;
-  let main;
-  const navBar=`<p align="center"><font size="2">[ ${navH.join(' | ')} ]</font></p>`;
+  let main;body=hbArrange(s,body);const LY=hbLay(s);
+  let navBar=hbNav(s,navH);
+  if(LY.nav==='bottom'&&th.layout!=='table'){foot=hbNav(Object.assign({},s,{lay:Object.assign({},LY,{nav:'pipe'})}),navH)+foot;navBar=''}
+  if(LY.arr==='three'&&(th.layout==='center'||th.layout==='plain')){
+    body=`<table width="100%" cellspacing="0" cellpadding="0"><tr><td width="150" valign="top">${hbBox(s,`<font size="2" face="Arial"><b>${hbE(hbSay(v,'Go to...',r))}</b><br><br>${navH.join('<br><br>')}</font>`,{})}</td><td width="${LY.gap}"></td><td valign="top">${body}</td></tr></table>`;navBar=''}
   if(th.layout==='side')main=`<table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td width="${th.tl.side-8}" valign="top"><font size="2" face="Arial"><br>${navH.map(x=>th.tile==='stripe'?x.replace('<a ','<a class="sn" ').replace('<b>','<b style="color:#fff">'):x).join('<br><br>')}</font></td><td width="18"></td><td valign="top">${body}${foot}</td></tr></table>`;
   else if(th.layout==='side2')main=`<table border="${v.formal?0:3}" cellpadding="8" cellspacing="0" width="96%" align="center"><tr><td width="130" valign="top" bgcolor="${th.dark?'#202040':'#d8d8f8'}"><font size="2" face="Arial" color="${th.dark?'#ffffff':'#000000'}"><b>MENU</b><br><br>${navH.map(x=>x.replace('<a ',`<a style="color:${th.dark?'#ffff80':'#0000c0'}" `)).join('<br><br>')}</font></td><td valign="top">${body}${foot}</td></tr></table>`;
   else if(th.layout==='table')main=`<table width="640" border="${hash(s.id,7)%3+1}" cellpadding="14" align="center"${th.panel?` bgcolor="${th.panel}"`:''}><tr><td>${navBar}${body}${foot}</td></tr></table>`;
   else main=`${th.layout==='center'&&file==='index.html'?'':navBar}${body}${th.layout==='center'&&file==='index.html'?hbHr(th,s)+navBar:''}${foot}`;
+  if((th.layout==='center'||th.layout==='plain')&&(LY.width!=='100%'||LY.place==='left'))main=`<table width="${LY.width}" align="${LY.place}" cellpadding="0" cellspacing="0"><tr><td>${main}</td></tr></table>${LY.place==='left'?'<br clear="all">':''}`;
   if(th.panel&&th.layout!=='table')main=`<table width="${th.layout==='side'?'100%':'92%'}" align="center" cellpadding="12" bgcolor="${th.panel}"><tr><td>${main}</td></tr></table>`;
   const title=file==='index.html'?s.title:`${s.title} - ${(nav.find(x=>x[0]===file)||['',''])[1]}`;
   const bg=th.tl.grad?`background:${th.tl.base} url(${th.tl.url}) repeat-x`:`background:${th.tl.base} url(${th.tl.url})`;
@@ -4520,16 +4525,88 @@ function hbIndexBody(s,F,mods,r){
   if(!p.kid&&hash(p.id,city.seed,4982)%100<(v.quiet||v.old?50:30)){const g=hbGripeList(s,F,R,3);if(g.length>=2)h+=`${hbH(s,hbSay(v,'Things That Bug Me',R),R,3)}<ol>${g.map(x=>`<li>${hbE(hbSay(v,x.t,R))}</li>`).join('')}</ol>`}
   if(ints.length)h+=`${hbH(s,'My Interests',R,3)}<ul>${ints.slice(0,7).map(x=>`<li>${hbE(hbSay(v,x,R))}`).join('')}</ul>`;
   if(fav.length&&R()<.75)h+=`${hbH(s,'Favorite Things',R,3)}<table border="1" cellpadding="4">${fav.map(([a,b])=>`<tr><td><b>${a}</b></td><td>${hbE(b)}</td></tr>`).join('')}</table>`;
-  if(!v.quiet&&R()<.5)h+=`<h3>Quote of the Day</h3><p><i>"${hbE(q[0])}"</i><br>&mdash; ${hbE(q[1])}</p>`;
+  if(!v.quiet&&R()<.5)h+=`${HBSEC}<h3>Quote of the Day</h3><p><i>"${hbE(q[0])}"</i><br>&mdash; ${hbE(q[1])}</p>`;
   if(F.hist.length>1&&(v.formal||v.old||R()<.4))h+=`${hbH(s,'My Timeline',R,3)}<ul>${F.hist.map(([d,t])=>`<li><b>${fmtMonth(d)}</b>: ${hbE(t)}`).join('')}</ul>`;
   if(!nbTop)h+=hbNewsBox(s,F,R);
   const lk=hbLinks(s,F,hbR(s.p,41));h+=`${hbH(s,'Cool Links',R,3)}<ul>${lk.slice(0,5).map(x=>`<li>${x}`).join('')}</ul>`;
-  h+=sayp(v.kid?'SIGN MY GUESTBOOK!!! PLEEEASE':v.old?'Thank you for visiting my page. Please sign the guest book.':v.quiet?'sign the guestbook if you want. or don\'t.':v.loud?'Thanks for stopping by!!! Sign my guestbook!!!':'Thanks for visiting! Please sign my guestbook before you go.');
+  h+=HBSEC;h+=sayp(v.kid?'SIGN MY GUESTBOOK!!! PLEEEASE':v.old?'Thank you for visiting my page. Please sign the guest book.':v.quiet?'sign the guestbook if you want. or don\'t.':v.loud?'Thanks for stopping by!!! Sign my guestbook!!!':'Thanks for visiting! Please sign my guestbook before you go.');
   h+=`<p align="center"><a href="${hbUrl(s,'guestbook.html')}">Sign</a> | <a href="${hbUrl(s,'guestbook.html')}">View</a> my guestbook</p>`;
   for(const g of s.rings)h+=hbRing(s,g)+'<br>';
   if(th.awards)h+=hbAwards(s,R);
   return h;
 }
+
+/* ---------- page structure: how a homepage arranges its sections ----------
+   Bodies mark section starts with <!--§--> (hbH adds one). hbArrange lays the sections out one of several ways
+   people actually built pages: one long column, boxed sections, a main column with a sidebar, a two-across grid,
+   staggered boxes, little "windows" with title bars, a narrow page hugging the left edge, plus different nav bars. */
+const HBSEC='<!--§-->';
+function hbLay(s){if(s.lay)return s.lay;const v=s.v,th=s.th,r=hbR(s.p,7301);
+  if(s.kind==='positron'||s.kind==='gk'||s.kind==='lab')return s.lay={arr:'stack',nav:'text',width:'100%',place:'center',boxBg:th.panel||'#000000',acc:'#000080',border:1,pad:6,gap:6,side:'right',grid2:false};
+  const W=v.old?[['stack',5],['boxes',3],['narrow',2]]:v.kid?[['stagger',3],['boxes',3],['grid',2],['stack',2],['wins',1]]
+    :v.formal?[['twocol',4],['grid',2],['boxes',2],['stack',2],['narrow',1]]:v.quiet?[['stack',4],['narrow',3],['twocol',2],['wins',1]]
+    :[['stack',3],['twocol',4],['boxes',3],['grid',3],['stagger',2],['wins',2],['narrow',1],['three',1]];
+  let t=r()*W.reduce((a,x)=>a+x[1],0),arr=W[0][0];for(const[k,w]of W)if((t-=w)<0){arr=k;break}
+  if(th.layout==='side'||th.layout==='side2'){if(arr==='twocol'||arr==='three'||arr==='narrow')arr=r()<.5?'stack':'boxes'}
+  if(th.layout==='table'&&(arr==='three'||arr==='narrow'))arr='boxes';
+  const lightInk=hbLum(th.ink)>.5;
+  const boxBg=th.panel||(lightInk?hbPick(r,['#000000','#101030','#200818','#002010']):hbPick(r,['#ffffff','#fffff0','#f4f4ff','#fff8f0']));
+  const accents=lightInk?['#4040c0','#a02060','#208060','#806000','#6020a0']:['#000080','#800000','#008080','#606000','#400080','#c06000'];
+  const L={arr,boxBg,acc:hbPick(r,accents),side:r()<.6?'right':'left',
+    border:hbPick(r,[1,2,3,'ridge','groove','outset']),pad:hbPick(r,[6,8,10]),
+    nav:th.layout==='side'||th.layout==='side2'?'side':v.old?hbPick(r,['text','text','buttons']):hbPick(r,['text','text','buttons','tabs','bottom','pipe']),
+    width:arr==='narrow'?hbPick(r,[560,600,640]):arr==='three'?'100%':hbPick(r,['100%','100%','96%',760,800]),
+    place:arr==='narrow'?(r()<.6?'left':'center'):r()<.25?'left':'center',
+    gap:hbPick(r,[6,10,14]),grid2:r()<.5};
+  return s.lay=L}
+const hbStrip=h=>h.replace(/<[^>]*>/g,'').replace(/&[a-z#0-9]+;/gi,' ').replace(/\s+/g,' ').trim();
+/* pulls a section's heading out (an <h2>/<h3>, or a graphic heading) so it can go in a title bar */
+function hbSecHead(x){let m=x.match(/^\s*<h([23])>(.*?)<\/h\1>/);if(m)return{t:m[2],rest:x.slice(m[0].length)};
+  m=x.match(/^\s*<p[^>]*><img src="[^"]*"[^>]*alt="([^"]*)"[^>]*class="ph"><\/p>/);if(m)return{t:m[1],rest:x.slice(m[0].length),img:m[0]};return{t:'',rest:x}}
+function hbBox(s,x,o={}){const L=hbLay(s),th=s.th,b=L.border,num=typeof b==='number';
+  const st=num?'':` style="border:4px ${b} ${L.acc}"`;
+  const w=o.w?` width="${o.w}"`:' width="100%"',al=o.al?` align="${o.al}"`:'';
+  const ink=`color:${th.ink}`;
+  if(o.win){const h=hbSecHead(x),tc=hbLum(L.acc)<.5?'#ffffff':'#000000';
+    return`<table${w}${al} cellpadding="0" cellspacing="0" style="border:2px outset #e0e0e0;background:#c0c0c0;margin:${L.gap/2}px 0"><tr><td style="background:linear-gradient(90deg,${L.acc},${hbLum(L.acc)<.5?'#a0a0e0':'#404040'});padding:2px 3px 2px 5px"><span style="float:right"><font size="1" face="Arial" color="#000000"><span style="display:inline-block;background:#c0c0c0;border:1px outset #fff;padding:0 4px">_</span><span style="display:inline-block;background:#c0c0c0;border:1px outset #fff;padding:0 4px">x</span></font></span><font size="2" face="Arial" color="${tc}"><b>${h.t||'&nbsp;'}</b></font></td></tr><tr><td style="padding:3px"><table width="100%" cellpadding="${L.pad}" bgcolor="${L.boxBg}" style="border:2px inset #fff"><tr><td valign="top" style="${ink}">${h.rest}</td></tr></table></td></tr></table>`}
+  if(o.bar){const h=hbSecHead(x);if(h.t&&!h.img){const tc=hbLum(L.acc)<.5?'#ffffff':'#000000';
+    return`<table${w}${al} cellpadding="${L.pad}" cellspacing="0" border="${num?b:0}"${st} bgcolor="${L.boxBg}" style="margin:${L.gap/2}px 0${num?'':`;border:3px ${b} ${L.acc}`}"><tr><td bgcolor="${L.acc}" align="${th.align==='center'?'center':'left'}"><font face="Arial" color="${tc}"><b>${h.t}</b></font></td></tr><tr><td valign="top" style="${ink}">${h.rest}</td></tr></table>`}}
+  return`<table${w}${al} cellpadding="${L.pad}" cellspacing="0" border="${num?b:0}"${st} bgcolor="${L.boxBg}" style="margin:${L.gap/2}px 0"><tr><td valign="top" style="${ink}">${x}</td></tr></table>`}
+function hbNav(s,navH,where){const L=hbLay(s),th=s.th;
+  if(where==='side')return`<font size="2" face="Arial">${navH.join('<br>')}</font>`;
+  switch(L.nav){
+    case'buttons':return`<table align="center" cellspacing="4" cellpadding="0"><tr>${navH.map(x=>`<td bgcolor="#c0c0c0" style="border:2px outset #ffffff;padding:2px 9px"><font size="2" face="Arial" color="#000000">${x.replace('<a ','<a style="color:#000080;text-decoration:none" ')}</font></td>`).join('')}</tr></table>`;
+    case'tabs':{const tc=hbLum(L.acc)<.5?'#ffffff':'#000000';return`<table align="center" cellspacing="0" cellpadding="4" style="border-bottom:3px solid ${L.acc}"><tr>${navH.map(x=>`<td bgcolor="${x.startsWith('<b>')?L.acc:L.boxBg}" style="border:1px solid ${L.acc};border-bottom:0"><font size="2" face="Arial" color="${x.startsWith('<b>')?tc:th.ink}">${x.startsWith('<b>')?x:x.replace('<a ',`<a style="color:${th.link}" `)}</font></td>`).join('')}</tr></table>`}
+    case'pipe':return`<p align="center"><font size="2" face="Arial">${navH.map(x=>`&raquo; ${x}`).join(' &nbsp; ')}</font></p>`;
+    default:return`<p align="center"><font size="2">[ ${navH.join(' | ')} ]</font></p>`}}
+/* splits a body at section marks that sit at the top level (not inside a table, list, center or font) */
+function hbSplit(body){const raw=body.split(HBSEC),out=[raw[0]];let depth=hbDepth(raw[0]);
+  for(let i=1;i<raw.length;i++){if(depth===0)out.push(raw[i]);else out[out.length-1]+=raw[i];depth+=hbDepth(raw[i])}
+  return out}
+function hbDepth(h){let d=0;const re=/<(\/?)(table|ul|ol|center|div|blockquote|font|form|marquee)\b/gi;let m;while((m=re.exec(h)))d+=m[1]?-1:1;return d}
+/* body -> arranged body. Pages with too few sections stay in one column. */
+function hbArrange(s,body){const L=hbLay(s);const parts=hbSplit(body);if(parts.length<4||L.arr==='stack'||L.arr==='narrow')return parts.join('');
+  const head=parts[0],secs=parts.slice(1).filter(x=>x.trim()),len=secs.map(x=>hbStrip(x).length);
+  const short=i=>len[i]<330&&!/<form|<ol>|<textarea|<marquee/i.test(secs[i]);
+  switch(L.arr){
+    case'boxes':return head+secs.map(x=>hbBox(s,x,{bar:L.grid2})).join('');
+    case'wins':return head+secs.map((x,i)=>hbBox(s,x,{win:true,w:i===0||len[i]>500?'100%':(i%2?'88%':'94%'),al:i%2?'right':'left'})+(i%2?'<br clear="all">':'')).join('')+'<br clear="all">';
+    case'stagger':return head+secs.map((x,i)=>len[i]>700?`<br clear="all">${hbBox(s,x,{bar:true})}`:hbBox(s,x,{bar:true,w:`${58+hash(s.id,i,7303)%14}%`,al:i%2?'right':'left'})+(i%2?'<br clear="all">':'')).join('')+'<br clear="all">';
+    case'grid':{let h=head,row=[];const flush=()=>{if(!row.length)return;h+=row.length===1?hbBox(s,row[0],{bar:L.grid2}):`<table width="100%" cellspacing="${L.gap}" cellpadding="0"><tr>${row.map(x=>`<td width="50%" valign="top">${hbBox(s,x,{bar:L.grid2})}</td>`).join('')}</tr></table>`;row=[]};
+      secs.forEach((x,i)=>{if(len[i]>650){flush();row=[x];flush()}else{row.push(x);if(row.length===2)flush()}});flush();return h}
+    case'twocol':case'three':{const mainS=[],sideS=[];secs.forEach((x,i)=>(short(i)&&sideS.length<4&&i>0?sideS:mainS).push(x));
+      if(!sideS.length)return parts.join('');
+      const side=`<td width="${L.arr==='three'?'22%':'30%'}" valign="top" style="border-${L.side==='right'?'left':'right'}:2px dotted ${L.acc};padding:0 ${L.gap}px">${sideS.map(x=>hbBox(s,x,{bar:true})).join('')}</td>`;
+      const mid=`<td valign="top" style="padding:0 ${L.gap}px">${mainS.join('')}</td>`;
+      return`${head}<table width="100%" cellspacing="0" cellpadding="0"><tr>${L.side==='right'?mid+side:side+mid}</tr></table>`}}
+  return parts.join('')}
+/* WCAG contrast between two #rrggbb colors */
+function hbContrast(a,b){const l=c=>{const n=parseInt(c.slice(1),16),f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};
+  return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255)};const x=l(a),y=l(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+/* text that would be hard to read straight on the tile gets a panel behind it, as most people eventually did */
+function hbFixContrast(s,th){if(th.panel||!/^#[0-9a-f]{6}$/i.test(th.tl.base||'')||!/^#[0-9a-f]{6}$/i.test(th.ink))return;
+  if(hbContrast(th.ink,th.tl.base)>=2.6)return;const light=hbLum(th.ink)<.5,k=hash(s.id,7311)%3;
+  th.panel=light?['#ffffff','#fffff0','#f0f8ff'][k]:['#000000','#000040','#200020'][k]}
 
 /* ---------- what kind of site someone made ----------
    Most people wrote an "about me" page. Others built a shrine to a hobby, a family page with a
@@ -4620,8 +4697,8 @@ function hbGfxText(txt,c1,c2,sh){const key=['gt',txt,c1,c2,sh].join('|');let t=H
   for(let k=0;k<s.length;k++){const gl=FONT3[s[k]]||FONT3[' '];for(let rr=0;rr<5;rr++)for(let q=0;q<3;q++)if(gl[rr][q]){ctx.fillStyle=g;ctx.fillRect(2+(k*4+q)*sc,2+rr*sc,sc,sc)}}
   t={url:cv.toDataURL(),w,h};HBG.tile.set(key,t);return t}
 function hbH(s,txt,R,lvl=2){const th=s.th,v=s.v;txt=hbSay(v,txt,R);
-  if(th.gfx){const t=hbGfxText(txt,th.gfx[0],th.gfx[1],th.gfx[2]);return`<p${th.align==='center'?' align="center"':''}><img src="${t.url}" width="${t.w*1.5|0}" height="${t.h*1.5|0}" alt="${hbE(txt)}" class="ph"></p>`}
-  return`<h${lvl}>${hbE(txt)}</h${lvl}>`}
+  if(th.gfx){const t=hbGfxText(txt,th.gfx[0],th.gfx[1],th.gfx[2]);return`${HBSEC}<p${th.align==='center'?' align="center"':''}><img src="${t.url}" width="${t.w*1.5|0}" height="${t.h*1.5|0}" alt="${hbE(txt)}" class="ph"></p>`}
+  return`${HBSEC}<h${lvl}>${hbE(txt)}</h${lvl}>`}
 function hbUl(a){return`<ul>${a.map(x=>`<li>${x}`).join('')}</ul>`}
 
 /* ---------- the different kinds of homepage ---------- */
