@@ -348,7 +348,7 @@ const ACT={
   film:{spot:'table',light:'on',lab:'Fiddling with a film camera'},fish:{spot:'center',light:'on',lab:'Tending the aquarium'},
   water:{spot:'window',light:'on',lab:'Watering the plants'},cycle:{spot:'center',light:'on',lab:'Riding the stationary bike'},
   grade:{spot:'table',light:'on',lab:'Grading'},grant:{spot:'desk',light:'on',lab:'Writing a grant'},papers:{spot:'sofa',light:'on',lab:'Reading papers'},
-  slides:{light:'proj',lab:'Slide night'},tree:{light:'on',lab:'Decorating the tree'},presents:{light:'on',lab:'Christmas morning'},holiday:{light:'on',lab:'Christmas Eve'},menorah:{light:'dim',lab:'Lighting the menorah'},gamedev:{light:'on',lab:'Making a video game'},
+  slides:{light:'proj',lab:'Slide night'},tree:{light:'on',lab:'Decorating the tree'},presents:{light:'on',lab:'Christmas morning'},holiday:{light:'on',lab:'Christmas Eve'},menorah:{light:'dim',lab:'Lighting the menorah'},feast:{light:'on',lab:'Holiday dinner'},hol:{light:'on',lab:'Holiday'},gamedev:{light:'on',lab:'Making a video game'},
   birthday:{light:'on',lab:'Birthday party'},argue:{light:'on',lab:'Arguing'},datenight:{light:'on',lab:'Date night'},cuddle:{light:'tv',lab:'Cuddled up on the sofa'},
   close:{light:'rose',lab:'Curtains drawn'},date:{light:'on',lab:'On a date'},famdinner:{light:'on',lab:'Family dinner'},story:{light:'dim',lab:'Bedtime story'},
   nightmare:{light:'dim',lab:'Bad dream'},visit:{light:'on',lab:'Has a visitor'},pizza:{light:'on',lab:'Waiting on a pizza'},gamenight:{light:'tv',lab:'Game night'}
@@ -356,11 +356,11 @@ const ACT={
 const WHY={work:'At work',drinks:'Out for drinks after work',night:'Out for the night',errands:'Out running errands',shift:'On the night shift',
   bakery:'At the bakery',walk:'Out for a morning walk',visit:'Visiting friends',class:'In class',friends:'Out with friends',party:'At a party across town',
   gym:'At the gym',school:'At school',park:'At the park',commute:'Not in yet',lunch:'Out to lunch',home:'Gone home for the day',weekend:'Off for the weekend',
-  off:'Night off',trick:'Out trick-or-treating',massage:'Out getting a massage',drone:'Out flying the drone',date:'Out on a date',run:'Out for a run',race:'Running the marathon',interview:'At a job interview',sick:'Home sick'};
+  off:'Night off',trick:'Out trick-or-treating',massage:'Out getting a massage',drone:'Out flying the drone',date:'Out on a date',run:'Out for a run',race:'Running the marathon',interview:'At a job interview',sick:'Home sick',family:'With family for the holiday',fireworks:'Out watching the fireworks',stpat:"Out for St. Patrick's Day"};
 const LEAVE={massage:'{n} went out for a massage. Again.',trick:'{n} went out trick-or-treating dressed as {c}.',drone:'{n} went out to fly the drone.',work:'{n} left for work.',shift:'{n} left for the night shift.',bakery:'{n} left for the bakery in the dark.',date:'{n} left for a date.',night:'{n} headed out for the night.',
-  run:'{n} went out for a run.',race:'{n} left to run the marathon.',interview:'{n} left for a job interview, nervous.',party:'{n} went out to a party.',school:'{n} left for school.',class:'{n} left for class.'};
+  run:'{n} went out for a run.',race:'{n} left to run the marathon.',interview:'{n} left for a job interview, nervous.',party:'{n} went out to a party.',school:'{n} left for school.',class:'{n} left for class.',family:'{n} left for a holiday dinner with family.',fireworks:'{n} went out to see the fireworks.',stpat:"{n} went out for St. Patrick's Day, wearing green."};
 const ARRIVE={massage:'{n} got home from the massage place, very relaxed.',trick:'{n} got home with a pillowcase full of candy.',drone:'{n} got back with new drone footage.',work:'{n} got home from work.',shift:'{n} got home from the night shift.',bakery:'{n} got home smelling like bread.',date:'{n} got home from the date.',night:'{n} got home late.',
-  run:'{n} got back from a run.',race:'{n} came home with a marathon medal.',interview:'{n} got back from the interview.',party:'{n} stumbled home from the party.',school:'{n} got home from school.',errands:'{n} got home with groceries.'};
+  run:'{n} got back from a run.',race:'{n} came home with a marathon medal.',interview:'{n} got back from the interview.',party:'{n} stumbled home from the party.',school:'{n} got home from school.',errands:'{n} got home with groceries.',family:'{n} got home from the family dinner, very full.',fireworks:'{n} got home from the fireworks.',stpat:"{n} got home from St. Patrick's Day, very late."};
 const POSE={bed:'lie',sofaLie:'lieSofa',bedsit:'sitbed',table:'sitside',desk:'sitside',sofa:'sit',meet:'sit',tvfloor:'floorsit'};
 const FB={desk:['desk','table','sofa'],table:['table','sofa'],tvfloor:['tvfloor','center'],sofa:['sofa'],center:['center'],stove:['stove'],sink:['sink','stove'],
   fridge:['fridge','stove'],meet:['meet','desk'],cooler:['cooler','center'],bedsit:['bedsit','sofa'],sofaLie:['sofaLie','bed'],bed:['bed']};
@@ -932,7 +932,7 @@ function decorate(u){
   u.tank=q(1)<HH.tank?(q(2)<.25?'shrimp':'fish'):null;
   u.tankRoom=['living','bedsit','studio','kitchen','bedroom','study','kids'].map(t=>types.indexOf(t)).find(i=>i>=0);
   u.plants=q(3)<HH.plants;u.spooky=q(4)<HH.spooky;u.xmas=q(5)<HH.xmas;u.bike=q(6)<HH.bike;
-  u.hanuk=q(20)<.04;u.tree=!u.hanuk&&q(21)<.6;u.candles=!u.hanuk&&q(22)<.12;u.wreath=!u.hanuk&&q(23)<.15;
+  u.hanuk=q(20)<.06;u.tree=(!u.hanuk||q(24)<.2)&&q(21)<.6;u.easter=!u.hanuk&&q(25)<(u.tree?.75:.3);u.flag=q(26)<.1;u.clings=q(27)<.5;u.host=q(28)<.45;u.candles=!u.hanuk&&q(22)<.12;u.wreath=!u.hanuk&&q(23)<.15;
   u.treeRoom=['living','bedsit','studio','kids','bedroom','kitchen','study'].map(t=>types.indexOf(t)).find(i=>i>=0);
   u.slides=q(7)<(u.people.some(p=>p.likes&&p.likes.film)?.08:HH.slides);
   for(const p of u.people){if(p.kid)continue;if(u.tank)p.hobbies.push('fish');if(u.plants&&q(8+p.id%5)<.5)p.hobbies.push('water');if(u.bike)p.hobbies.push('cycle','cycle')}
@@ -944,14 +944,48 @@ function thanksgiving(y){const n1=dayOf(y,10,1);return n1+((4-dowOf(n1)+7)%7)+21
 /* first candle evening, from hebcal.com */
 const HANUKKAH={2024:[11,25],2025:[11,14],2026:[11,4],2027:[11,24],2028:[11,12],2029:[11,1],2030:[11,20],2031:[11,9]};
 function hanukkahNight(L){const[y]=ymd(L);for(const yy of [y,y-1]){const h=HANUKKAH[yy];if(!h)continue;const n=L-dayOf(yy,h[0],h[1])+1;if(n>=1&&n<=8)return n}return 0}
-const NODEC={h:false,lights:false,tree:false,candle:false,wreath:false,menorah:0};
+/* first seder evening, from hebcal.com */
+const PASSOVER={2024:[3,22],2025:[3,12],2026:[3,1],2027:[3,21],2028:[3,10],2029:[2,30],2030:[3,17],2031:[3,7]};
+function easterDay(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,
+  i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return dayOf(y,mo-1,da)}
+function nthDow(y,m,dw,n){const d1=dayOf(y,m,1);return d1+((dw-dowOf(d1)+7)%7)+7*(n-1)}
+function lastDow(y,m,dw){const dl=dayOf(y,m+1,0);return dl-((dowOf(dl)-dw+7)%7)}
+function sederDay(y){const p=PASSOVER[y];return p?dayOf(y,p[0],p[1]):null}
+function hanukkahDay(y){const h=HANUKKAH[y];return h?dayOf(y,h[0],h[1]):null}
+/* the day's holiday, if any */
+function holidayOn(L){const[y,m,d]=ymd(L);
+  if(m===0&&d===1)return'newyear';if(m===1&&d===14)return'valentine';if(m===2&&d===17)return'stpat';
+  const e=easterDay(y);if(L===e)return'easter';if(L===e-1)return'eastersat';if(L===sederDay(y))return'seder';
+  if(L===nthDow(y,4,0,2))return'mother';if(L===lastDow(y,4,1))return'memorial';if(L===nthDow(y,5,0,3))return'father';
+  if(m===6&&d===4)return'july4';if(L===nthDow(y,8,1,1))return'labor';if(L===thanksgiving(y))return'thanks';
+  if(m===11&&d===24)return'xmaseve';if(m===11&&d===25)return'xmas';if(m===11&&d===31)return'nye';return''}
+const DAYOFF=new Set(['newyear','memorial','july4','labor','thanks','xmas']);
+const dayOff=L=>DAYOFF.has(holidayOn(L));
+/* holiday seasons, for decorations and homepages: [key, first day, last day, the day itself] */
+const HOLS=new Map();
+function holSeasons(y){let o=HOLS.get(y);if(o)return o;o=[];const T=thanksgiving(y),e=easterDay(y),h=hanukkahDay(y),sd=sederDay(y),md=nthDow(y,4,0,2),fd=nthDow(y,5,0,3);
+  o.push(['newyear',dayOf(y-1,11,27),dayOf(y,0,8),dayOf(y,0,1)],['valentine',dayOf(y,1,1),dayOf(y,1,14),dayOf(y,1,14)],['stpat',dayOf(y,2,10),dayOf(y,2,17),dayOf(y,2,17)],['easter',e-14,e+1,e]);
+  if(sd)o.push(['passover',sd-7,sd+7,sd]);
+  o.push(['mother',md-6,md,md],['father',fd-6,fd,fd],['july4',dayOf(y,5,26),dayOf(y,6,5),dayOf(y,6,4)],['halloween',dayOf(y,9,1),dayOf(y,10,1),dayOf(y,9,31)],['thanks',dayOf(y,10,1),T,T]);
+  if(h)o.push(['hanukkah',h-7,h+8,h]);
+  o.push(['xmas',T+1,dayOf(y+1,0,6),dayOf(y,11,25)]);HOLS.set(y,o);return o}
+function holSeason(L,k){const[y]=ymd(L);for(const yy of[y,y+1,y-1])for(const x of holSeasons(yy))if(x[0]===k&&L>=x[1]&&L<=x[2])return x;return null}
+const NODEC={h:false,lights:false,tree:false,candle:false,wreath:false,menorah:0,cling:''};
 function decorFor(u,L){
   if(u.kind!=='res'||u.vacant||!u.people.length)return NODEC;
-  const[y,m]=ymd(L),o={h:false,lights:false,tree:false,candle:false,wreath:false,menorah:0};
+  const[y,m]=ymd(L),o={h:false,lights:false,tree:false,candle:false,wreath:false,menorah:0,cling:''};
   if(u.spooky){const up=dayOf(y,8,15)+Math.floor(hr(u.id,y,1,919)*40),down=dayOf(y,10,1)+Math.floor(hr(u.id,y,2,919)*4);o.h=L>=up&&L<down}
   const sy=m===0?y-1:y,up=thanksgiving(sy)+1+Math.floor(hr(u.id,sy,3,919)*18),down=dayOf(sy,11,26)+Math.floor(hr(u.id,sy,4,919)*14);
   if(L>=up&&L<down){o.tree=!!u.tree&&u.treeRoom!==undefined;o.lights=!!u.xmas;o.candle=!!u.candles;o.wreath=!!u.wreath}
   if(u.hanuk)o.menorah=hanukkahNight(L);
+  /* paper decorations taped to the glass */
+  const kids=u.people.some(p=>p.kid&&p.age<12),q=k=>hr(u.id,y,k,921);
+  if(u.flag&&holSeason(L,'july4'))o.cling='flag';
+  else if(u.hanuk&&u.clings&&holSeason(L,'hanukkah'))o.cling='dstar';
+  else if(u.clings&&kids&&holSeason(L,'thanks')&&L>=dayOf(y,10,10))o.cling='turkey';
+  else if(u.clings&&(kids||q(1)<.3)&&holSeason(L,'valentine'))o.cling='heart';
+  else if(u.clings&&q(2)<.25&&holSeason(L,'stpat'))o.cling='shamrock';
+  else if(u.easter&&u.clings&&kids&&holSeason(L,'easter'))o.cling='egg';
   o.treeUp=up;return o;
 }
 const TREEXY={living:[7,3],bedsit:[9,3],studio:[10,3],kids:[9,3],bedroom:[10,3],kitchen:[10,3],study:[5,3]};
@@ -981,12 +1015,12 @@ function pickLeisure(p,r,hAbs,mood,L){
     tot+=x;return x});
   let q=r()*tot;for(let i=0;i<o.length;i++){q-=w[i];if(q<=0)return o[i]}return 'tv';
 }
-function planFor(p,L){let m=p.pc;if(!m)m=p.pc=new Map();let v=m.get(L);if(!v){v=kevinNight(p,L,trickOrTreat(p,L,buildPlan(p,L)));m.set(L,v);if(m.size>4)m.delete(m.keys().next().value)}return v}
+function planFor(p,L){let m=p.pc;if(!m)m=p.pc=new Map();let v=m.get(L);if(!v){v=kevinNight(p,L,holidayOut(p,L,trickOrTreat(p,L,buildPlan(p,L))));m.set(L,v);if(m.size>4)m.delete(m.keys().next().value)}return v}
 function buildPlan(p,L){
   const r=mulberry32(hash(p.id,L,city.seed,7));const j=s=>(r()*2-1)*s,ch=q=>r()<q;
   const base=L*1440,start=base+p.anchor,end=start+1440;
   const at=h=>base+Math.round(h*60);
-  const dw=dowOf(L),weekend=dw===0||dw===6,friSat=dw===5||dw===6;
+  const dw=dowOf(L),weekend=dw===0||dw===6||dayOff(L),friSat=dw===5||dw===6;
   const mood=moodOf(p,L);
   const segs=[];let t=start;
   const add=(act,dur,why)=>{if(!(dur>0))return;const e=Math.min(t+Math.max(1,Math.round(dur)),end);if(e<=t)return;
@@ -1097,6 +1131,19 @@ function trickOrTreat(p,L,segs){
   for(const g of segs){if(g.e<=s0||g.s>=e0){out.push(g);continue}if(g.s<s0)out.push(Object.assign({},g,{e:s0}));if(g.e>e0)out.push(Object.assign({},g,{s:e0}))}
   out.push({s:s0,e:e0,act:'away',why:'trick'});out.sort((a,b)=>a.s-b.s);return out;
 }
+/* holidays away from home: dinner at family's, the fireworks, St. Patrick's Day */
+function awayFor(p,L){const u=p.u;if(u.kind!=='res')return null;const h=holidayOn(L),ad=u.people.filter(x=>!x.kid);if(!ad.length)return null;
+  const goes=q=>hr(u.id,L,8,931)<q;
+  if(h==='thanks'&&!u.host&&goes(.85))return[13.4,20.6,'family'];
+  if(h==='xmas'&&u.tree&&!u.host&&goes(.8))return[11.6,19.2,'family'];
+  if(h==='easter'&&u.easter&&!u.host&&goes(.7))return[12.2,17.4,'family'];
+  if(h==='july4'&&goes(.22))return[20.1,22.6,'fireworks'];
+  if(h==='stpat'&&!p.kid&&p.age>=21&&p.age<60&&hr(p.id,L,932)<.1)return[18.3,23.4,'stpat'];
+  return null}
+function holidayOut(p,L,segs){const a=awayFor(p,L);if(!a)return segs;
+  const s0=L*1440+Math.round(a[0]*60),e0=L*1440+Math.round(a[1]*60),out=[];
+  for(const g of segs){if(g.e<=s0||g.s>=e0){out.push(g);continue}if(g.s<s0)out.push(Object.assign({},g,{e:s0}));if(g.e>e0)out.push(Object.assign({},g,{s:e0}))}
+  out.push({s:s0,e:e0,act:'away',why:a[2]});out.sort((x,y)=>x.s-y.s);return out}
 function partyActive(u,t){
   if(u.kind!=='res'||u.baby||!u.people.length)return false;
   const d=Math.floor((t-1290)/1440);const dw=dowOf(d);
@@ -1338,7 +1385,7 @@ function eventsFor(u,L){
     const[a,b]=ad;const iv=ivAnd(homeIv(a,H(17),H(26)),homeIv(b,H(17),H(26)));const rel=relOf(u,L);
     let argued=false,dated=false;
     if(rel==='rocky'&&ch(.4)){const d=Math.round(rng(55,85));const s=win(iv,d);if(s>=0){const x=ch(.5);put({type:'argue',s,e:s+d,who:x?[a,b]:[b,a],room:u.ri.tv,data:{topic:pk(TOPICS),makeup:ch(.6)}});argued=true}}
-    const pDate=rel==='newlyweds'?(friSat?.6:.3):rel==='steady'?(friSat?.25:.08):rel==='expecting'?.2:rel==='parents'?.06:.04;
+    const pDate=holidayOn(L)==='valentine'&&rel!=='rocky'?.85:rel==='newlyweds'?(friSat?.6:.3):rel==='steady'?(friSat?.25:.08):rel==='expecting'?.2:rel==='parents'?.06:.04;
     if(!argued&&ch(pDate)){const d=Math.round(rng(130,170));const s=win(iv,d);if(s>=0){put({type:'datenight',s,e:s+d,who:[a,b],room:u.ri.tv});dated=true}}
     if(!dated&&ch(rel==='steady'||rel==='newlyweds'||rel==='expecting'?.4:.15)){const d=Math.round(rng(45,80));const s=win(iv,d);if(s>=0)put({type:'cuddle',s,e:s+d,who:[a,b],room:u.ri.tv})}
     const pClose=dated?.75:rel==='newlyweds'?.4:rel==='steady'?.13:rel==='rocky'?(argued?.02:.08):rel==='expecting'?.1:.05;
@@ -1363,7 +1410,10 @@ function eventsFor(u,L){
     if(dc.tree&&L===dc.treeUp&&ad.length){const s=H(19.2),who=u.people.filter(p=>homeAt(p,s+1));if(who.length&&free(s,s+80))put({type:'tree',s,e:s+80,who,room:u.treeRoom})}
     if(dc.tree&&mo===11&&dd===25&&kids.length&&free(H(6.5),H(8.6)))put({type:'presents',s:H(6.5),e:H(8.6),who:u.people.slice(),room:u.treeRoom});
     if(dc.tree&&mo===11&&dd===24&&ad.length&&ch(.6)){const s=H(17.6);if(free(s,s+200)){const cast=castOf(u);put({type:'holiday',s,e:s+200,who:u.people.slice(),guests:cast.slice(1,3+(r()*2|0)),room:u.ri.tv})}}
-    if(dc.menorah){const s=H(16.8);const who=u.people.filter(p=>homeAt(p,s+1));if(who.length&&free(s,s+20))put({type:'menorah',s,e:s+20,who,room:u.ri.tv>=0?u.ri.tv:0,data:{n:dc.menorah}})}}
+    if(dc.menorah){const s=H(16.8);const who=u.people.filter(p=>homeAt(p,s+1));if(who.length&&free(s,s+20))put({type:'menorah',s,e:s+20,who,room:u.ri.tv>=0?u.ri.tv:0,data:{n:dc.menorah}});
+      if((dc.menorah===1||dc.menorah===5)&&ad.length){const s2=H(16.1),c=ad.find(p=>homeAt(p,s2+1));if(c&&free(s2,s2+38))put({type:'hol',s:s2,e:s2+38,who:[c],room:u.ri.k,data:{sp:'stove',fx:'cook',lab:['Frying latkes','Grating potatoes for latkes','Flipping latkes'],log:'Latkes tonight. The whole place smells like oil.',chip:'Latke night'}})}
+      if(kids.length&&dc.menorah>1){const s3=H(17.2),ks=kids.filter(p=>homeAt(p,s3+1));if(ks.length&&free(s3,s3+30))put({type:'hol',s:s3,e:s3+30,who:ks,room:u.ri.tv>=0?u.ri.tv:0,data:{sp:'tvfloor',pose:'floorsit',emo:['ha','!','sparkle'],lab:['Playing dreidel','Spinning the dreidel','Winning all the gelt'],chip:'Dreidel'}})}}
+    holidayEvents(u,L,{H,put,free,ch,r,ad,kids,dc,weekend})}
   if(kids.length){const mk=ad.find(p=>p.likes&&p.likes.maker);if(mk&&ch(weekend?.35:.15)){const k0=pk(kids);const iv=ivAnd(homeIv(mk,H(weekend?13:18.4),H(19.3)),homeIv(k0,H(weekend?13:18.4),H(19.3)));
     const d=Math.round(rng(40,70));const s=win(iv,d);if(s>=0)put({type:'gamedev',s,e:s+d,who:[mk,k0],room:u.ri.tv})}}
   if(ch(.04)&&ad.length){const p=pk(ad);const s=win(homeIv(p,H(19),H(22.5)),45);if(s>=0)put({type:'pizza',s,e:s+45,who:[p],room:u.ri.tv})}
@@ -1376,6 +1426,31 @@ function activeEvents(u,t){
   if(u.kind!=='res')return[];const L=Math.floor(t/1440);const o=[];
   for(const d of [L-1,L])for(const e of eventsFor(u,d))if(t>=e.s&&t<e.e)o.push(e);
   return o;
+}
+/* one-day holiday scenes at home */
+function holidayEvents(u,L,o){const{H,put,free,ch,ad,kids}=o;const h=holidayOn(L),[,mo,dd]=ymd(L);if(!ad.length)return;
+  const home=(t,list=u.people)=>list.filter(p=>homeAt(p,t+1));
+  const hol=(s,e,who,room,data)=>{if(who.length&&free(s,e))put({type:'hol',s,e,who,room,data})};
+  const feast=(s,e,data)=>{if(!free(s,e))return;const who=home(s);if(!who.length)return;const cast=castOf(u);put({type:'feast',s,e,who,guests:cast.slice(1,3+(o.r()*3|0)),room:u.ri.tv,data})};
+  const away=!!awayFor(ad[0],L);
+  if(h==='thanks'&&!away){
+    hol(H(9),H(10.6),home(H(9)),u.ri.tv,{sp:'sofa',tv:1,lab:['Watching the parade on TV','Waiting for the giant balloons'],chip:'The parade on TV'});
+    const c=home(H(11),ad)[0];if(c)hol(H(11),H(15.2),[c],u.ri.k,{sp:'stove',fx:'cook',lab:['Basting the turkey','Making the stuffing','Peeling potatoes','Checking the turkey. Again.'],log:`${c.first} started the turkey.`,chip:'Cooking the turkey'});
+    if(u.host)feast(H(15.5),H(19.2),{k:'thanks',chip:'Thanksgiving dinner',lab:['Thanksgiving dinner','Passing the gravy','Seconds on pie'],extra:['Going around the table saying what we\'re thankful for','Arguing about politics at the table','Football on TV, everyone half asleep'],log:'Thanksgiving dinner, with family over.'})}
+  if(h==='xmas'&&u.tree&&u.host&&!away)feast(H(14),H(17.6),{k:'xmas',chip:'Christmas dinner',lab:['Christmas dinner','Pulling crackers','Passing the ham'],extra:['Napping after dinner','Playing with new presents'],log:'Christmas dinner, with family over.'});
+  if(u.tree&&kids.length&&mo===11&&dd<24&&dowOf(L)===6&&ch(.35)){const who=home(H(14));hol(H(14),H(15.6),who,u.ri.k,{sp:'table',arm:1,emo:['heart','ha','sparkle'],lab:['Baking Christmas cookies','Decorating cookies','Eating the cookie dough'],log:`${houseName(u)} baked Christmas cookies.`,chip:'Christmas cookies'})}
+  if(u.tree&&kids.length&&mo===11&&dd>=14&&dd<=23&&ch(.15)){const p=home(H(22.4),ad)[0];if(p&&segAt(p,H(22.4)).act!=='sleep')hol(H(22.4),H(23.1),[p],u.ri.tv,{sp:'sofa',prop:'box',lab:['Wrapping presents (kids asleep)','Hiding the presents','Out of tape. Again.'],chip:'Wrapping presents'})}
+  if(h==='seder'&&u.hanuk)feast(H(19.2),H(22.6),{k:'seder',chip:'Passover seder',lab:['Passover seder','Reading from the Haggadah','Dipping the parsley'],kidlab:['Asking the Four Questions','Hunting for the afikoman'],log:'The first Passover seder, with family over.'});
+  if(h==='eastersat'&&u.easter&&kids.length)hol(H(15.4),H(16.5),home(H(15.4)),u.ri.k,{sp:'table',arm:1,emo:['sparkle','ha'],lab:['Dyeing Easter eggs','Dropping an egg in the purple','Writing names on the eggs'],log:`${houseName(u)} dyed Easter eggs.`,chip:'Dyeing eggs'});
+  if(h==='easter'&&u.easter){if(kids.length)hol(H(7.8),H(8.6),home(H(7.8)),u.ri.tv,{sp:'center',kidpose:'jump',emo:['!','sparkle','ha'],lab:['Easter egg hunt!','Looking behind the sofa for eggs'],adlab:['Watching the egg hunt','Hiding the last eggs'],log:'Easter morning egg hunt.',chip:'Easter egg hunt'});
+    if(u.host&&!away)feast(H(13.6),H(16.6),{k:'easter',chip:'Easter dinner',lab:['Easter dinner','Passing the ham'],log:'Easter dinner, with family over.'})}
+  if(h==='valentine'&&kids.length)hol(H(16.4),H(17),home(H(16.4),kids),u.ri.tv,{sp:'table',arm:1,emo:['heart'],lab:['Making valentines for the whole class','Cutting out paper hearts'],chip:'Making valentines'});
+  if(h==='mother'||h==='father'){const M=h==='mother'?'Mom':'Dad',D=h==='mother'?"Mother's Day":"Father's Day";
+    for(const p of home(H(11),ad)){if(!ch(.4))continue;const s0=H(10.8+o.r()*2);const old=p.age>=72;
+      hol(s0,s0+(old?25:30),[p],u.ri.tv,{sp:'sofa',prop:old?'photo':'phone',emo:old?['heart','tear']:['heart','ha'],lab:[old?`Looking at old photos of ${M}`:`Calling ${M} for ${D}`],chip:D})}
+    if(kids.length)hol(H(9.2),H(9.8),home(H(9.2),kids),u.ri.tv,{sp:'table',arm:1,emo:['heart','sparkle'],lab:[`Making a ${D} card`],chip:D})}
+  if(h==='july4'&&!away){const who=home(H(21.2)).filter(p=>segAt(p,H(21.2)).act!=='sleep');hol(H(21.25),H(21.8),who,u.ri.tv,{sp:'window',emo:['!','sparkle','ha'],lab:['Watching the fireworks from the window','Ooh. Aah.'],log:'Fireworks over the city. Watched from the window.',chip:'Fireworks'})}
+  if(h==='nye'){const who=home(H(23.85),ad).filter(p=>segAt(p,H(23.85)).act!=='sleep');hol(H(23.85),H(24.25),who,u.ri.tv,{sp:'sofa',tv:1,emo:['!','ha','heart','sparkle'],lab:['Counting down to midnight','Happy New Year!'],log:'Counted down to midnight. Happy New Year!',chip:'Countdown to midnight'})}
 }
 function evScript(u,ev){
   if(ev.sc)return ev.sc;
@@ -1485,6 +1560,11 @@ function evScript(u,ev){
     case 'holiday':{ev.guests.forEach((g,k)=>{const B=T(K(g),ev.s+k*6,ev.e-rng(0,20));B.add(1.5,{sp:'door',prop:'box',emo:'heart',lab:'Arrived for Christmas Eve'});
         loop({B,r,stop:false},()=>pk([[[rng(5,10),{sp:'table',room:kit,prop:'plate',arm:1,emo:pk(['ha','heart'])}]],[[rng(4,8),{sp:'sofa',room:tv,emo:pk(['note','ha','...'])}]]]),[]);B.e+=1.5;B.rest({sp:'door',pose:'wave'})});
       let k=0;for(const x of W){fill(x,()=>pk([[[rng(5,10),{sp:'table',room:kit,prop:'plate',arm:1,emo:pk(['ha','heart']),lab:'Christmas Eve dinner',log:k++===0?`Christmas Eve dinner, with family over.`:null}]],[[rng(4,8),{sp:'sofa',room:tv,emo:'note',lab:'Singing carols, badly'}]]]),[])}break}
+    case 'hol':{const d=ev.data;let k=0;for(const x of W){const labs=x.kid&&d.kidlab?d.kidlab:!x.kid&&d.adlab?d.adlab:d.lab;
+        fill(x,()=>[[rng(3,7),{sp:d.sp,room:ev.room,pose:x.kid&&d.kidpose?d.kidpose:d.pose,prop:d.prop,arm:d.arm,fx:d.fx,tv:d.tv,tvc:d.tv,emo:d.emo?pk(d.emo):undefined,lab:pk(labs),log:k++===0&&d.log?d.log:null}]],[])}break}
+    case 'feast':{const d=ev.data;ev.guests.forEach((g,k)=>{const B=T(K(g),ev.s+k*6,ev.e-rng(0,20));B.add(1.5,{sp:'door',prop:'box',emo:'heart',lab:'Arrived for '+d.chip});
+        loop({B,r,stop:false},()=>pk([[[rng(5,10),{sp:'table',room:kit,prop:'plate',arm:1,emo:pk(['ha','heart'])}]],[[rng(4,8),{sp:'sofa',room:tv,emo:pk(['note','ha','...'])}]]]),[]);B.e+=1.5;B.rest({sp:'door',pose:'wave'})});
+      let k=0;for(const x of W){fill(x,()=>pk([[[rng(5,10),{sp:'table',room:kit,prop:'plate',arm:1,emo:pk(['ha','heart']),lab:pk(x.kid&&d.kidlab&&ch(.5)?d.kidlab:d.lab),log:k++===0?d.log:null}]],[[rng(4,8),{sp:'sofa',room:tv,emo:pk(['ha','...','heart']),lab:d.extra?pk(d.extra):pk(d.lab)}]]]),[])}break}
     case 'menorah':{let k=0;for(const x of W){fill(x,()=>[[rng(4,8),{sp:'window',room:ev.room,emo:pk(['note','sparkle','heart']),lab:`Lighting the menorah: night ${ev.data.n}`,log:k++===0?`${houseName(u)} lit the menorah. Night ${ev.data.n} of Hanukkah.`:null}]],[])}break}
     case 'slides':{let k=0;for(const x of W){const B=A(x);
         loop({B,r,stop:false},()=>[[rng(4,9),{sp:'sofa',room:tv,fx:'proj',li:'proj',emo:pk(['ha','heart','...','sparkle']),lab:'Slide night: old family slides on the projector',log:k===0?`${x.first} set up the slide projector. Old family slides tonight.`:null}]],[[.12,()=>[[1,{sp:'sofa',room:tv,fx:'proj',li:'proj',emo:'tear',lab:'A slide of someone who is gone now'}]]]]);k++}
@@ -2063,9 +2143,36 @@ function drawRoom(u,i,ox,oy,now,f8){WILD=CYBER&&!!u.mega;
     if(dc.wreath&&i===0){R(12,1,3,3,'#2a7a3c');R(13,2,1,1,u.rooms[i].wall);R(13,3,1,1,'#d02a2a')}
     if(dc.candle&&eve){R(7,9,1,2,'#f0ece0');R(7,8,1,1,f8%3?'#ffd060':'#ffb040');for(let k=-2;k<=2;k++)bl(ox+(rm.flip?RW-8:7)+k,oy+8,255,200,120,.18)}
     if(dc.menorah&&i===(u.ri.tv>=0?u.ri.tv:0)&&(h>=16.4&&h<23.5)){const n=dc.menorah;R(2,10,13,1,'#c8a040');R(8,7,1,3,'#c8a040');
-      for(let k=0;k<8;k++){const x=k<4?3+k:6+k;R(x,8,1,2,'#7ab0ff');if(k<n){R(x,7,1,1,(f8+k)%3?'#ffd060':'#fff0a0');bl(lx(x),oy+7,255,200,110,.12)}}R(8,6,1,1,f8%2?'#fff0a0':'#ffd060');bl(lx(8),oy+6,255,200,110,.12)}}
+      for(let k=0;k<8;k++){const x=k<4?3+k:6+k;R(x,8,1,2,'#7ab0ff');if(k<n){R(x,7,1,1,(f8+k)%3?'#ffd060':'#fff0a0');bl(lx(x),oy+7,255,200,110,.12)}}R(8,6,1,1,f8%2?'#fff0a0':'#ffd060');bl(lx(8),oy+6,255,200,110,.12)}
+    if(dc.cling&&i===(u.n>1?1:0))drawCling(dc.cling,R,u)}
   clipAll();
 }
+/* paper decorations taped inside the window glass */
+function drawCling(k,R,u){const L=(x,y,rows,pal)=>rows.forEach((row,j)=>{for(let i=0;i<row.length;i++)if(row[i]!=='.')R(x+i,y+j,1,1,pal[row[i]])});
+  const left=hr(u.id,941)<.5;
+  switch(k){
+    case'heart':L(left?1:11,1,['a.a','aaa','.a.'],{a:'#e8305a'});L(left?4:14,3,['b.b','bbb','.b.'],{b:'#ff8ab0'});break;
+    case'shamrock':L(left?1:12,1,['.g.','ggg','.g.','.s.'],{g:'#2aa04a',s:'#1a6a2a'});break;
+    case'egg':L(left?1:10,2,['.a.','aaa','bbb','.a.'],{a:'#f0a0d0',b:'#a0d0f0'});L(left?5:14,3,['.c.','ddd','.c.'],{c:'#f8e070',d:'#a0e0a0'});break;
+    case'turkey':L(left?1:11,1,['rogy','rogy','.bbh','.bb.'],{r:'#e04a2a',o:'#f0a020',g:'#f0d040',y:'#40a040',b:'#8a5a2a',h:'#c03020'});break;
+    case'flag':L(left?2:11,1,['pbbrrr','pbbwww','prrrrr','p.....','p.....'],{p:'#c0c0c0',b:'#2a3a9a',r:'#d02020',w:'#f0f0f0'});break;
+    case'dstar':L(left?1:11,1,['..b..','bbbbb','.b.b.','bbbbb','..b..'],{b:'#3a6adf'});break}}
+/* fireworks over the city: the Fourth of July (9:15 to 9:50 PM) and the first minutes of New Year's Day */
+const FWC=['#ff4848','#48ff88','#4888ff','#ffd848','#ff68ff','#ffffff','#48ffff','#ff9a30'];
+function fireworksK(){const L=Math.floor(simMin/1440),t=mod(simMin,1440),[,m,d]=ymd(L);
+  if(m===6&&d===4&&t>=1275&&t<1310)return(t-1275)/35;if(m===0&&d===1&&t<15)return t/15;return-1}
+function drawFireworks(now){const k=fireworksK();if(k<0||reduce)return;const ps=Math.max(3,Math.round(2.5*DPR)),rate=k>.8?4.5:2.2,slot=Math.floor(now*rate);
+  for(let j=0;j<7;j++){const n=slot-j,t=now-n/rate;if(t<0||t>2.8)continue;const h=hash(n,77,city.seed)>>>0,
+      x=W*(.08+.84*((h%997)/997)),y=H*(.06+.26*(((h>>>10)%991)/991)),col=FWC[(h>>>4)%FWC.length],c2=FWC[(h>>>8)%FWC.length],np=26+(h%14),big=.8+((h>>>14)%5)/10;
+    if(t<.6){ctx.globalAlpha=.9;ctx.fillStyle='#ffe0a0';const yy=y+H*.45*(1-t/.6);ctx.fillRect(Math.round(x/ps)*ps,Math.round(yy/ps)*ps,ps,ps*2);
+      ctx.globalAlpha=.4;ctx.fillRect(Math.round(x/ps)*ps,Math.round((yy+ps*3)/ps)*ps,ps,ps*2);continue}
+    const tt=t-.6,rr=Math.min(W,H)*.14*big*Math.sqrt(Math.min(1,tt/1.6)),fade=Math.max(0,1-Math.pow(tt/2.2,2)),drop=tt*tt*H*.025;
+    if(tt<.35){const g=ctx.createRadialGradient(x,y,0,x,y,rr*1.6+ps*6);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');ctx.globalAlpha=.35*(1-tt/.35);ctx.fillStyle=g;ctx.fillRect(x-rr*2-ps*8,y-rr*2-ps*8,rr*4+ps*16,rr*4+ps*16)}
+    for(let i=0;i<np;i++){const a=i/np*Math.PI*2+(h%7);const ca=Math.cos(a),sa=Math.sin(a);
+      for(const[f,al,c]of[[1,1,col],[.86,.55,col],[.72,.3,col],[.5,.8,c2]]){ctx.globalAlpha=fade*al*(tt>1.5&&((i+(now*12|0))%3===0)?.3:1);ctx.fillStyle=c;
+        ctx.fillRect(Math.round((x+ca*rr*f)/ps)*ps,Math.round((y+sa*rr*f+drop)/ps)*ps,ps,ps)}}
+    if(tt<.12){ctx.globalAlpha=.18*(1-tt/.12);ctx.fillStyle='#fff6e0';ctx.fillRect(0,0,W,H)}}
+  ctx.globalAlpha=1}
 /* SVGA room detail: drawn only in the 3x close-up buffer */
 function wall3(u,rm,i,ox,oy){
   const X=ox*3,Y=oy*3;
@@ -2346,6 +2453,7 @@ function drawSky(now){
       const z=Math.max(1,Math.round(DPR*1.5));for(let i=0;i<16;i++){const tt=Math.max(0,t-i*.012);ctx.globalAlpha=(1-i/16)*(1-t/.9);ctx.fillStyle='#fff6dc';
         ctx.fillRect(Math.round(shoot.x+shoot.vx*tt),Math.round(shoot.y+shoot.vy*tt),z,z)}ctx.globalAlpha=1}}
   }
+  drawFireworks(now);
 }
 
 /* ============================================================
@@ -2466,7 +2574,7 @@ function chipText(u,e){const g=e.guests[0];switch(e.type){
   case 'party':return'Party tonight';case 'birthday':{const p=u.people.find(x=>x.id===e.data.pid);return`${p.first}'s birthday`}
   case 'argue':return'An argument';case 'datenight':return'Date night';case 'cuddle':return'A quiet night in';case 'close':return'Curtains drawn';
   case 'date':return`Date with ${g.first}`;case 'famdinner':return'Family dinner';case 'story':return'Bedtime story';case 'nightmare':return'A bad dream';
-  case 'visit':return`Visitor: ${g.first} (${g.rel})`;case 'pizza':return'Pizza night';case 'gamenight':return'Game night';case 'slides':return'Slide night';case 'tree':return'Putting up the tree';case 'presents':return'Christmas morning';case 'holiday':return'Christmas Eve';case 'menorah':return`Hanukkah, night ${e.data.n}`;case 'gamedev':return'Making a video game'}return''}
+  case 'visit':return`Visitor: ${g.first} (${g.rel})`;case 'pizza':return'Pizza night';case 'gamenight':return'Game night';case 'slides':return'Slide night';case 'tree':return'Putting up the tree';case 'presents':return'Christmas morning';case 'holiday':return'Christmas Eve';case 'menorah':return`Hanukkah, night ${e.data.n}`;case 'feast':case 'hol':return e.data.chip||'';case 'gamedev':return'Making a video game'}return''}
 function journal(u,t){
   const out=[];const t0=t-7*60;if(u.kind!=='res')return out;
   const inEv=(p,tt)=>{const L=Math.floor(tt/1440);for(const d of [L-1,L])for(const e of eventsFor(u,d))if(tt>=e.s&&tt<e.e&&e.who.includes(p)&&beatIn(evScript(u,e).get('p'+p.id),tt))return true;return false};
@@ -3445,6 +3553,7 @@ function hbNews(s,created,L){
   const babies=H.filter(([,x])=>/^Baby .* was born/.test(x)).map(([d])=>d),lapse=hbLapse(s,created);
   let t=created;for(let k=1;k<400;k++){let gap=Math.round(base*mult*(.45+hr(p.id,k,4306)*1.6));if(babies.some(b=>t>=b-20&&t<b+240))gap+=220;t+=gap;if(t>L||t>lapse)break;
     out.push({d:t,t:HBROUT[hash(p.id,k,4307)%HBROUT.length]})}
+  for(const e of hbHolNews(s,created,Math.min(L,lapse)))out.push(e);
   /* big news still gets posted after someone stops tinkering */
   return out.filter(e=>e.ev||e.d<=lapse).sort((a,b)=>a.d-b.d);
 }
@@ -3786,6 +3895,10 @@ function hbBackdrop(P,R,sc,day){const W=HBF_W,H=HBF_H,sky=(a,b,h=H)=>{for(let y=
     case'snow':sky('#b8c8d8','#e8eef4',40);P.r(0,40,W,32,'#f4f8ff');for(let k=0;k<60;k++)P.px(R()*W,R()*H,'#ffffff');break;
     case'halloween':P.r(0,0,W,H,'#1a0a2a');P.disc(82,10,6,'#f0e0a0');for(let k=0;k<20;k++)P.px(R()*W,R()*30,'#ffffff');P.r(0,58,W,14,'#2a1a10');break;
     case'party':P.r(0,0,W,H,'#3a2a4a');for(let k=0;k<14;k++)P.r(R()*W,R()*40,2,2,['#ff4080','#40c0ff','#ffe040','#80ff60'][k%4]);for(let x=0;x<W;x+=12)P.line(x,0,x+6,8,'#ffe040');break;
+    case'menorah':P.r(0,0,W,H,'#2a2440');P.r(10,8,30,26,'#101830');for(let k=0;k<14;k++)P.px(11+R()*28,9+R()*24,'#e0e8ff');P.r(0,52,W,20,'#4a3a2a');{const x0=56;P.r(x0,46,26,2,'#d0a030');P.r(x0+12,38,2,9,'#d0a030');for(let k=0;k<9;k++){const x=x0+k*3+(k>4?1:0);P.r(x,40-(k===4?4:0),1,5,'#9ac0ff');P.px(x,39-(k===4?4:0),'#ffd040');P.px(x,38-(k===4?4:0),'#fff080')}}break;
+    case'thanks':P.r(0,0,W,H,'#c89a6a');P.r(0,0,W,30,'#d8b080');P.r(0,48,W,24,'#e8e0d0');P.oval(48,50,12,6,'#ffffff');P.oval(48,47,8,5,'#b06a2a');P.oval(46,45,4,2,'#d08a4a');P.r(20,50,8,3,'#f0a030');P.r(70,50,8,3,'#90c040');break;
+    case'easter':sky('#a0d8ff','#e8f8ff',34);P.r(0,34,W,38,'#60b850');for(let k=0;k<9;k++){const x=6+R()*84,y=40+R()*26;P.oval(x,y,2,3,['#f8a0d0','#a0d0f8','#f8e070','#c0a0f8'][k%4]);P.r(x-2,y,5,1,'#ffffff')}break;
+    case'fireworks':P.r(0,0,W,H,'#0a0a24');for(let k=0;k<3;k++){const cx=20+k*28+R()*8,cy=12+R()*12,c=['#ff4060','#ffd040','#40c0ff'][k];for(let a=0;a<14;a++){const t=a/14*Math.PI*2;P.px(cx+Math.cos(t)*9,cy+Math.sin(t)*9,c);P.px(cx+Math.cos(t)*5,cy+Math.sin(t)*5,'#ffffff')}}for(let x=0;x<W;){const w=6+R()*8|0,h=10+R()*20|0;P.r(x,52-h,w,h+20,'#18182a');for(let y=54-h;y<50;y+=3)if(R()<.4)P.px(x+2,y,'#f0c860');x+=w}break;
     case'xmas':P.r(0,0,W,H,'#6a3a2a');P.r(0,0,W,H*.7,'#8a5a3a');{const tx=12;for(let y=0;y<34;y++)P.r(tx-y*.35,14+y,y*.7+1,1,'#1a6a2a');P.r(tx-1,48,3,5,'#5a3a1a');for(let k=0;k<10;k++)P.px(tx-10+R()*20,18+R()*28,['#ff4040','#ffe040','#40a0ff'][k%3]);P.px(tx,13,'#ffe040')}break;
     case'moving':P.r(0,0,W,H,'#d8d0c0');P.r(0,52,W,20,'#a08060');break;
     case'room':P.r(0,0,W,H,['#d8c8a8','#c8d0b8','#d0c0c8','#b8c8d8'][R()*4|0]);P.r(64,12,18,14,'#6a4a2a');P.r(66,14,14,10,hbMix('#80b0e0','#ffffff',R()*.5));P.r(0,58,W,14,'#7a5a3a');break;
@@ -3854,7 +3967,12 @@ function hbAlbum(s,F){
     for(const k of kids){const kb=day(y,1,1)+(k.bday||0);if(kb>=k.bd+365&&r2()<.7)add(kb,'party',[k],`${k.first} turns ${Math.round(ageAt(k,kb))}!`,{candles:Math.min(9,Math.round(ageAt(k,kb)))})}
     if(kids.length)add(day(y,9,12),'school',[kids[y%kids.length]],`${kids[y%kids.length].first}'s school picture`);
     if(r2()<(s.tags.has('spooky')?1:.45)){const c=hbPick(r2,['ghost','witch','vampire','cat']);add(day(y,10,31),'halloween',alive(day(y,10,31)).slice(0,4),hbPick(r2,['Happy Halloween!!!','Trick or treat!','Our costumes this year']),{costume:c,pumpkin:true})}
-    if(r2()<.6)add(day(y,12,24),u.xmas?'xmas':'snow',alive(day(y,12,24)).slice(0,5),u.xmas?hbPick(r2,['Merry Christmas from all of us!','Holiday photo','Christmas morning']):hbPick(r2,['First snow!','Snow day!']),{santa:u.xmas&&r2()<.3,sweater:u.xmas});
+    {const kx=hbHolKeeps(s,'xmas');if(r2()<.6)add(day(y,12,24),kx?'xmas':'snow',alive(day(y,12,24)).slice(0,5),kx?hbPick(r2,['Merry Christmas from all of us!','Holiday photo','Christmas morning']):hbPick(r2,['First snow!','Snow day!']),{santa:kx&&r2()<.3,sweater:kx})}
+    {const r5=mulberry32(hash(p.id,y,4731)),hd=hanukkahDay(y);
+      if(u.hanuk&&hd&&r5()<.65){const d=hd+(r5()*8|0);add(d,'menorah',alive(d).slice(0,5),hbPick(r5,['Happy Hanukkah!','Lighting the menorah',`Night ${d-hd+1} of Hanukkah`]))}
+      if(r5()<.4){const d=thanksgiving(y);add(d,'thanks',alive(d).slice(0,5),hbPick(r5,['Thanksgiving dinner','Happy Thanksgiving!','The turkey (and us)']))}
+      if(u.easter&&kids.length&&r5()<.6){const d=easterDay(y);add(d,'easter',kids.slice(0,3),hbPick(r5,['Easter egg hunt!','Look how many eggs!','Happy Easter!']))}
+      if(r5()<.22){const d=day(y,7,4);add(d,'fireworks',alive(d).slice(0,3),hbPick(r5,['Fourth of July!','Fireworks!!!','Watching the fireworks from the roof']))}}
     if(r2()<.7){const sc=hbPick(r2,['beach','beach','lake','mountain','city']);add(day(y,7,10)+(r2()*40|0),sc,alive(day(y,7,1)).slice(0,5),{beach:'Vacation!!! At the beach',lake:'At the lake',mountain:'Hiking in the mountains',city:'Our big trip to the city'}[sc])}
     if(r2()<.35)add(day(y,5,1)+(r2()*30|0),hbPick(r2,['park','garden']),alive(day(y,5,1)).slice(0,4),hbPick(r2,['Picnic in the park','Spring!','Sunday afternoon']))}
   {const B=hbSocOf(p).best;if(B&&!p.kid){const q=B.q;for(let y=y0;y<=y1;y++){const r4=mulberry32(hash(p.id,q.id,y,4725)),d=day(y,1,1)+Math.floor(r4()*360);if(d<B.since||r4()>.55)continue;
@@ -4395,7 +4513,7 @@ function hbLinks(s,F,r){const fr=hbFriends(s,F,r,6),out=[];
 const HBAWARD=['Golden Doorknob Award','Top 5% of the Block','HomeBlocks Pick of the Week','Rooftop Excellence Award','Fire Escape Seal of Approval','Cool Page Award'];
 function hbAwards(s,r){return`<p align="center">${hbPickN(r,HBAWARD,2).map((a,i)=>`<table border="0" cellpadding="1" style="display:inline-table;margin:4px"><tr><td bgcolor="#c0c0c0" style="border:2px outset #fff"><table bgcolor="${i?'#000080':'#800000'}" cellpadding="4"><tr><td align="center"><font color="#ffff00" size="1" face="Arial"><b>&#9733; ${hbE(a.toUpperCase())} &#9733;</b></font></td></tr></table></td></tr></table>`).join('')}</p>`}
 function hbMidiBox(s){const nm=hbMidiName(s);return`<table border="2" cellpadding="3" bgcolor="#c0c0c0" align="center"><tr><td><font face="Arial" size="1" color="#000000"><b>&#9835; ${hbE(nm)}</b></font><br><a href="midi:play"><img alt="Play" title="Play" src="${hbSprite('mplay').fr[0]}" width="22" height="18"></a> <a href="midi:stop"><img alt="Stop" title="Stop" src="${hbSprite('mstop').fr[0]}" width="22" height="18"></a></td></tr></table>`}
-function hbMidiName(s){if(s.kind==='positron')return'mylittlefriend.mid';const r=hbR(s.p,7);return hbPick(r,['theme','lovesong','sunset','canyon','mysong','groove','dreams','rain','party','nocturne','journey','oldtown'])+(r()<.5?(1+Math.floor(r()*9)):'')+'.mid'}
+function hbMidiName(s){if(s.kind==='positron')return'mylittlefriend.mid';{const h=hbHolTuneName(s);if(h)return h+'.mid'}const r=hbR(s.p,7);return hbPick(r,['theme','lovesong','sunset','canyon','mysong','groove','dreams','rain','party','nocturne','journey','oldtown'])+(r()<.5?(1+Math.floor(r()*9)):'')+'.mid'}
 
 const HBZINE='http://megazine.org/',HBBBS='https://samuelling.github.io/BBS/';
 function hbBuzz(s,F){if(s.kind==='construction'||s.kind==='positron'||s.kind==='gk'||s.kind==='lab'||!(s.zine||s.bbs))return'';const R=hbR(s.p,96),v=s.v,o=[];
@@ -4435,6 +4553,7 @@ function hbGuestbook(s,F){
     else if(T('homesick'))parts.push(`I've always wanted to visit ${F.p.place}!`);
     else if(T('spooky'))parts.push('Your Halloween page is SO creepy, I love it.');
     else parts.push(hbPick(rr,['Come visit my page sometime!','Keep up the good work!','Added you to my links!','How did you make the background??','Your page loads faster than mine, what\'s your secret?']));
+    {const hg=hbHolGreet(x,d,rr);if(hg)parts.push(hg)}
     ents.push({nm:`${x.p.first} ${x.p.kid?'':x.p.last}`.trim(),from:x.u.b.name,url:hbUrl(x),d,msg:hbSay(x.v,parts.join(' '),rr)+x.v.emo})});
   const g=hbGbLoad()[city.seed+':'+s.id]||[];for(const e of g)ents.push({nm:e.n,from:e.w||'',url:'',d:e.d,msg:e.m,you:true});
   ents.sort((a,b)=>b.d-a.d);return ents;
@@ -4447,7 +4566,8 @@ function hbGbPage(s,F){const ents=hbGuestbook(s,F),th=s.th;
   ${ents.map(e=>`<table width="90%" align="center" border="1" cellpadding="4" ${th.panel?'':`bgcolor="${th.dark?'#101020':'#ffffff'}"`}><tr><td><font color="${th.dark&&!th.panel?'#ffffff':th.ink}"><b>${e.url?`<a href="${e.url}">${hbE(e.nm)}</a>`:hbE(e.nm)}</b>${e.from?` <font size="2">from ${hbE(e.from)}</font>`:''}<br><font size="2">${hbDate(e.d)}</font><br>${hbE(e.msg)}</font></td></tr></table><br>`).join('')||'<p align="center">No entries yet. Be the first!</p>'}`}
 
 function hbPage(s,file){
-  const L=F0(),F=hbFacts(s,L);s.F=F;s.title=s.title||hbTitle(s,F);const th=s.th=s.th||hbTheme(s),v=s.v,r=hbR(s.p,40+file.length);
+  const L=F0(),F=hbFacts(s,L);s.F=F;s.title=s.title||hbTitle(s,F);if(!s.th0)s.th0=s.th||hbTheme(s);{const H=hbHolNow(s,F),key=H?H.k+H.y:'';if(s.holK!==key||!s.th){s.holK=key;s.th=H?hbHolTheme(s,s.th0,H):s.th0;s.lay=null}s.hol=H}
+  const th=s.th,v=s.v,r=hbR(s.p,40+file.length);
   if(s.kind==='gk'&&file==='index.html')return hbGK(s,F);
   if(s.kind==='lab'){const x=hbLab(s,F,file);if(x)return x}
   if(s.kind==='construction')F.updated=F.created;
@@ -4465,6 +4585,8 @@ function hbPage(s,file){
   let foot=`${file==='index.html'?hbBuzz(s,F):''}${hbHr(th,s)}<center><font size="2">${th.counter?`You are visitor number ${hbCounter(s,F)}<br>`:''}${th.mail?`${hbImg('mail',{sc:1})} <a href="mailto:${hbE((F.first+'_'+F.last).toLowerCase().replace(/[^a-z_]/g,''))}@homeblocks.com">Email me!</a><br>`:''}
     ${hbSendLink(s,file)}This page was last updated on ${hbDate(F.updated)}.<br>${v.old?'Best viewed with your glasses on.':hbPick(r,['Best viewed at 800x600 in 256 colors.','Best viewed with your eyes.','This page is best viewed at 640x480.','Made with Notepad and love.'])}<br>
     <a href="${HBROOT}">${'&#9668;'} Back to HomeBlocks</a> | <a href="${HBROOT}${s.nb.id}/">${hbE(s.nb.nm)} Neighborhood</a>${hbAptLink(s)}</font></center>`;
+  if(file==='index.html'&&s.hol){const bn=hbHolBanner(s,F,s.hol),i=body.indexOf('</center>');body=i>=0&&i<6000?body.slice(0,i+9)+bn+body.slice(i+9):bn+body}
+  if(th.lights)body=`<p align="center">${hbImg('lights').repeat(3)}</p>`+body;
   let main;body=hbArrange(s,body);const LY=hbLay(s);
   let navBar=hbNav(s,navH);
   if(LY.nav==='bottom'&&th.layout!=='table'){foot=hbNav(Object.assign({},s,{lay:Object.assign({},LY,{nav:'pipe'})}),navH)+foot;navBar=''}
@@ -4489,7 +4611,8 @@ function hbPage(s,file){
   blockquote{border-left:3px double ${th.ink};padding-left:10px}
   marquee{font-weight:bold}h1,h2,h3{font-family:"${th.font}",serif}
   .trail{position:absolute;pointer-events:none;width:7px;height:7px;transition:opacity .6s}
-  </style></head><body>${main}</body></html>`;
+  ${th.snow?`.snw{position:fixed;top:-12px;pointer-events:none;color:${th.dark?'#ffffff':'#a8c0e8'};animation:snwf linear infinite;z-index:5}@keyframes snwf{to{transform:translate(20px,104vh)}}`:''}
+  </style></head><body>${th.snow?hbSnow(s):''}${main}</body></html>`;
   return{title,html,s,file};
 }
 function hbSplash(s,F){const th=s.th,R=hbR(s.p,90),tl=th.tl;
@@ -4936,6 +5059,166 @@ HBMOD.unshift(
     return`<h2>Where I Stand</h2><p>No beating around the bush. Here is where I stand on every issue in this city.</p><table border="1" cellpadding="5">${HBPOL_ISSUES.map(k=>{const l=HBPOL_LEAN[W.st][k];return`<tr><td>${hbE(hbCap(C.I[k].name))}</td><td align="center"><b><font color="${l>0?'#2040c0':l<0?'#c02020':'#808080'}">${l>0?'FOR':l<0?'AGAINST':'IT\'S COMPLICATED'}</font></b></td></tr>`}).join('')}</table>`}},
   {k:'polletters',f:'letters.html',nav:()=>'Letters to the Editor',pri:14,when:s=>s.kind==='politics'&&!s.v.kid,page(s,F,r){const C=hbPolCity(),posts=hbPolPosts(s,F).filter(q=>q.lean!==0||q.key==null).slice(-3),R=hbR(s.p,4814);
     return`<h2>Letters to the Editor</h2><p>These are letters I sent to ${hbE(C.paper)}. They did not print them. So I am printing them here.</p>${posts.map(q=>`<table border="1" cellpadding="10" width="90%"><tr><td><font face="Courier New">To the Editor:<br><br>${q.body.slice(0,2).map(t=>hbE(t.replace(/<[^>]+>/g,''))).join('<br><br>')}<br><br>Sincerely,<br>${hbE(s.p.first+' '+s.p.last)}<br>${hbE(F.bld)}</font><br><br><font size="1">(Sent ${hbDate(q.d+1)}. Not printed.)</font></td></tr></table><br>`).join('')}`}});
+
+/* ---------- holidays on homepages ----------
+   People decorate their pages for the holidays their household keeps (the same households that put a tree,
+   a menorah or eggs in their window in the city). Decorating is an update: it lands in What's New on the day
+   they did it, and the decorations stay up until their next update after the season, or forever if they
+   stopped updating (so some pages still wish you a Merry Christmas in July). Countdowns are counted from the
+   day the page was last updated, like everything else on it. */
+HBS.xtree={w:16,h:21,n:3,ms:420,d(P,f){for(let y=3;y<17;y++){const t=y<8?y-3:y<13?y-6:y-9,hw=Math.min(7,1+(t>>1)+(y>12?1:0));P.r(8-hw,y,hw*2,1,y%2?'#1a8a2a':'#167a24')}
+  P.r(7,17,2,3,'#6a3a1a');P.r(7,0,2,1,'#ffe040');P.r(6,1,4,1,'#ffe040');P.r(7,2,2,1,'#ffe040');
+  const O=[[6,5],[9,7],[5,9],[10,10],[7,12],[4,14],[11,14],[8,15],[6,10]],C=['#ff3030','#ffe040','#40a0ff','#ff70d0'];O.forEach(([x,y],i)=>P.px(x,y,C[(i+f)%4]))}};
+HBS.menorah={w:19,h:15,n:2,ms:240,d(P,f,o){const g='#d0a030',n=Math.max(0,Math.min(8,+(o.c||0)));P.r(5,14,9,1,g);P.r(9,9,1,5,g);
+  for(let k=0;k<8;k++){const x=k<4?1+k*2:11+(k-4)*2;P.r(x,9,1,1,g);P.r(x,6,1,3,'#9ac0ff');if(k>=8-n){P.px(x,5,f?'#ffd040':'#fff080');P.px(x,4,f?'#fff080':'#ffb020')}}
+  P.r(1,9,17,1,g);P.r(9,3,1,6,'#9ac0ff');if(n){P.px(9,2,f?'#ffd040':'#fff080');P.px(9,1,f?'#fff080':'#ffb020')}}};
+HBS.dreidel={w:10,h:14,n:4,ms:120,d(P,f){P.r(4,0,2,3,'#c0c0c0');const c=['#3a6adf','#2a4aaf','#3a6adf','#5a8aff'][f];P.r(1,3,8,6,c);for(let y=9;y<13;y++)P.r(1+(y-9),y,8-2*(y-9),1,c);
+  P.r([2,4,6,4][f],5,2,2,'#ffffff')}};
+HBS.lights={w:48,h:8,n:2,ms:500,d(P,f){for(let x=0;x<48;x++)P.px(x,1+Math.round(Math.sin(x/48*Math.PI*2*2)),'#204020');const C=['#ff3030','#30e050','#3080ff','#ffd030'];
+  for(let k=0;k<6;k++){const x=4+k*8,y=2+Math.round(Math.sin(x/48*Math.PI*2*2));P.r(x,y,2,1,'#606060');P.r(x,y+1,2,3,(k+f)%2?C[k%4]:hbMix(C[k%4],'#000000',.5))}}};
+HBS.gift={w:12,h:12,n:1,ms:1000,d(P,f,o){const c=o.c||'#d02030';P.r(1,4,10,8,c);P.r(0,3,12,2,hbMix(c,'#ffffff',.2));P.r(5,3,2,9,'#ffd040');P.r(0,3,12,1,c);P.r(5,0,2,3,'#ffd040');P.px(3,1,'#ffd040');P.px(4,2,'#ffd040');P.px(8,1,'#ffd040');P.px(7,2,'#ffd040')}};
+HBS.snowman={w:13,h:19,n:2,ms:600,d(P,f){P.disc(6,14,4,'#f4f8ff');P.disc(6,7,3,'#ffffff');P.r(3,2,7,1,'#202020');P.r(4,0,5,2,'#202020');P.px(5,6,'#202020');P.px(7,6,'#202020');P.px(6,8,'#ff8020');
+  P.px(6,12,'#202020');P.px(6,14,'#202020');P.r(1,10,3,1,'#6a3a1a');P.r(9,f?9:10,3,1,'#6a3a1a');P.r(4,10,5,1,'#d02020')}};
+HBS.turkey={w:17,h:15,n:2,ms:500,d(P,f){const C=['#d03020','#f08020','#f0c030','#509030','#d03020'];for(let k=0;k<5;k++){const a=Math.PI*(.15+.7*k/4);P.line(8,9,8-Math.cos(a)*7,9-Math.sin(a)*(f?8:7),C[k]);P.line(9,9,9-Math.cos(a)*7,9-Math.sin(a)*(f?8:7),C[k])}
+  P.oval(8,10,4,3,'#7a4a22');P.disc(8,6,2,'#8a5a2a');P.px(8,5,'#000');P.px(9,7,'#ff9020');P.px(8,8,'#d02020');P.r(6,13,1,2,'#f0a020');P.r(10,13,1,2,'#f0a020')}};
+HBS.egg={w:9,h:11,n:1,ms:1000,d(P,f,o){const c=o.c||'#f0a0d0';P.oval(4,6,4,5,c);for(let x=0;x<9;x++)P.px(x,5+(x%2),'#ffffff');P.r(1,8,7,1,hbMix(c,'#000000',.15))}};
+HBS.bunny={w:13,h:17,n:2,ms:450,d(P,f){P.r(3,f?0:1,2,6,'#f4f0f0');P.r(8,0,2,6,'#f4f0f0');P.px(4,2,'#ffb0c0');P.px(9,2,'#ffb0c0');P.disc(6,8,3,'#f4f0f0');P.oval(6,13,4,3,'#f4f0f0');
+  P.px(5,8,'#202020');P.px(7,8,'#202020');P.px(6,9,'#ff80a0');P.disc(10,14,1,'#ffffff')}};
+HBS.shamrock={w:13,h:13,n:1,ms:1000,d(P){const g='#20a040';P.disc(6,3,2,g);P.disc(3,6,2,g);P.disc(9,6,2,g);P.disc(6,6,1,g);P.line(6,7,8,12,'#107020')}};
+HBS.firework={w:17,h:17,n:4,ms:180,d(P,f,o){const c=o.c||'#ffd040',r=[1,4,6,7][f];for(let k=0;k<12;k++){const a=k/12*Math.PI*2;P.px(8+Math.round(Math.cos(a)*r),8+Math.round(Math.sin(a)*r)+(f===3?1:0),f===3&&k%2?hbMix(c,'#000000',.5):c);if(f>1)P.px(8+Math.round(Math.cos(a)*r*.6),8+Math.round(Math.sin(a)*r*.6),'#ffffff')}}};
+HBS.hstar={w:13,h:13,n:1,ms:1000,d(P,f,o){const c=o.c||'#2a5ad0';P.line(6,0,0,9,c);P.line(6,0,12,9,c);P.line(0,9,12,9,c);P.line(6,12,0,3,c);P.line(6,12,12,3,c);P.line(0,3,12,3,c)}};
+HBS.bubbly={w:9,h:17,n:2,ms:300,d(P,f){P.r(1,1,7,6,'rgba(255,230,140,.9)');P.r(1,0,7,1,'#e0e0e0');P.r(4,7,1,7,'#e0e0e0');P.r(1,14,7,1,'#e0e0e0');P.px(3,f?5:3,'#ffffff');P.px(5,f?2:4,'#ffffff')}};
+Object.assign(HBTILE,{
+  candy:{s:24,base:'#ffffff',d(P){for(let y=0;y<24;y++)for(let x=0;x<24;x++)if(((x+y)%12)<5)P.px(x,y,'#e02030')}},
+  hstars:{s:40,base:'#1a3a9a',d(P){for(const[x,y]of[[10,10],[30,30]]){P.line(x,y-5,x-5,y+3,'#e8f0ff');P.line(x,y-5,x+5,y+3,'#e8f0ff');P.line(x-5,y+3,x+5,y+3,'#e8f0ff');P.line(x,y+6,x-5,y-2,'#e8f0ff');P.line(x,y+6,x+5,y-2,'#e8f0ff');P.line(x-5,y-2,x+5,y-2,'#e8f0ff')}}},
+  clover:{s:40,base:'#e8f8e0',d(P){for(const[x,y]of[[10,10],[30,30]]){P.disc(x,y-3,2,'#60c060');P.disc(x-3,y,2,'#60c060');P.disc(x+3,y,2,'#60c060');P.line(x,y+1,x+2,y+6,'#409040')}}},
+  eggs:{s:48,base:'#fff8e8',d(P){const C=['#f8b0d8','#a8d8f8','#f8e890','#b0e8b0'];[[10,12],[34,8],[22,34],[44,38]].forEach(([x,y],i)=>{P.oval(x,y,3,4,C[i]);P.r(x-3,y,7,1,'#ffffff')})}},
+  usa:{s:32,base:'#ffffff',d(P){for(let y=0;y<32;y+=8)P.r(0,y,32,4,'#d02030');P.r(0,0,16,16,'#1a2a7a');for(const[x,y]of[[3,3],[11,3],[7,7],[3,11],[11,11]])P.px(x,y,'#ffffff')}},
+  autumn:{s:48,base:'#f8e8c8',d(P,R){for(let k=0;k<6;k++){const x=R()*48,y=R()*48,c=['#d06020','#e0a020','#a03010','#c08030'][k%4];for(const dx of[-48,0,48])for(const dy of[-48,0,48]){P.oval(x+dx,y+dy,3,2,c);P.px(x+dx+3,y+dy+1,'#6a3a1a')}}}}
+});
+/* key: name, sprites, tile choices, greetings by voice, What's New lines */
+const HBHOL={
+  xmas:{n:'Christmas',spr:['xtree','gift','snowman'],tile:['snow','candy'],box:['#c02020','#108030'],snow:true,lights:true,
+    hi:{loud:'MERRY CHRISTMAS!!!',kid:'MERRY CHRISTMAS!!!',formal:'Season\'s Greetings',quiet:'merry christmas.',old:'Merry Christmas and a Happy New Year',x:['Merry Christmas!','Happy Holidays!','Merry Christmas to all!']},
+    news:['Added Christmas decorations!!!','Happy Holidays! Put up the lights (on the page, too).','Christmas page is up! Ho ho ho!','Decked the halls. Of my homepage.']},
+  hanukkah:{n:'Hanukkah',spr:['menorah','dreidel','hstar'],tile:['hstars'],box:['#2a5ad0','#c0c8e0'],
+    hi:{loud:'HAPPY HANUKKAH!!!',kid:'HAPPY HANUKKAH!!!',formal:'Chag Urim Sameach',quiet:'happy hanukkah.',x:['Happy Hanukkah!','Chag Sameach!','Happy Hanukkah to all!']},
+    news:['Happy Hanukkah! Added a menorah to the page.','Chag sameach! Hanukkah decorations are up.','Eight nights of new GIFs!']},
+  newyear:{n:'New Year\'s',spr:['bubbly','firework','bubbly'],tile:['confetti'],box:['#8a6a00','#fff0b0'],
+    hi:{loud:'HAPPY NEW YEAR!!!',kid:'HAPPY NEW YEAR!!!',quiet:'happy new year.',x:['Happy New Year!','Happy New Year, everybody!']},
+    news:['Happy New Year!!! New year, new background.','Posted my New Year\'s resolutions.','Happy New Year! Resolutions are up.']},
+  valentine:{n:'Valentine\'s Day',spr:['heart','heart','heart'],tile:['hearts'],box:['#e0306a','#ffc0d8'],
+    hi:{loud:'HAPPY VALENTINE\'S DAY!!!',kid:'HAPPY VALENTINE\'S DAY!!!',quiet:'happy valentine\'s day, i guess.',x:['Happy Valentine\'s Day!','Be Mine!']},
+    news:['Happy Valentine\'s Day! <3','Added some hearts. Don\'t read into it.','Valentine\'s Day page is up!']},
+  stpat:{n:'St. Patrick\'s Day',spr:['shamrock','shamrock','shamrock'],tile:['clover'],box:['#20a040','#f0d040'],
+    hi:{loud:'HAPPY ST. PATRICK\'S DAY!!!',kid:'HAPPY ST. PATRICK\'S DAY!!!',x:['Happy St. Patrick\'s Day!','Top o\' the mornin\'!']},
+    news:['Happy St. Patrick\'s Day! Everything is green now.','Kiss me, I updated my page.']},
+  easter:{n:'Easter',spr:['bunny','egg','egg'],tile:['eggs'],box:['#8040b0','#f8e890'],
+    hi:{loud:'HAPPY EASTER!!!',kid:'HOPPY EASTER!!!',formal:'Happy Easter',quiet:'happy easter.',x:['Happy Easter!','Hoppy Easter!']},
+    news:['Happy Easter! Added Easter decorations.','The Easter Bunny visited my homepage!','Spring is here! Easter decorations are up.']},
+  passover:{n:'Passover',spr:['candle','hstar','candle'],tile:['hstars'],box:['#2a5ad0','#e0d8b8'],
+    hi:{loud:'HAPPY PASSOVER!!!',x:['Happy Passover!','Chag Pesach Sameach!']},
+    news:['Happy Passover! Chag Pesach sameach.','Passover is here. Added a page about our seder.']},
+  mother:{n:'Mother\'s Day',spr:['flower','heart','flower'],tile:[],box:['#e070a0','#ffe0f0'],
+    hi:{x:['Happy Mother\'s Day!','Happy Mother\'s Day to all the moms!'],kid:'HAPPY MOTHER\'S DAY!!!'},news:['Happy Mother\'s Day to all the moms out there!','Happy Mother\'s Day! Hi Mom!']},
+  father:{n:'Father\'s Day',spr:['trophy','heart','trophy'],tile:[],box:['#3060b0','#e0e8ff'],
+    hi:{x:['Happy Father\'s Day!','Happy Father\'s Day to all the dads!'],kid:'HAPPY FATHER\'S DAY!!!'},news:['Happy Father\'s Day!','Happy Father\'s Day to all the dads. Especially mine.']},
+  july4:{n:'the 4th of July',spr:['firework','flag','firework'],tile:['usa'],box:['#d02030','#1a2a7a'],
+    hi:{loud:'HAPPY 4TH OF JULY!!!',kid:'HAPPY 4TH OF JULY!!!',formal:'Happy Independence Day',quiet:'happy fourth.',x:['Happy 4th of July!','Happy Birthday, America!','Happy Independence Day!']},
+    news:['Happy 4th of July!!!','Added fireworks! (the GIF kind)','Happy Birthday, America!']},
+  halloween:{n:'Halloween',spr:['pumpkin','ghost','bat'],tile:['bats'],box:['#ff7000','#000000'],
+    hi:{loud:'HAPPY HALLOWEEN!!!',kid:'HAPPY HALLOWEEN!!! BOO!!!',quiet:'happy halloween.',x:['Happy Halloween!','Boo!']},
+    news:['Spooky decorations are up!!!','Happy Halloween! Boo!']},
+  thanks:{n:'Thanksgiving',spr:['turkey','plant','turkey'],tile:['autumn'],box:['#b05010','#f0d080'],
+    hi:{loud:'HAPPY THANKSGIVING!!!',kid:'GOBBLE GOBBLE!!! HAPPY THANKSGIVING!!!',quiet:'happy thanksgiving.',x:['Happy Thanksgiving!','Happy Turkey Day!']},
+    news:['Happy Thanksgiving! Added a list of what I\'m thankful for.','Gobble gobble! Thanksgiving decorations up.']}
+};
+function hbHolKeeps(s,k){const u=s.u;if(!u)return false;
+  if(k==='xmas')return!!(u.tree||u.xmas||u.wreath||u.candles);if(k==='hanukkah'||k==='passover')return!!u.hanuk;if(k==='easter')return!!u.easter;return true}
+/* holiday decorating, as dated updates to the page */
+function hbHolNews(s,created,L){const p=s.p,v=s.v,out=[];if(['gk','lab','positron','news','construction'].includes(s.kind0||s.kind))return out;
+  const base=v.kid?.75:v.loud?.7:v.sparkle?.6:v.quiet?.15:v.formal?.4:v.old?.45:.45,biz=s.kind0==='business'?.5:1;
+  const W={xmas:1,hanukkah:1,newyear:.45,valentine:.45,stpat:.25,easter:.6,passover:.6,mother:.2,father:.15,july4:.4,halloween:s.tags.has('spooky')?1.4:.55,thanks:.55};
+  const y0=ymd(created)[0],y1=ymd(L)[0];
+  for(let y=y0;y<=y1+1;y++)for(const[k,a,b,d]of holSeasons(y)){if(b<created||a>L||!hbHolKeeps(s,k))continue;
+    let q=base*W[k]*biz;if(k==='valentine'&&(s.tags.has('dating')||relOf(s.u,d)==='newlyweds'))q*=1.5;if(k==='july4'&&s.kind0==='politics')q=.9;if(k==='easter'&&s.u.people.some(x=>x.kid))q*=1.4;
+    if(hr(p.id,y,k.length,4810+k.charCodeAt(0))>=q)continue;
+    const span=Math.max(1,Math.min(b,d)-a+1),day=Math.max(created+1,a+Math.floor(hr(p.id,y,k.length,4811)*span));if(day>L||day>b)continue;
+    out.push({d:day,t:hbPick(hbR(p,4812+y+k.length),HBHOL[k].news),hol:k,hy:y});
+    /* some people take the decorations down soon after, as an update of its own */
+    const tq=v.quiet||v.old?.45:v.loud||v.kid?.7:.6;if(hr(p.id,y,k.length,4814)<tq){const td=b+1+Math.floor(hr(p.id,y,k.length,4815)*24);if(td<=L)out.push({d:td,t:hbPick(hbR(p,4816+y),[`Took down the ${HBHOL[k].n} decorations.`,`${HBHOL[k].n} stuff is down. See you next year!`,'Put the holiday stuff away. Back to normal!'])})}}
+  return out}
+/* what's up on the page right now: the last decorating update, unless a later update (after the season) took it down */
+function hbHolNow(s,F){if(s.holF===F.now)return s.holD;s.holF=F.now;s.holD=null;const N=F.news;let e=null;
+  for(let i=N.length-1;i>=0;i--)if(N[i].hol){e=N[i];break}if(!e)return null;
+  const x=holSeasons(e.hy).find(q=>q[0]===e.hol);if(!x)return null;
+  const forgot=hr(s.p.id,e.hy,e.hol.length,4813)<.2;
+  if(!forgot&&N.some(n=>n.d>x[2]&&n.d>e.d))return null;
+  return s.holD={k:e.hol,a:x[1],b:x[2],day:x[3],set:e.d,y:e.hy}}
+/* page look while decorated: a seasonal tile for the keenest, snow, string lights */
+function hbHolTheme(s,th,H){const r=hbR(s.p,4820+H.y),v=s.v,K=HBHOL[H.k];const t=Object.assign({},th);
+  if(K.tile.length&&(v.kid||v.loud||v.sparkle?r()<.65:r()<.3)&&th.layout!=='side'){const tn=hbPick(r,K.tile),tl=hbTile(tn,null,2);t.tile=tn;t.tl=tl;t.dark=tl.dark;
+    const pl=tl.dark?hbPick(r,HBPAL):hbPick(r,HBPALL);t.ink=pl[0];t.link=pl[1];t.vlink=pl[2];t.panel='';hbFixContrast(s,t);
+    if(['usa','candy','confetti'].includes(tn)&&!t.panel)t.panel=hbLum(t.ink)<.5?'#ffffff':'#000000';
+    if(t.panel&&t.dark!==(hbLum(t.panel)<.45)){const q=hbLum(t.panel)<.45?hbPick(r,HBPAL):hbPick(r,HBPALL);t.ink=q[0];t.link=q[1];t.vlink=q[2]}}
+  t.snow=!!K.snow&&r()<.55;t.lights=!!K.lights&&r()<.6;return t}
+/* the holiday box near the top of the front page */
+function hbHolBanner(s,F,H){const v=s.v,K=HBHOL[H.k],r=hbR(s.p,4830+H.y),L=F.L,p=s.p;
+  const hi=v.kid&&K.hi.kid||v.loud&&K.hi.loud||v.formal&&K.hi.formal||v.quiet&&K.hi.quiet||v.old&&K.hi.old||hbPick(r,K.hi.x);
+  const night=H.k==='hanukkah'?Math.max(0,Math.min(8,L-H.day+1)):0;
+  const spr=K.spr.map(n=>n==='menorah'?hbImg('menorah',{c:String(night||(L>=H.day?8:0)),sc:3}):n==='egg'?hbImg('egg',{c:hbPick(r,['#f0a0d0','#a0d0f0','#f0e070','#a0e0a0'])}):n==='firework'?hbImg('firework',{c:hbPick(r,['#ffd040','#ff4060','#40c0ff'])}):hbImg(n));
+  const dl=H.day-L,nm=K.n;let cd='';
+  if(H.k==='hanukkah')cd=night>=1&&night<=8?`Night ${night} of 8!`:dl>0?`${dl} day${dl===1?'':'s'} until Hanukkah!`:'';
+  else if(H.k==='newyear')cd=dl>0?`${dl} day${dl===1?'':'s'} until ${ymd(H.day)[0]}!`:`Welcome to ${ymd(H.day)[0]}!`;
+  else if(dl>1)cd=`Only ${dl} days until ${nm}!`;else if(dl===1)cd=H.k==='xmas'?'It\'s Christmas Eve!!!':`${nm} is tomorrow!`;else if(dl===0)cd='';
+  else if(dl<0)cd=H.k==='xmas'?'Hope everyone had a great Christmas!':`Hope everyone had a great ${nm}!`;
+  let extra='';const fam=F.partner?[F.partner.first]:[];F.kids.forEach(k=>fam.push(k.first));
+  if(H.k==='thanks'){const t=[];if(F.partner)t.push(F.partner.first);if(F.kids.length)t.push(F.kids.length===1?F.kids[0].first:'my kids, '+F.kids.map(k=>k.first).join(' and '));
+    for(const pt of F.pets)t.push(`${pt.name} (even when ${pt.name} knocks things over)`);const B=hbSocOf(p).best;if(B)t.push(`my friend ${B.q.first}`);
+    if(p.job&&!p.kid)t.push(hbPick(r,['my job (most days)','a steady paycheck','my coworkers (most of them)']));t.push(hbPick(r,[`my apartment in the ${F.bld}`,'the guy at the corner store who knows my order','hot water','the elevator working (this week)']));
+    if(p.kid)t.push(hbPick(r,['NO SCHOOL','pie','my Nintendo']));t.push(hbPick(r,['everyone who signed my guestbook','the Internet','pie']));
+    extra=`<b>${hbE(hbSay(v,'Things I\'m thankful for:',r))}</b><ul>${t.slice(0,6).map(x=>`<li>${hbE(hbSay(v,x,r))}`).join('')}</ul>`}
+  if(H.k==='newyear'){const t=[];if(p.arc==='novel'||F.past.has('novel'))t.push('Finish my novel');if(F.past.has('marathon'))t.push('Run another marathon (maybe)');
+    t.push(hbPick(r,['Update this page more','Fix the broken links','Learn real HTML']),hbPick(r,['Eat more vegetables','Drink more water','Go to bed before midnight','Call my mom more']));
+    const up=hbAbove(F.u);if(up&&r()<.5)t.push('Be nicer to the upstairs neighbor (no promises)');if(p.kid)t.push('Get a dog');
+    extra=`<b>${hbE(hbSay(v,`My resolutions for ${ymd(H.day)[0]}:`,r))}</b><ol>${t.slice(0,4).map(x=>`<li>${hbE(hbSay(v,x,r))}`).join('')}</ol>`}
+  if(H.k==='valentine'){extra=F.lost&&!F.partner&&!p.kid?hbE(hbSay(v,`Thinking of ${F.lost.name} today.`,r)):F.partner&&!p.kid?hbE(hbSay(v,`Happy Valentine's Day to my sweetie, ${F.partner.first}! ${hbPick(r,['Love you!','XOXO','I still love you even though you snore.'])}`,r)):
+    p.kid?hbE(hbSay(v,'I made valentines for EVERYONE in my class!!!',r)):hbE(hbSay(v,hbPick(r,['Happy Valentine\'s Day to all you lovebirds out there. I\'ll be home with a pizza.','Single and fabulous. And eating chocolate.','Roses are red, violets are blue, nobody sent me a card, how about you?']),r))}
+  if(H.k==='xmas'&&(p.kid||r()<.35)){const w=p.kid?hbPickN(r,['a bike','a puppy','a Nintendo','a telescope','Legos','a walkie-talkie set','a karaoke machine','a real computer'],3):hbPickN(r,['world peace','a new couch','a faster modem','a vacation','socks (I mean it)','for the upstairs neighbor to get a rug'],2);
+    extra=`<b>${hbE(hbSay(v,p.kid?'MY CHRISTMAS LIST:':'All I want for Christmas:',r))}</b><ul>${w.map(x=>`<li>${hbE(hbSay(v,x,r))}`).join('')}</ul>`}
+  if(H.k==='hanukkah'&&F.kids.length)extra=hbE(hbSay(v,`${F.kids.map(k=>k.first).join(' and ')} ${F.kids.length>1?'are':'is'} winning all the gelt at dreidel. ${hbPick(r,['Latkes at our place!','Who wants latkes?','Applesauce or sour cream? (Applesauce.)'])}`,r));
+  if(H.k==='easter'&&F.kids.length)extra=hbE(hbSay(v,`${F.kids[0].first} found ${5+hash(p.id,H.y,4831)%20} eggs at the egg hunt!`,r));
+  if(H.k==='july4')extra=hbE(hbSay(v,hbPick(r,['Going to watch the fireworks from the roof!','We can see the fireworks from our window!','Hot dogs, sparklers and fireworks. The best.']),r));
+  const[c1,c2]=K.box,bg=hbMix(c2,'#ffffff',.7),ink=hbLum(bg)<.5?'#ffffff':'#000000';
+  return`<table align="center" cellpadding="10" cellspacing="0" style="border:5px ${hbPick(r,['ridge','double','outset'])} ${c1};margin:10px auto" bgcolor="${bg}"><tr><td align="center"><font color="${ink}">${spr.join(' ')}<br>
+    <font size="5" face="${s.th.font}" color="${c1}"><b>${v.loud||v.kid?`<span class="blink">${hbE(hi)}</span>`:hbE(hi)}</b></font><br>${cd?`<font size="3"><b>${hbE(hbSay(v,cd,r))}</b></font><br>`:''}
+    ${extra?`<div style="text-align:left;margin-top:6px">${extra}</div>`:''}</font></td></tr></table>`}
+/* public-domain tunes for decorated pages (all written well before 1929); [midi note, length in 16ths] */
+const HBCAROL={
+  jinglebells:{bpm:120,m:[[76,2],[76,2],[76,4],[76,2],[76,2],[76,4],[76,2],[79,2],[72,3],[74,1],[76,8],[77,2],[77,2],[77,3],[77,1],[77,2],[76,2],[76,2],[76,1],[76,1],[76,2],[74,2],[74,2],[76,2],[74,4],[79,4],
+    [76,2],[76,2],[76,4],[76,2],[76,2],[76,4],[76,2],[79,2],[72,3],[74,1],[76,8],[77,2],[77,2],[77,3],[77,1],[77,2],[76,2],[76,2],[76,1],[76,1],[79,2],[79,2],[77,2],[74,2],[72,8]],
+    c:[[48,8],[48,8],[48,8],[48,8],[53,8],[48,8],[50,8],[55,8],[48,8],[48,8],[48,8],[48,8],[53,8],[48,8],[55,8],[48,8]]},
+  deckthehalls:{bpm:112,m:[[79,6],[77,2],[76,4],[74,4],[72,4],[74,4],[76,4],[72,4],[74,2],[76,2],[77,2],[74,2],[76,6],[74,2],[72,4],[71,4],[72,8],
+    [79,6],[77,2],[76,4],[74,4],[72,4],[74,4],[76,4],[72,4],[74,2],[76,2],[77,2],[74,2],[76,6],[74,2],[72,4],[71,4],[72,8],
+    [74,6],[76,2],[77,4],[74,4],[76,6],[77,2],[79,4],[74,4],[76,2],[78,2],[79,4],[81,2],[83,2],[84,4],[83,4],[81,4],[79,8],
+    [79,6],[77,2],[76,4],[74,4],[72,4],[74,4],[76,4],[72,4],[81,2],[81,2],[81,2],[81,2],[79,6],[77,2],[76,4],[74,4],[72,8]],
+    c:[[48,16],[48,16],[55,16],[48,16],[48,16],[48,16],[55,16],[48,16],[55,16],[55,16],[50,16],[55,16],[48,16],[48,16],[53,16],[55,8],[48,8]]},
+  wewishyou:{bpm:132,m:[[62,4],[67,4],[67,2],[69,2],[67,2],[66,2],[64,4],[64,4],[64,4],[69,4],[69,2],[71,2],[69,2],[67,2],[66,4],[62,4],[62,4],[71,4],[71,2],[72,2],[71,2],[69,2],[67,4],[64,4],[62,2],[62,2],[64,4],[69,4],[66,4],[67,12]],
+    c:[[0,4],[43,12],[48,12],[45,12],[50,12],[47,12],[48,12],[48,4],[50,8],[43,12]]},
+  auldlangsyne:{bpm:84,m:[[67,4],[72,6],[72,2],[72,4],[76,4],[74,6],[72,2],[74,4],[76,4],[72,6],[72,2],[76,4],[79,4],[81,12],[81,4],[79,6],[76,2],[76,4],[72,4],[74,6],[72,2],[74,4],[76,4],[72,6],[69,2],[69,4],[67,4],[72,12]],
+    c:[[0,4],[48,16],[55,16],[48,16],[53,16],[48,16],[55,16],[53,8],[55,8],[48,12]]},
+  yankeedoodle:{bpm:120,m:[[72,2],[72,2],[74,2],[76,2],[72,2],[76,2],[74,2],[67,2],[72,2],[72,2],[74,2],[76,2],[72,4],[71,4],[72,2],[72,2],[74,2],[76,2],[77,2],[76,2],[74,2],[72,2],[71,2],[67,2],[69,2],[71,2],[72,4],[72,4]],
+    c:[[48,8],[55,8],[48,8],[48,4],[55,4],[48,8],[53,8],[55,8],[48,8]]}
+};
+function hbHolTuneName(s){const H=s.hol;if(!H)return null;const r=hbR(s.p,4840+H.y);
+  return H.k==='xmas'?hbPick(r,['jinglebells','deckthehalls','wewishyou']):H.k==='newyear'?'auldlangsyne':H.k==='july4'?'yankeedoodle':
+    {hanukkah:'dreidel',valentine:'mylove',stpat:'shamrock',easter:'easter',passover:'passover',halloween:'spooky',thanks:'gobble',mother:'formom',father:'fordad'}[H.k]||null}
+function hbSnow(s){const r=hbR(s.p,4850);let h='';for(let k=0;k<26;k++)h+=`<div class="snw" style="left:${(r()*100).toFixed(1)}%;font-size:${8+r()*10|0}px;animation-duration:${(6+r()*8).toFixed(1)}s;animation-delay:-${(r()*14).toFixed(1)}s">&#10052;</div>`;return h}
+/* a season's greeting from a visitor, if they signed during a holiday they keep */
+function hbHolGreet(x,d,rr){const[y]=ymd(d);for(const yy of[y,y+1])for(const[k,a,b]of holSeasons(yy)){if(d<a||d>b||!hbHolKeeps(x,k))continue;
+  const G={xmas:['Merry Christmas!!!','Happy Holidays!','Merry Christmas to you and yours!'],hanukkah:['Happy Hanukkah!','Chag sameach!'],newyear:['Happy New Year!!!','Happy New Year! See you next year!'],
+    thanks:['Happy Thanksgiving!','Happy Turkey Day!'],easter:['Happy Easter!'],passover:['Chag Pesach sameach!'],valentine:['Happy Valentine\'s Day!'],july4:['Happy 4th!!!'],halloween:['Happy Halloween!!! BOO!'],stpat:['Happy St. Patrick\'s Day!']}[k];
+  if(G&&rr()<.6)return hbPick(rr,G)}return null}
 
 /* ---------- amateur news desks ----------
    A few residents run their own news site: real headlines from the wire (Wikipedia's Current Events portal,
@@ -5918,9 +6201,10 @@ function hbShareDo(kind,doc,fd){const S=HB.send;if(!S)return;const say=t=>{const
 HBS.mplay={w:11,h:9,n:1,ms:1000,d(P){P.r(0,0,11,9,'#c0c0c0');for(let k=0;k<4;k++)P.r(4+k,1+k,1,7-2*k,'#000')}};
 HBS.mstop={w:11,h:9,n:1,ms:1000,d(P){P.r(0,0,11,9,'#c0c0c0');P.r(3,2,5,5,'#000')}};
 function hbTune(s){
+  {const h=hbHolTuneName(s);if(h&&HBCAROL[h]){const c=HBCAROL[h];return{seq:c.m,ch:c.c,bpm:c.bpm,inst:hbPick(hbR(s.p,4841),['square','square','triangle'])}}}
   const r=hbR(s.p,s.kind==='positron'?7160:60),T=k=>s.tags.has(k),sad=T('heartbreak')||T('grief')||T('melancholy')||T('lonely'),spooky=T('spooky'),fast=s.v.loud||T('restless')||T('exercise')||s.v.kid;
   const pos=s.kind==='positron',minor=!pos&&(sad||spooky||r()<.25),bpm=pos?152:sad?72+r()*16:fast?128+r()*28:96+r()*24,root=48+Math.floor(r()*7);
-  const sc=minor?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11];
+  let sc=minor?[0,2,3,5,7,8,10]:[0,2,4,5,7,9,11];if(s.hol&&(s.hol.k==='hanukkah'||s.hol.k==='passover'))sc=[0,1,4,5,7,8,10];
   const progs=minor?[[0,5,2,6],[0,3,4,0],[0,5,3,4]]:[[0,4,5,3],[0,3,4,4],[0,5,3,4],[0,3,0,4]];const pr=hbPick(r,progs);
   const deg=(d,o=0)=>root+12*Math.floor(d/7)+sc[((d%7)+7)%7]+o;
   const mel=[];let d=4+Math.floor(r()*3);
@@ -5932,6 +6216,9 @@ function hbMidiStop(){const m=HB.midi;if(!m)return;clearInterval(m.iv);try{m.g.g
 function hbMidiPlay(s){hbMidiStop();let ac=HB.ac;try{if(!ac)ac=HB.ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return}if(ac.state==='suspended')ac.resume();
   const t=hbTune(s),g=ac.createGain();g.gain.value=.16;g.connect(ac.destination);const spb=60/t.bpm/2;let step=0,next=ac.currentTime+.08;
   const note=(midi,at,dur,type,vol)=>{const o=ac.createOscillator(),e=ac.createGain();o.type=type;o.frequency.value=440*Math.pow(2,(midi-69)/12);e.gain.setValueAtTime(0,at);e.gain.linearRampToValueAtTime(vol,at+.01);e.gain.setTargetAtTime(0,at+dur*.6,dur*.25);o.connect(e);e.connect(g);o.start(at);o.stop(at+dur+.3)};
+  if(t.seq){const u=60/t.bpm/4;let i=0,j=0,nc=next;const chords=all=>{while(j<t.ch.length&&(all||nc<next)){const[c,d]=t.ch[j];if(c){note(c-12,nc,u*d*.9,'triangle',.3);for(const k of[0,4,7])note(c+k,nc,u*d*.9,'sine',.05)}nc+=u*d;j++}};
+    const iv2=setInterval(()=>{while(next<ac.currentTime+.25){const[n,d]=t.seq[i%t.seq.length];if(n)note(n,next,u*d*.8,t.inst,.17);next+=u*d;i++;chords(false);
+      if(i%t.seq.length===0){chords(true);next+=u*4;nc=next;j=0}}},60);HB.midi={ac,g,iv:iv2,id:s.id};return}
   const iv=setInterval(()=>{while(next<ac.currentTime+.25){const i=step%t.mel.length,bar=Math.floor(i/8),ch=t.pr[bar%4];
     const n=t.mel[i];if(n!==null)note(n,next,spb*.9,t.inst,.18);if(i%4===0)note(t.deg(ch,-12),next,spb*3.6,'triangle',.32);if(i%8===0)for(const k of[0,2,4])note(t.deg(ch+k),next,spb*7,'sine',.07);
     step++;next+=spb}},60);HB.midi={ac,g,iv,id:s.id}}
