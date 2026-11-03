@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-02",
+"day": "2026-11-03",
 "history": [
 {
 "d": "2026-10-31",
@@ -28,6 +28,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-03",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -49,23 +58,23 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-02",
+"d": "2026-11-03",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 159 visits in the past week.",
+"text": "megaZINE's website had 180 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-02",
+"d": "2026-11-03",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 18 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 19 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-02",
+"d": "2026-11-03",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -80,30 +89,23 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-02",
-"cat": "environment",
-"topic": "",
-"text": "The United States Food and Drug Administration approves the first generic version of lenacapavir, a twice-yearly HIV prevention injection expected to cost about US$40 annually in 120 low- and middle-income countries.",
-"link": "https://en.wikipedia.org/wiki/United_States"
-},
-{
-"d": "2026-11-02",
+"d": "2026-11-03",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 159 visits in the past week.",
+"text": "megaZINE's website had 180 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-02",
+"d": "2026-11-03",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 18 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 19 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-02",
+"d": "2026-11-03",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -111,10 +113,17 @@
 "link": "https://samuelling.github.io/BBS/"
 },
 {
+"d": "2026-11-02",
+"cat": "environment",
+"topic": "",
+"text": "The United States Food and Drug Administration approves the first generic version of lenacapavir, a twice-yearly HIV prevention injection expected to cost about US$40 annually in 120 low- and middle-income countries.",
+"link": "https://en.wikipedia.org/wiki/United_States"
+},
+{
 "d": "2026-11-01",
 "cat": "sports",
 "topic": "2026–27 ISU Grand Prix of Figure Skating",
-"text": "In figure skating, Japan's figure skater Mao Shimada wins the women's singles title at Skate Canada in her senior Grand Prix debut, finishing ahead of Estonia's Niina Petrõkina and America's Isabeau Levito",
+"text": "In figure skating, Japan's Mao Shimada wins the women's singles title at Skate Canada in her senior Grand Prix debut, finishing ahead of Estonia's Niina Petrõkina and American Isabeau Levito.",
 "link": "https://en.wikipedia.org/wiki/Figure_skating"
 },
 {
@@ -123,6 +132,20 @@
 "topic": "2026 Formula One World Championship",
 "text": "In open-wheel racing, Italian driver Kimi Antonelli, driving for Mercedes, wins the Formula One World Drivers' Championship after finishing third at the Mexico City Grand Prix, becoming the youngest Drivers' Champion at the age of 20 years and 68 days.",
 "link": "https://en.wikipedia.org/wiki/Open-wheel_racing"
+},
+{
+"d": "2026-11-01",
+"cat": "sports",
+"topic": "2026 NFL season",
+"text": "In American football, the Tampa Bay Buccaneers refuse to complete a pass during its 16-0 victory against the rival Atlanta Falcons in Week 8, becoming the first National Football League team to win a game without completing a pass since the Buffalo Bills did so in 1974.",
+"link": "https://en.wikipedia.org/wiki/American_football"
+},
+{
+"d": "2026-11-01",
+"cat": "sports",
+"topic": "2026 New York City Marathon",
+"text": "Swedish long-distance runner Andreas Almgren wins the 55th edition of the New York City Marathon in New York City, New York, U.S., during his first debut.",
+"link": "https://en.wikipedia.org/wiki/Sweden"
 },
 {
 "d": "2026-11-01",
@@ -171,22 +194,8 @@
 "d": "2026-10-31",
 "cat": "sports",
 "topic": "",
-"text": "03: United States, Senate, House of Representatives",
-"link": "https://en.wikipedia.org/wiki/Elections_in_the_United_States"
-},
-{
-"d": "2026-10-31",
-"cat": "sports",
-"topic": "",
-"text": "05: Grenada, House of Representatives",
-"link": "https://en.wikipedia.org/wiki/Elections_in_Grenada"
-},
-{
-"d": "2026-10-31",
-"cat": "sports",
-"topic": "",
-"text": "07: New Zealand, House of Representatives",
-"link": "https://en.wikipedia.org/wiki/Elections_in_New_Zealand"
+"text": "16–17: Czech Republic, Senate (2nd round)",
+"link": "https://en.wikipedia.org/wiki/Elections_in_the_Czech_Republic"
 },
 {
 "d": "2026-10-31",
@@ -229,6 +238,20 @@
 "topic": "",
 "text": "2027 WBSC Premier12 qualification",
 "link": "https://en.wikipedia.org/wiki/2027_WBSC_Premier12_qualification"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2025–27 ICC World Test Championship",
+"link": "https://en.wikipedia.org/wiki/2025%E2%80%932027_World_Test_Championship"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "2026 Formula One World Championship",
+"link": "https://en.wikipedia.org/wiki/2026_Formula_One_World_Championship"
 },
 {
 "d": "2026-10-30",
@@ -453,13 +476,6 @@
 "topic": "Kekova shipwreck",
 "text": "The oldest known shipwreck in the world (c. 2700–2400 BC) is excavated in Kekova, Turkey.",
 "link": "https://en.wikipedia.org/wiki/Kekova"
-},
-{
-"d": "2026-10-13",
-"cat": "sports",
-"topic": "",
-"text": "In auto racing, Formula 1 announces a new grand prix in Kigali, Rwanda, to run for at least 10 years starting in the early 2030s with a new track. This would be the first F1 grand prix in Africa since South Africa in 1993.",
-"link": "https://en.wikipedia.org/wiki/Auto_racing"
 },
 {
 "d": "2026-10-01",
