@@ -90,6 +90,13 @@
 "items": [
 {
 "d": "2026-11-03",
+"cat": "sports",
+"topic": "2026 Melbourne Cup",
+"text": "In thoroughbred racing, Point Of Law, trained by Ciaron Maher, wins the 2026 Melbourne Cup at Flemington Racecourse in Victoria, Australia. Zahrann and Juja Kibo, also trained by Maher, finish second and third respectively.",
+"link": "https://en.wikipedia.org/wiki/Thoroughbred_racing"
+},
+{
+"d": "2026-11-03",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
@@ -111,6 +118,13 @@
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-02",
+"cat": "business",
+"topic": "Rwanda–United States relations, South Africa–United States relations",
+"text": "The United States announces the suspensions of Rwanda and South Africa from duty-free trade benefits under the African Growth and Opportunity Act beginning January 1, 2027, citing trade barriers, human rights concerns, and threats to U.S. interests.",
+"link": "https://en.wikipedia.org/wiki/United_States"
 },
 {
 "d": "2026-11-02",
