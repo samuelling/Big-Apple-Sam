@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-03",
+"day": "2026-11-04",
 "history": [
 {
 "d": "2026-10-31",
@@ -37,6 +37,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-04",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -58,23 +67,23 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-03",
+"d": "2026-11-04",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 180 visits in the past week.",
+"text": "megaZINE's website had 190 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-03",
+"d": "2026-11-04",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 19 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 18 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-03",
+"d": "2026-11-04",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -89,35 +98,35 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-03",
-"cat": "sports",
-"topic": "2026 Melbourne Cup",
-"text": "In thoroughbred racing, Point Of Law, trained by Ciaron Maher, wins the 2026 Melbourne Cup at Flemington Racecourse in Victoria, Australia. Zahrann and Juja Kibo, also trained by Maher, finish second and third respectively.",
-"link": "https://en.wikipedia.org/wiki/Thoroughbred_racing"
-},
-{
-"d": "2026-11-03",
+"d": "2026-11-04",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 180 visits in the past week.",
+"text": "megaZINE's website had 190 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-03",
+"d": "2026-11-04",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 19 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 18 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-03",
+"d": "2026-11-04",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-03",
+"cat": "sports",
+"topic": "2026 Melbourne Cup",
+"text": "In thoroughbred racing, Point Of Law, trained by Ciaron Maher, wins the 2026 Melbourne Cup at Flemington Racecourse in Victoria, Australia. Zahrann and Juja Kibo, also trained by Maher, finish second and third respectively.",
+"link": "https://en.wikipedia.org/wiki/Thoroughbred_racing"
 },
 {
 "d": "2026-11-02",
@@ -483,13 +492,6 @@
 "topic": "2026 Major League Baseball season",
 "text": "In baseball, the Milwaukee Brewers sweep the Los Angeles Dodgers in the NLCS to advance to the 2026 World Series, their first since 1982.",
 "link": "https://en.wikipedia.org/wiki/Baseball"
-},
-{
-"d": "2026-10-14",
-"cat": "science",
-"topic": "Kekova shipwreck",
-"text": "The oldest known shipwreck in the world (c. 2700–2400 BC) is excavated in Kekova, Turkey.",
-"link": "https://en.wikipedia.org/wiki/Kekova"
 },
 {
 "d": "2026-10-01",
