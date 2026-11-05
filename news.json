@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-04",
+"day": "2026-11-05",
 "history": [
 {
 "d": "2026-10-31",
@@ -46,6 +46,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-05",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -67,23 +76,23 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-04",
+"d": "2026-11-05",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 190 visits in the past week.",
+"text": "megaZINE's website had 179 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-04",
+"d": "2026-11-05",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 18 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 14 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-04",
+"d": "2026-11-05",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -98,28 +107,35 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-04",
+"d": "2026-11-05",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 190 visits in the past week.",
+"text": "megaZINE's website had 179 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-04",
+"d": "2026-11-05",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 18 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 14 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-04",
+"d": "2026-11-05",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-04",
+"cat": "science",
+"topic": "",
+"text": "The Neil Gehrels Swift Observatory, a space telescope for studying gamma-ray bursts, re-enters Earth's atmosphere over Sumatra, ending its mission of nearly 22 years.",
+"link": "https://en.wikipedia.org/wiki/Neil_Gehrels_Swift_Observatory"
 },
 {
 "d": "2026-11-03",
@@ -464,41 +480,6 @@
 "topic": "2026 WXV Global Series",
 "text": "In women's rugby union, Canada defeats England 24–21 in a WXV Global Series match in Toronto, ending the Red Roses' four-year unbeaten run at 41 matches (the longest in rugby union history) after Shoshanah Seumanutafa scores a late try.",
 "link": "https://en.wikipedia.org/wiki/Women%27s_rugby_union"
-},
-{
-"d": "2026-10-15",
-"cat": "business",
-"topic": "China–North Korea relations",
-"text": "The New Yalu River Bridge connecting Dandong, China, and Sinuiju, North Korea, opens following a 12-year delay.",
-"link": "https://en.wikipedia.org/wiki/New_Yalu_River_Bridge"
-},
-{
-"d": "2026-10-15",
-"cat": "business",
-"topic": "",
-"text": "The European Central Bank authorizes UniCredit to raise its stake in Commerzbank above 30% without an upper limit, allowing the Italian bank to proceed toward taking control of the German lender.",
-"link": "https://en.wikipedia.org/wiki/European_Central_Bank"
-},
-{
-"d": "2026-10-15",
-"cat": "science",
-"topic": "",
-"text": "Astronomers discover the first green star, WD J1330+6435, according to a study published by RAS Techniques and Instruments.",
-"link": "https://en.wikipedia.org/wiki/WD_J1330%2B6435"
-},
-{
-"d": "2026-10-15",
-"cat": "science",
-"topic": "",
-"text": "At the General Conference on Weights and Measures, the International Bureau of Weights and Measures votes to abolish future leap seconds and make Coordinated Universal Time (UTC) continuous, starting 20 May 2027. To account for future differences between UTC and International Atomic Time, a leap hour will be observed as needed.",
-"link": "https://en.wikipedia.org/wiki/General_Conference_on_Weights_and_Measures"
-},
-{
-"d": "2026-10-15",
-"cat": "sports",
-"topic": "2026 Major League Baseball season",
-"text": "In baseball, the Milwaukee Brewers sweep the Los Angeles Dodgers in the NLCS to advance to the 2026 World Series, their first since 1982.",
-"link": "https://en.wikipedia.org/wiki/Baseball"
 },
 {
 "d": "2026-10-01",
