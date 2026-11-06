@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-05",
+"day": "2026-11-06",
 "history": [
 {
 "d": "2026-10-31",
@@ -55,6 +55,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-06",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -76,23 +85,23 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-05",
+"d": "2026-11-06",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 179 visits in the past week.",
+"text": "megaZINE's website had 195 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-05",
+"d": "2026-11-06",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 14 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 11 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-05",
+"d": "2026-11-06",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -107,23 +116,23 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-05",
+"d": "2026-11-06",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 179 visits in the past week.",
+"text": "megaZINE's website had 195 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-05",
+"d": "2026-11-06",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 14 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 11 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-05",
+"d": "2026-11-06",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -473,13 +482,6 @@
 "topic": "2026–27 NHL season",
 "text": "In ice hockey, the Florida Panthers become the first team in the National Hockey League to record a natural hat trick in three consecutive games.",
 "link": "https://en.wikipedia.org/wiki/Ice_hockey"
-},
-{
-"d": "2026-10-16",
-"cat": "sports",
-"topic": "2026 WXV Global Series",
-"text": "In women's rugby union, Canada defeats England 24–21 in a WXV Global Series match in Toronto, ending the Red Roses' four-year unbeaten run at 41 matches (the longest in rugby union history) after Shoshanah Seumanutafa scores a late try.",
-"link": "https://en.wikipedia.org/wiki/Women%27s_rugby_union"
 },
 {
 "d": "2026-10-01",
