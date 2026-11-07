@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-06",
+"day": "2026-11-07",
 "history": [
 {
 "d": "2026-10-31",
@@ -64,6 +64,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-07",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -85,27 +94,27 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-06",
+"d": "2026-11-07",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 195 visits in the past week.",
+"text": "megaZINE's website had 160 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-06",
+"d": "2026-11-07",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 11 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 10 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-06",
+"d": "2026-11-07",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
+"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal. This week: 1 new caller.",
 "link": "https://samuelling.github.io/BBS/"
 }
 ]
@@ -116,27 +125,27 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-06",
+"d": "2026-11-07",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 195 visits in the past week.",
+"text": "megaZINE's website had 160 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-06",
+"d": "2026-11-07",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 11 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Big Apple Sam, with 10 clicks.",
 "link": "https://megazine.org/?go=big-apple-sam"
 },
 {
-"d": "2026-11-06",
+"d": "2026-11-07",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
+"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal. This week: 1 new caller.",
 "link": "https://samuelling.github.io/BBS/"
 },
 {
@@ -204,6 +213,13 @@
 },
 {
 "d": "2026-11-01",
+"cat": "sports",
+"topic": "",
+"text": "In association football, a match between U20 clubs EC Mamoré and Uberlândia EC in Minas Gerais, Brazil, is abandoned after referees handed out 53 red cards, including to 43 players and 10 club officials, following a massive brawl, setting the world record for the most red cards given in a single match.",
+"link": "https://en.wikipedia.org/wiki/Association_football"
+},
+{
+"d": "2026-11-01",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE Issue 02",
@@ -244,6 +260,20 @@
 "topic": "",
 "text": "Iran–United States peace negotiations",
 "link": "https://en.wikipedia.org/wiki/2025%E2%80%932026_Iran%E2%80%93United_States_negotiations#2026_negotiations"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "04: Bosnia and Herzegovina, Presidency, ———House of Representatives",
+"link": "https://en.wikipedia.org/wiki/Elections_in_Bosnia_and_Herzegovina"
+},
+{
+"d": "2026-10-31",
+"cat": "sports",
+"topic": "",
+"text": "9–10: Czech Republic, Senate (1st round)",
+"link": "https://en.wikipedia.org/wiki/Elections_in_the_Czech_Republic"
 },
 {
 "d": "2026-10-31",
@@ -293,20 +323,6 @@
 "topic": "",
 "text": "2027 WBSC Premier12 qualification",
 "link": "https://en.wikipedia.org/wiki/2027_WBSC_Premier12_qualification"
-},
-{
-"d": "2026-10-31",
-"cat": "sports",
-"topic": "",
-"text": "2025–27 ICC World Test Championship",
-"link": "https://en.wikipedia.org/wiki/2025%E2%80%932027_World_Test_Championship"
-},
-{
-"d": "2026-10-31",
-"cat": "sports",
-"topic": "",
-"text": "2026 Formula One World Championship",
-"link": "https://en.wikipedia.org/wiki/2026_Formula_One_World_Championship"
 },
 {
 "d": "2026-10-30",
@@ -475,13 +491,6 @@
 "topic": "2026 World Series",
 "text": "In Major League Baseball, the Tampa Bay Rays and Milwaukee Brewers advance to the World Series, marking the first time in 46 years that neither playoff team has won a championship before.",
 "link": "https://en.wikipedia.org/wiki/Major_League_Baseball"
-},
-{
-"d": "2026-10-17",
-"cat": "sports",
-"topic": "2026–27 NHL season",
-"text": "In ice hockey, the Florida Panthers become the first team in the National Hockey League to record a natural hat trick in three consecutive games.",
-"link": "https://en.wikipedia.org/wiki/Ice_hockey"
 },
 {
 "d": "2026-10-01",
