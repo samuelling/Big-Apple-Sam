@@ -135,6 +135,13 @@
 "items": [
 {
 "d": "2026-11-08",
+"cat": "sports",
+"topic": "2026 NASCAR Cup Series",
+"text": "In stock car racing, Hendrick Motorsports' Kyle Larson wins his third career NASCAR Cup Series championship, becoming the first driver to win two consecutive championships since 2010.",
+"link": "https://en.wikipedia.org/wiki/Stock_car_racing"
+},
+{
+"d": "2026-11-08",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
