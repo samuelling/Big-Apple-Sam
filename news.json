@@ -144,6 +144,20 @@
 "items": [
 {
 "d": "2026-11-09",
+"cat": "culture",
+"topic": "",
+"text": "The Pitt Rivers Museum in Oxford, England, United Kingdom, returns the remains of 39 Naga people, collected during the British Raj, to a delegation from Nagaland, India, following six years of discussions over repatriation.",
+"link": "https://en.wikipedia.org/wiki/Pitt_Rivers_Museum"
+},
+{
+"d": "2026-11-09",
+"cat": "business",
+"topic": "",
+"text": "The South Korean Fair Trade Commission issues fines of ₩331.1 billion (US$247 million) for Woowa Brothers and ₩300.8 billion ($222 million) for Coupang, finding that their food-delivery platforms restricted competition by requiring restaurants to match rival platforms' terms.",
+"link": "https://en.wikipedia.org/wiki/South_Korea"
+},
+{
+"d": "2026-11-09",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
@@ -170,8 +184,15 @@
 "d": "2026-11-08",
 "cat": "business",
 "topic": "China–United States relations, Chinese intelligence activity abroad",
-"text": "NVIDIA announces it is opening an investigation into CEO Jensen Huang, after American intelligence reported that a close associate of Huang was a spy for China. Huang admitted to an extramarital affair with the associate in a letter to the company earlier in the day.",
+"text": "NVIDIA announces it is opening an investigation into CEO Jensen Huang after American intelligence reported that a close associate of Huang was a spy for China. Huang admitted to an extramarital affair with the associate in a letter to the company earlier in the day.",
 "link": "https://en.wikipedia.org/wiki/NVIDIA"
+},
+{
+"d": "2026-11-08",
+"cat": "sports",
+"topic": "2026 Formula One World Championship",
+"text": "In Formula racing, Mercedes-Benz wins its ninth World Constructors' Championship after drivers George Russell and Kimi Antonelli finished fourth and fifth, respectively, at the São Paulo Grand Prix in Brazil.",
+"link": "https://en.wikipedia.org/wiki/Formula_racing"
 },
 {
 "d": "2026-11-08",
@@ -186,6 +207,13 @@
 "topic": "2026 NASCAR Cup Series",
 "text": "In stock car racing, Hendrick Motorsports' driver Kyle Larson wins his third career NASCAR Cup Series championship, becoming the first driver to win two consecutive championships since 2010.",
 "link": "https://en.wikipedia.org/wiki/Stock_car_racing"
+},
+{
+"d": "2026-11-08",
+"cat": "sports",
+"topic": "2026 PGA Tour",
+"text": "In golf, Blades Brown wins the 2026 World Wide Technology Championship in Los Cabos, Mexico, at 19 years and five months, becoming the youngest PGA Tour winner since 1931 and the fourth-youngest in its history.",
+"link": "https://en.wikipedia.org/wiki/Golf"
 },
 {
 "d": "2026-11-07",
