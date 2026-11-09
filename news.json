@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-08",
+"day": "2026-11-09",
 "history": [
 {
 "d": "2026-10-31",
@@ -82,6 +82,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-09",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -103,15 +112,15 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-08",
+"d": "2026-11-09",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 143 visits in the past week.",
+"text": "megaZINE's website had 114 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-08",
+"d": "2026-11-09",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -119,7 +128,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-08",
+"d": "2026-11-09",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -134,22 +143,15 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-08",
-"cat": "sports",
-"topic": "2026 NASCAR Cup Series",
-"text": "In stock car racing, Hendrick Motorsports' Kyle Larson wins his third career NASCAR Cup Series championship, becoming the first driver to win two consecutive championships since 2010.",
-"link": "https://en.wikipedia.org/wiki/Stock_car_racing"
-},
-{
-"d": "2026-11-08",
+"d": "2026-11-09",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 143 visits in the past week.",
+"text": "megaZINE's website had 114 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-08",
+"d": "2026-11-09",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -157,12 +159,33 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-08",
+"d": "2026-11-09",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-08",
+"cat": "business",
+"topic": "China–United States relations, Chinese intelligence activity abroad",
+"text": "NVIDIA announces it is opening an investigation into CEO Jensen Huang, after American intelligence reported that a close associate of Huang was a spy for China. Huang admitted to an extramarital affair with the associate in a letter to the company earlier in the day.",
+"link": "https://en.wikipedia.org/wiki/NVIDIA"
+},
+{
+"d": "2026-11-08",
+"cat": "sports",
+"topic": "2026 Major League Soccer season",
+"text": "In association football, Inter Miami player Lionel Messi is awarded the 2026 Golden Boot Award after scoring 26 goals in one season, becoming the first player in league history to win the award in consecutive years.",
+"link": "https://en.wikipedia.org/wiki/Association_football"
+},
+{
+"d": "2026-11-08",
+"cat": "sports",
+"topic": "2026 NASCAR Cup Series",
+"text": "In stock car racing, Hendrick Motorsports' driver Kyle Larson wins his third career NASCAR Cup Series championship, becoming the first driver to win two consecutive championships since 2010.",
+"link": "https://en.wikipedia.org/wiki/Stock_car_racing"
 },
 {
 "d": "2026-11-07",
