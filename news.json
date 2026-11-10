@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-09",
+"day": "2026-11-10",
 "history": [
 {
 "d": "2026-10-31",
@@ -91,6 +91,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-10",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -112,23 +121,23 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-09",
+"d": "2026-11-10",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 114 visits in the past week.",
+"text": "megaZINE's website had 99 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-09",
+"d": "2026-11-10",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 13 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 14 clicks.",
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-09",
+"d": "2026-11-10",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -142,6 +151,37 @@
 "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
+{
+"d": "2026-11-10",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE readership",
+"text": "megaZINE's website had 99 visits in the past week.",
+"link": "https://megazine.org/"
+},
+{
+"d": "2026-11-10",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE's most popular piece",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 14 clicks.",
+"link": "https://megazine.org/?go=worldbuilder"
+},
+{
+"d": "2026-11-10",
+"cat": "local",
+"src": "bbs",
+"topic": "MEGAzine BBS",
+"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
+"link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-09",
+"cat": "culture",
+"topic": "2026 Booker Prize",
+"text": "M. John Harrison wins the 2026 Booker Prize for his post-apocalyptic novel The End of Everything.",
+"link": "https://en.wikipedia.org/wiki/M._John_Harrison"
+},
 {
 "d": "2026-11-09",
 "cat": "culture",
@@ -157,40 +197,9 @@
 "link": "https://en.wikipedia.org/wiki/South_Korea"
 },
 {
-"d": "2026-11-09",
-"cat": "local",
-"src": "zine",
-"topic": "megaZINE readership",
-"text": "megaZINE's website had 114 visits in the past week.",
-"link": "https://megazine.org/"
-},
-{
-"d": "2026-11-09",
-"cat": "local",
-"src": "zine",
-"topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 13 clicks.",
-"link": "https://megazine.org/?go=worldbuilder"
-},
-{
-"d": "2026-11-09",
-"cat": "local",
-"src": "bbs",
-"topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
-"link": "https://samuelling.github.io/BBS/"
-},
-{
-"d": "2026-11-08",
-"cat": "business",
-"topic": "China–United States relations, Chinese intelligence activity abroad",
-"text": "NVIDIA announces it is opening an investigation into CEO Jensen Huang after American intelligence reported that a close associate of Huang was a spy for China. Huang admitted to an extramarital affair with the associate in a letter to the company earlier in the day.",
-"link": "https://en.wikipedia.org/wiki/NVIDIA"
-},
-{
 "d": "2026-11-08",
 "cat": "sports",
-"topic": "2026 Formula One World Championship",
+"topic": "2026 Formula One World Championship, 2026 São Paulo Grand Prix",
 "text": "In Formula racing, Mercedes-Benz wins its ninth World Constructors' Championship after drivers George Russell and Kimi Antonelli finished fourth and fifth, respectively, at the São Paulo Grand Prix in Brazil.",
 "link": "https://en.wikipedia.org/wiki/Formula_racing"
 },
@@ -544,27 +553,6 @@
 "topic": "Black October",
 "text": "A critical security flaw, allowing for remote code execution, in 12 years of GitLab versions is disclosed, requiring updates.",
 "link": "https://en.wikipedia.org/wiki/Remote_code_execution"
-},
-{
-"d": "2026-10-20",
-"cat": "science",
-"topic": "Japanese space program",
-"text": "JAXA launches the Martian Moons eXploration spacecraft from the Tanegashima Space Center toward Phobos aboard an H3 rocket, aiming to collect at least 10 grams of surface material from the Martian moon and return the samples to Earth in 2031.",
-"link": "https://en.wikipedia.org/wiki/JAXA"
-},
-{
-"d": "2026-10-20",
-"cat": "science",
-"topic": "Black October",
-"text": "A critical vulnerability in PHP allowing for remote code execution is discovered, causing many websites to temporarily go offline while a security update is pushed the following day.",
-"link": "https://en.wikipedia.org/wiki/PHP"
-},
-{
-"d": "2026-10-20",
-"cat": "sports",
-"topic": "2026 World Series",
-"text": "In Major League Baseball, the Tampa Bay Rays and Milwaukee Brewers advance to the World Series, marking the first time in 46 years that neither playoff team has won a championship before.",
-"link": "https://en.wikipedia.org/wiki/Major_League_Baseball"
 },
 {
 "d": "2026-10-01",
