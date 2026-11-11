@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-10",
+"day": "2026-11-11",
 "history": [
 {
 "d": "2026-10-31",
@@ -100,6 +100,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-11",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -121,15 +130,15 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-10",
+"d": "2026-11-11",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 99 visits in the past week.",
+"text": "megaZINE's website had 100 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-10",
+"d": "2026-11-11",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -137,7 +146,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-10",
+"d": "2026-11-11",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -152,15 +161,15 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-10",
+"d": "2026-11-11",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 99 visits in the past week.",
+"text": "megaZINE's website had 100 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-10",
+"d": "2026-11-11",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -168,12 +177,19 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-10",
+"d": "2026-11-11",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-10",
+"cat": "environment",
+"topic": "",
+"text": "The United States Food and Drug Administration orders manufacturers of GLP-1 medicines such as semaglutide and tirzepatide, originally intended for the treatment of type 2 diabetes but also commonly used for weight loss, to add warnings that use of such drugs may increase the risk of developing non-arteritic anterior ischemic optic neuropathy, an optic nerve disorder that can cause permanent blindness.",
+"link": "https://en.wikipedia.org/wiki/United_States"
 },
 {
 "d": "2026-11-09",
@@ -195,6 +211,13 @@
 "topic": "",
 "text": "The South Korean Fair Trade Commission issues fines of ₩331.1 billion (US$247 million) for Woowa Brothers and ₩300.8 billion ($222 million) for Coupang, finding that their food-delivery platforms restricted competition by requiring restaurants to match rival platforms' terms.",
 "link": "https://en.wikipedia.org/wiki/South_Korea"
+},
+{
+"d": "2026-11-09",
+"cat": "sports",
+"topic": "",
+"text": "In college football, the College Football Playoff announces it will expand from 12 to 24 teams starting in the 2027 season.",
+"link": "https://en.wikipedia.org/wiki/College_football"
 },
 {
 "d": "2026-11-08",
@@ -539,20 +562,6 @@
 "topic": "2028 FIFA Women's Club World Cup",
 "text": "In women's association football, FIFA announces that the United States will host the inaugural FIFA Women's Club World Cup in 2028.",
 "link": "https://en.wikipedia.org/wiki/Women%27s_association_football"
-},
-{
-"d": "2026-10-21",
-"cat": "science",
-"topic": "Black October",
-"text": "Node.js releases three security updates to 10 different vulnerabilities, including 4 deemed high-severity, which affect how it handles DNS resolution, TLS handshakes, and Brotli decoding.",
-"link": "https://en.wikipedia.org/wiki/Node.js"
-},
-{
-"d": "2026-10-21",
-"cat": "science",
-"topic": "Black October",
-"text": "A critical security flaw, allowing for remote code execution, in 12 years of GitLab versions is disclosed, requiring updates.",
-"link": "https://en.wikipedia.org/wiki/Remote_code_execution"
 },
 {
 "d": "2026-10-01",
