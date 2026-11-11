@@ -162,6 +162,13 @@
 "items": [
 {
 "d": "2026-11-11",
+"cat": "culture",
+"topic": "",
+"text": "The American ocean liner SS United States is sunken off Florida and becomes the world's largest artificial reef.",
+"link": "https://en.wikipedia.org/wiki/United_States"
+},
+{
+"d": "2026-11-11",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
@@ -183,6 +190,13 @@
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-10",
+"cat": "environment",
+"topic": "",
+"text": "The Thai cabinet approves new environmental regulations for data centers, including limits on noise and temperature increases, requirements for cooling-water recycling and testing, and industrial zoning for facilities consuming more than 20 megawatts.",
+"link": "https://en.wikipedia.org/wiki/Thailand"
 },
 {
 "d": "2026-11-10",
