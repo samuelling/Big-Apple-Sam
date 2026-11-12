@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-11",
+"day": "2026-11-12",
 "history": [
 {
 "d": "2026-10-31",
@@ -109,6 +109,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-12",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -130,15 +139,15 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-11",
+"d": "2026-11-12",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 100 visits in the past week.",
+"text": "megaZINE's website had 81 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-11",
+"d": "2026-11-12",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -146,7 +155,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-11",
+"d": "2026-11-12",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -161,22 +170,15 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-11",
-"cat": "culture",
-"topic": "",
-"text": "The American ocean liner SS United States is sunken off Florida and becomes the world's largest artificial reef.",
-"link": "https://en.wikipedia.org/wiki/United_States"
-},
-{
-"d": "2026-11-11",
+"d": "2026-11-12",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 100 visits in the past week.",
+"text": "megaZINE's website had 81 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-11",
+"d": "2026-11-12",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -184,7 +186,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-11",
+"d": "2026-11-12",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -192,9 +194,16 @@
 "link": "https://samuelling.github.io/BBS/"
 },
 {
-"d": "2026-11-10",
+"d": "2026-11-11",
 "cat": "environment",
 "topic": "",
+"text": "The American ocean liner SS United States is sunk off the coast of Destin–Fort Walton Beach, Florida, United States, to become the world's largest artificial reef.",
+"link": "https://en.wikipedia.org/wiki/United_States"
+},
+{
+"d": "2026-11-10",
+"cat": "environment",
+"topic": "AI boom",
 "text": "The Thai cabinet approves new environmental regulations for data centers, including limits on noise and temperature increases, requirements for cooling-water recycling and testing, and industrial zoning for facilities consuming more than 20 megawatts.",
 "link": "https://en.wikipedia.org/wiki/Thailand"
 },
@@ -548,34 +557,6 @@
 "topic": "",
 "text": "Argentine football player Lionel Messi is awarded the 2026 Princess of Asturias Award for Sports for his career at FC Barcelona in Catalonia, Spain.",
 "link": "https://en.wikipedia.org/wiki/Football_in_Argentina"
-},
-{
-"d": "2026-10-22",
-"cat": "culture",
-"topic": "",
-"text": "British singer Raye wins the 2026 Mercury Prize for her album This Music May Contain Hope.",
-"link": "https://en.wikipedia.org/wiki/United_Kingdom"
-},
-{
-"d": "2026-10-22",
-"cat": "sports",
-"topic": "2026 World Artistic Gymnastics Championships",
-"text": "In artistic gymnastics, Japan's Daiki Hashimoto wins his fourth consecutive men's all-around title at the 2026 World Championships in Rotterdam, Netherlands, finishing ahead of China's Zhang Boheng and Japan's Shinnosuke Oka.",
-"link": "https://en.wikipedia.org/wiki/Artistic_gymnastics"
-},
-{
-"d": "2026-10-22",
-"cat": "sports",
-"topic": "2026 NFL season",
-"text": "In American football, the Chicago Bears receive an illegal forward handing penalty in a game against the New England Patriots, the first time in 16 years that the penalty has been handed out.",
-"link": "https://en.wikipedia.org/wiki/American_football"
-},
-{
-"d": "2026-10-22",
-"cat": "sports",
-"topic": "2028 FIFA Women's Club World Cup",
-"text": "In women's association football, FIFA announces that the United States will host the inaugural FIFA Women's Club World Cup in 2028.",
-"link": "https://en.wikipedia.org/wiki/Women%27s_association_football"
 },
 {
 "d": "2026-10-01",
