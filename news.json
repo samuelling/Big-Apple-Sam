@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-12",
+"day": "2026-11-13",
 "history": [
 {
 "d": "2026-10-31",
@@ -118,6 +118,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-13",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -139,15 +148,15 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-12",
+"d": "2026-11-13",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 81 visits in the past week.",
+"text": "megaZINE's website had 84 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-12",
+"d": "2026-11-13",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -155,7 +164,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-12",
+"d": "2026-11-13",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -170,15 +179,15 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-12",
+"d": "2026-11-13",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 81 visits in the past week.",
+"text": "megaZINE's website had 84 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-12",
+"d": "2026-11-13",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -186,7 +195,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-12",
+"d": "2026-11-13",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -194,10 +203,17 @@
 "link": "https://samuelling.github.io/BBS/"
 },
 {
+"d": "2026-11-12",
+"cat": "science",
+"topic": "",
+"text": "A major outage impacts multiple Microsoft services, including Microsoft 365, Copilot and Teams, worldwide.",
+"link": "https://en.wikipedia.org/wiki/Internet_outage"
+},
+{
 "d": "2026-11-11",
 "cat": "business",
 "topic": "2026 Paraguay banking crisis",
-"text": "The Central Bank of Paraguay reports providing partial refunds to 1,812,348 eligible Ueno Bank depositors following the Ueno's collapse.",
+"text": "The Central Bank of Paraguay reports providing partial refunds to 1,812,348 eligible Ueno Bank depositors following the bank's collapse.",
 "link": "https://en.wikipedia.org/wiki/Central_Bank_of_Paraguay"
 },
 {
@@ -557,13 +573,6 @@
 "topic": "2026 LPGA Tour",
 "text": "In golf, Japan's Yuri Yoshida wins her first LPGA Tour title at the BMW Ladies Championship in South Jeolla Province, South Korea, finishing ahead of Australia's Minjee Lee and South Korea's Kim Sei-young.",
 "link": "https://en.wikipedia.org/wiki/Golf"
-},
-{
-"d": "2026-10-23",
-"cat": "sports",
-"topic": "",
-"text": "Argentine football player Lionel Messi is awarded the 2026 Princess of Asturias Award for Sports for his career at FC Barcelona in Catalonia, Spain.",
-"link": "https://en.wikipedia.org/wiki/Football_in_Argentina"
 },
 {
 "d": "2026-10-01",
