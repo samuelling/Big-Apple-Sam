@@ -189,6 +189,13 @@
 "items": [
 {
 "d": "2026-11-14",
+"cat": "culture",
+"topic": "Eurovision Song Contest Asia",
+"text": "The Philippines, with the song Sobra-Sobra by Carmelle, wins the inaugural Eurovision Song Contest Asia held in Bangkok, Thailand.",
+"link": "https://en.wikipedia.org/wiki/Philippines"
+},
+{
+"d": "2026-11-14",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
@@ -214,7 +221,7 @@
 {
 "d": "2026-11-12",
 "cat": "science",
-"topic": "2026 Microsoft outage",
+"topic": "",
 "text": "A major outage impacts multiple Microsoft services, including Microsoft 365, Copilot and Teams, worldwide.",
 "link": "https://en.wikipedia.org/wiki/2026_Microsoft_outage"
 },
