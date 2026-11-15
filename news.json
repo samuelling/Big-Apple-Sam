@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-14",
+"day": "2026-11-15",
 "history": [
 {
 "d": "2026-10-31",
@@ -136,6 +136,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-15",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -157,23 +166,23 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-14",
+"d": "2026-11-15",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 57 visits in the past week.",
+"text": "megaZINE's website had 53 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-14",
+"d": "2026-11-15",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 13 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 12 clicks.",
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-14",
+"d": "2026-11-15",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -188,35 +197,35 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-14",
-"cat": "culture",
-"topic": "Eurovision Song Contest Asia",
-"text": "The Philippines, with the song \"Sobra-Sobra\" by Carmelle, wins the inaugural Eurovision Song Contest Asia held in Bangkok, Thailand.",
-"link": "https://en.wikipedia.org/wiki/Philippines_in_the_Eurovision_Song_Contest_Asia"
-},
-{
-"d": "2026-11-14",
+"d": "2026-11-15",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 57 visits in the past week.",
+"text": "megaZINE's website had 53 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-14",
+"d": "2026-11-15",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 13 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 12 clicks.",
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-14",
+"d": "2026-11-15",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-14",
+"cat": "culture",
+"topic": "Eurovision Song Contest Asia",
+"text": "The Philippines, with the song \"Sobra-Sobra\" by Carmelle, wins the inaugural Eurovision Song Contest Asia held in Bangkok, Thailand.",
+"link": "https://en.wikipedia.org/wiki/Philippines_in_the_Eurovision_Song_Contest_Asia"
 },
 {
 "d": "2026-11-12",
@@ -568,27 +577,6 @@
 "topic": "2026 Ballon d'Or",
 "text": "In association football, English player Harry Kane wins the men's Ballon d'Or for the first time, while Spanish player Alexia Putellas receives the women's award for a record-tying third time.",
 "link": "https://en.wikipedia.org/wiki/Association_football"
-},
-{
-"d": "2026-10-25",
-"cat": "business",
-"topic": "",
-"text": "Western Sydney Airport in New South Wales, Australia, commences passenger operations as Greater Sydney's second airport.",
-"link": "https://en.wikipedia.org/wiki/Western_Sydney_Airport"
-},
-{
-"d": "2026-10-25",
-"cat": "sports",
-"topic": "2026 NASCAR Cup Series",
-"text": "In auto racing, American driver Kyle Larson of Hendrick Motorsports wins the YellaWood 500 at the Talladega Superspeedway in Alabama, winning his first NASCAR Cup Series race at the circuit.",
-"link": "https://en.wikipedia.org/wiki/Auto_racing"
-},
-{
-"d": "2026-10-25",
-"cat": "sports",
-"topic": "2026 LPGA Tour",
-"text": "In golf, Japan's Yuri Yoshida wins her first LPGA Tour title at the BMW Ladies Championship in South Jeolla Province, South Korea, finishing ahead of Australia's Minjee Lee and South Korea's Kim Sei-young.",
-"link": "https://en.wikipedia.org/wiki/Golf"
 },
 {
 "d": "2026-10-01",
