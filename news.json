@@ -207,6 +207,13 @@
 "items": [
 {
 "d": "2026-11-16",
+"cat": "business",
+"topic": "",
+"text": "The European Commission (EC) and the United States Federal Reserve approve Italian bank UniCredit's proposed €45 billion (US$49 billion) acquisition of Germany's Commerzbank, following the European Central Bank's approval in October. The EC grants unconditional antitrust clearance.",
+"link": "https://en.wikipedia.org/wiki/European_Commission"
+},
+{
+"d": "2026-11-16",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
@@ -260,6 +267,13 @@
 {
 "d": "2026-11-15",
 "cat": "sports",
+"topic": "2026 Grey Cup",
+"text": "In Canadian football, the Edmonton Elks win their 15th Canadian Football League title after beating the Montreal Alouettes 37–30 in the Grey Cup. They previously won in 2015.",
+"link": "https://en.wikipedia.org/wiki/Canadian_football"
+},
+{
+"d": "2026-11-15",
+"cat": "sports",
 "topic": "2026 Women's Rugby League World Cup, Australia–New Zealand sports rivalries",
 "text": "In women's rugby league, Australia wins its fourth consecutive World Cup title after defeating New Zealand 34–10 in the final in Brisbane.",
 "link": "https://en.wikipedia.org/wiki/Women%27s_rugby_league"
@@ -270,13 +284,6 @@
 "topic": "2026–27 UEFA Nations League",
 "text": "In association football, England defeats Spain 3–2 in the group stage of UEFA Nations League A to end Spain's 43-match unbeaten streak, the longest by a national team.",
 "link": "https://en.wikipedia.org/wiki/Association_football"
-},
-{
-"d": "2026-11-15",
-"cat": "sports",
-"topic": "2026 Grey Cup",
-"text": "In Canadian football, the Edmonton Elks win their 15th Canadian Football League title after beating the Montreal Alouettes 37–30 in the Grey Cup. They previously won in 2015.",
-"link": "https://en.wikipedia.org/wiki/Canadian_football"
 },
 {
 "d": "2026-11-14",
