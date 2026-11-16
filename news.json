@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-15",
+"day": "2026-11-16",
 "history": [
 {
 "d": "2026-10-31",
@@ -145,6 +145,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-16",
+"users": 6,
+"callers": 43,
+"files": 145,
+"posts": 3,
+"bytes": 1025207765,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -166,23 +175,23 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-15",
+"d": "2026-11-16",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 53 visits in the past week.",
+"text": "megaZINE's website had 47 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-15",
+"d": "2026-11-16",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 12 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 9 clicks.",
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-15",
+"d": "2026-11-16",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -197,28 +206,77 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-15",
+"d": "2026-11-16",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 53 visits in the past week.",
+"text": "megaZINE's website had 47 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-15",
+"d": "2026-11-16",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 12 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 9 clicks.",
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-15",
+"d": "2026-11-16",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-15",
+"cat": "science",
+"topic": "",
+"text": "Non-profit fanfiction repository website Archive of Our Own is restored to limited functionality 17 days after being targeted in a cyberattack.",
+"link": "https://en.wikipedia.org/wiki/Fan_fiction"
+},
+{
+"d": "2026-11-15",
+"cat": "sports",
+"topic": "2026 WTA Finals",
+"text": "In tennis, Kateřina Siniaková and Taylor Townsend win their second and first WTA Finals doubles titles, respectively, after defeating Sara Errani and Jasmine Paolini in the final, 6–4, 6–3.",
+"link": "https://en.wikipedia.org/wiki/Tennis"
+},
+{
+"d": "2026-11-15",
+"cat": "sports",
+"topic": "2026 WTA Finals",
+"text": "In tennis, Mirra Andreeva wins her first WTA Finals singles title after defeating Elina Svitolina in the final, 7–5, 6–3.",
+"link": "https://en.wikipedia.org/wiki/Mirra_Andreeva"
+},
+{
+"d": "2026-11-15",
+"cat": "sports",
+"topic": "2026 European Tour",
+"text": "In golf, Rory McIlroy equals Colin Montgomerie's record for the most Harry Vardon Trophies after winning his eighth Race to Dubai title, which McIlroy claimed after finishing second at the DP World Tour Championship.",
+"link": "https://en.wikipedia.org/wiki/Golf"
+},
+{
+"d": "2026-11-15",
+"cat": "sports",
+"topic": "2026 Women's Rugby League World Cup, Australia–New Zealand sports rivalries",
+"text": "In women's rugby league, Australia wins its fourth consecutive World Cup title after defeating New Zealand 34–10 in the final in Brisbane.",
+"link": "https://en.wikipedia.org/wiki/Women%27s_rugby_league"
+},
+{
+"d": "2026-11-15",
+"cat": "sports",
+"topic": "2026–27 UEFA Nations League",
+"text": "In association football, England defeats Spain 3–2 in the group stage of UEFA Nations League A to end Spain's 43-match unbeaten streak, the longest by a national team.",
+"link": "https://en.wikipedia.org/wiki/Association_football"
+},
+{
+"d": "2026-11-15",
+"cat": "sports",
+"topic": "2026 Grey Cup",
+"text": "In Canadian football, the Edmonton Elks win their 15th Canadian Football League title after beating the Montreal Alouettes 37–30 in the Grey Cup. They previously won in 2015.",
+"link": "https://en.wikipedia.org/wiki/Canadian_football"
 },
 {
 "d": "2026-11-14",
@@ -563,20 +621,6 @@
 "topic": "2025 in climate change",
 "text": "The World Meteorological Organization reports that global concentrations of carbon dioxide, methane, and nitrous oxide reached record highs in 2025, with carbon dioxide averaging 426.8 parts per million.",
 "link": "https://en.wikipedia.org/wiki/World_Meteorological_Organization"
-},
-{
-"d": "2026-10-26",
-"cat": "culture",
-"topic": "",
-"text": "Dictionary.com says maxxing has been named its Word of the Year for 2026 following a surge in its use across social media.",
-"link": "https://en.wikipedia.org/wiki/Dictionary.com"
-},
-{
-"d": "2026-10-26",
-"cat": "sports",
-"topic": "2026 Ballon d'Or",
-"text": "In association football, English player Harry Kane wins the men's Ballon d'Or for the first time, while Spanish player Alexia Putellas receives the women's award for a record-tying third time.",
-"link": "https://en.wikipedia.org/wiki/Association_football"
 },
 {
 "d": "2026-10-01",
