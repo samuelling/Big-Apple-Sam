@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-16",
+"day": "2026-11-17",
 "history": [
 {
 "d": "2026-10-31",
@@ -154,6 +154,15 @@
 "posts": 3,
 "bytes": 1025207765,
 "lines": 5
+},
+{
+"d": "2026-11-17",
+"users": 6,
+"callers": 44,
+"files": 146,
+"posts": 3,
+"bytes": 1026604175,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -175,27 +184,27 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-16",
+"d": "2026-11-17",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 47 visits in the past week.",
+"text": "megaZINE's website had 41 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-16",
+"d": "2026-11-17",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 9 clicks.",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 6 clicks.",
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-16",
+"d": "2026-11-17",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
+"text": "The MEGAzine BBS has had 44 callers so far. It has 6 users, 146 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal. This week: 1 new caller, 1 new file.",
 "link": "https://samuelling.github.io/BBS/"
 }
 ]
@@ -206,35 +215,35 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
+"d": "2026-11-17",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE readership",
+"text": "megaZINE's website had 41 visits in the past week.",
+"link": "https://megazine.org/"
+},
+{
+"d": "2026-11-17",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE's most popular piece",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 6 clicks.",
+"link": "https://megazine.org/?go=worldbuilder"
+},
+{
+"d": "2026-11-17",
+"cat": "local",
+"src": "bbs",
+"topic": "MEGAzine BBS",
+"text": "The MEGAzine BBS has had 44 callers so far. It has 6 users, 146 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal. This week: 1 new caller, 1 new file.",
+"link": "https://samuelling.github.io/BBS/"
+},
+{
 "d": "2026-11-16",
 "cat": "business",
 "topic": "",
 "text": "The European Commission (EC) and the United States Federal Reserve approve Italian bank UniCredit's proposed €45 billion (US$49 billion) acquisition of Germany's Commerzbank, following the European Central Bank's approval in October. The EC grants unconditional antitrust clearance.",
 "link": "https://en.wikipedia.org/wiki/European_Commission"
-},
-{
-"d": "2026-11-16",
-"cat": "local",
-"src": "zine",
-"topic": "megaZINE readership",
-"text": "megaZINE's website had 47 visits in the past week.",
-"link": "https://megazine.org/"
-},
-{
-"d": "2026-11-16",
-"cat": "local",
-"src": "zine",
-"topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 9 clicks.",
-"link": "https://megazine.org/?go=worldbuilder"
-},
-{
-"d": "2026-11-16",
-"cat": "local",
-"src": "bbs",
-"topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 43 callers so far. It has 6 users, 145 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal.",
-"link": "https://samuelling.github.io/BBS/"
 },
 {
 "d": "2026-11-15",
@@ -614,20 +623,6 @@
 "topic": "2026 World Series",
 "text": "In Major League Baseball, the Milwaukee Brewers defeat the Tampa Bay Rays in five games to win their first World Series championship in franchise history.",
 "link": "https://en.wikipedia.org/wiki/Major_League_Baseball"
-},
-{
-"d": "2026-10-27",
-"cat": "business",
-"topic": "AI bubble",
-"text": "China's Shanghai Stock Exchange STAR Market index, which focuses on science and technology companies, plummets 40% in less than four months.",
-"link": "https://en.wikipedia.org/wiki/China"
-},
-{
-"d": "2026-10-27",
-"cat": "environment",
-"topic": "2025 in climate change",
-"text": "The World Meteorological Organization reports that global concentrations of carbon dioxide, methane, and nitrous oxide reached record highs in 2025, with carbon dioxide averaging 426.8 parts per million.",
-"link": "https://en.wikipedia.org/wiki/World_Meteorological_Organization"
 },
 {
 "d": "2026-10-01",
