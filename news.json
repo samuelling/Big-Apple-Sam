@@ -225,10 +225,10 @@
 "items": [
 {
 "d": "2026-11-18",
-"cat": "business",
-"topic": "Science and technology",
-"text": "A cyber-security firm has used artificial intelligence to uncover a critical flaw in the hugely popular computer programming language Java.",
-"link": "https://en.wikipedia.org/wiki/Artificial_intelligence"
+"cat": "science",
+"topic": "",
+"text": "NASA's space probe Voyager 1 reaches the distance of one light-day from Earth, being the first man-made object to reach that distance, after it launched in 1977.",
+"link": "https://en.wikipedia.org/wiki/NASA"
 },
 {
 "d": "2026-11-18",
@@ -260,6 +260,13 @@
 "topic": "",
 "text": "American technology company Apple experiences an outage with several of its services, including Apple Pay, iCloud, the App Store, and AppleCare. The company's spokesperson attributed the problems to an internal update and rules out a cyberattack.",
 "link": "https://en.wikipedia.org/wiki/Science_and_technology_in_the_United_States"
+},
+{
+"d": "2026-11-16",
+"cat": "culture",
+"topic": "",
+"text": "English actor Robert Pattinson is cast as James Bond in the ongoing film series starring the character.",
+"link": "https://en.wikipedia.org/wiki/Robert_Pattinson"
 },
 {
 "d": "2026-11-16",
@@ -321,7 +328,7 @@
 "d": "2026-11-14",
 "cat": "culture",
 "topic": "Eurovision Song Contest Asia",
-"text": "The Philippines, with the song \"Sobra-Sobra\" by Carmelle, wins the inaugural Eurovision Song Contest Asia held in Bangkok, Thailand.",
+"text": "The Philippines wins the inaugural Eurovision Song Contest Asia held in Bangkok, Thailand with the song \"Sobra-Sobra\" by Carmelle.",
 "link": "https://en.wikipedia.org/wiki/Philippines_in_the_Eurovision_Song_Contest_Asia"
 },
 {
