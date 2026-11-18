@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-17",
+"day": "2026-11-18",
 "history": [
 {
 "d": "2026-10-31",
@@ -163,6 +163,15 @@
 "posts": 3,
 "bytes": 1026604175,
 "lines": 5
+},
+{
+"d": "2026-11-18",
+"users": 6,
+"callers": 44,
+"files": 146,
+"posts": 3,
+"bytes": 1026604175,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -184,15 +193,15 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-17",
+"d": "2026-11-18",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 41 visits in the past week.",
+"text": "megaZINE's website had 46 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-17",
+"d": "2026-11-18",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -200,7 +209,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-17",
+"d": "2026-11-18",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -215,15 +224,22 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-17",
+"d": "2026-11-18",
+"cat": "business",
+"topic": "Science and technology",
+"text": "A cyber-security firm has used artificial intelligence to uncover a critical flaw in the hugely popular computer programming language Java.",
+"link": "https://en.wikipedia.org/wiki/Artificial_intelligence"
+},
+{
+"d": "2026-11-18",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 41 visits in the past week.",
+"text": "megaZINE's website had 46 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-17",
+"d": "2026-11-18",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -231,12 +247,19 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-17",
+"d": "2026-11-18",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
 "text": "The MEGAzine BBS has had 44 callers so far. It has 6 users, 146 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal. This week: 1 new caller, 1 new file.",
 "link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-17",
+"cat": "science",
+"topic": "",
+"text": "American technology company Apple experiences an outage with several of its services, including Apple Pay, iCloud, the App Store, and AppleCare. The company's spokesperson attributed the problems to an internal update and rules out a cyberattack.",
+"link": "https://en.wikipedia.org/wiki/Science_and_technology_in_the_United_States"
 },
 {
 "d": "2026-11-16",
@@ -602,27 +625,6 @@
 "topic": "",
 "text": "Teghaza 001, a Martian meteorite discovered in 2022 in the Sahara in Mali, is reported to be 4.1 billion years old.",
 "link": "https://en.wikipedia.org/wiki/Martian_meteorite"
-},
-{
-"d": "2026-10-28",
-"cat": "business",
-"topic": "",
-"text": "Jio Platforms raises US$3.2 billion in India's largest-ever initial public offering (IPO), attracting about $77 billion in bids and becoming the country's most-subscribed IPO before its stock-market debut in Mumbai.",
-"link": "https://en.wikipedia.org/wiki/Jio_Platforms"
-},
-{
-"d": "2026-10-28",
-"cat": "sports",
-"topic": "2026 Japan Series",
-"text": "In baseball, the Fukuoka SoftBank Hawks defeat the Yokohama DeNA BayStars in four games to win their 13th Japan Series championship.",
-"link": "https://en.wikipedia.org/wiki/Baseball"
-},
-{
-"d": "2026-10-28",
-"cat": "sports",
-"topic": "2026 World Series",
-"text": "In Major League Baseball, the Milwaukee Brewers defeat the Tampa Bay Rays in five games to win their first World Series championship in franchise history.",
-"link": "https://en.wikipedia.org/wiki/Major_League_Baseball"
 },
 {
 "d": "2026-10-01",
