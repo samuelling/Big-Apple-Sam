@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-18",
+"day": "2026-11-19",
 "history": [
 {
 "d": "2026-10-31",
@@ -172,6 +172,15 @@
 "posts": 3,
 "bytes": 1026604175,
 "lines": 5
+},
+{
+"d": "2026-11-19",
+"users": 6,
+"callers": 44,
+"files": 146,
+"posts": 3,
+"bytes": 1026604175,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -193,15 +202,15 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-18",
+"d": "2026-11-19",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 46 visits in the past week.",
+"text": "megaZINE's website had 39 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-18",
+"d": "2026-11-19",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -209,7 +218,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-18",
+"d": "2026-11-19",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -224,6 +233,37 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
+"d": "2026-11-19",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE readership",
+"text": "megaZINE's website had 39 visits in the past week.",
+"link": "https://megazine.org/"
+},
+{
+"d": "2026-11-19",
+"cat": "local",
+"src": "zine",
+"topic": "megaZINE's most popular piece",
+"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 6 clicks.",
+"link": "https://megazine.org/?go=worldbuilder"
+},
+{
+"d": "2026-11-19",
+"cat": "local",
+"src": "bbs",
+"topic": "MEGAzine BBS",
+"text": "The MEGAzine BBS has had 44 callers so far. It has 6 users, 146 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal. This week: 1 new caller, 1 new file.",
+"link": "https://samuelling.github.io/BBS/"
+},
+{
+"d": "2026-11-18",
+"cat": "culture",
+"topic": "",
+"text": "Vincent van Gogh's 1890 painting Blossoming Chestnut Trees sells for US$190.4 million at Sotheby's in New York City, United States, setting a new auction record for Van Gogh and surpassing the $117.2 million paid for Orchard with Cypresses (1888) in 2022.",
+"link": "https://en.wikipedia.org/wiki/Vincent_van_Gogh"
+},
+{
 "d": "2026-11-18",
 "cat": "science",
 "topic": "",
@@ -232,27 +272,17 @@
 },
 {
 "d": "2026-11-18",
-"cat": "local",
-"src": "zine",
-"topic": "megaZINE readership",
-"text": "megaZINE's website had 46 visits in the past week.",
-"link": "https://megazine.org/"
+"cat": "science",
+"topic": "",
+"text": "PlayStation reports a major outage ahead of the release of Grand Theft Auto VI.",
+"link": "https://en.wikipedia.org/wiki/PlayStation"
 },
 {
 "d": "2026-11-18",
-"cat": "local",
-"src": "zine",
-"topic": "megaZINE's most popular piece",
-"text": "The most-clicked piece in megaZINE over the past two weeks is Worldbuilder, with 6 clicks.",
-"link": "https://megazine.org/?go=worldbuilder"
-},
-{
-"d": "2026-11-18",
-"cat": "local",
-"src": "bbs",
-"topic": "MEGAzine BBS",
-"text": "The MEGAzine BBS has had 44 callers so far. It has 6 users, 146 files (1.0 GB) in its file areas and 5 phone lines; when they're all busy, callers get a busy signal. This week: 1 new caller, 1 new file.",
-"link": "https://samuelling.github.io/BBS/"
+"cat": "sports",
+"topic": "Bangladeshi cricket team in South Africa in 2026–27",
+"text": "In Test cricket, Bangladeshi wicketkeeper Litton Das sets a world record for the most dismissals in a single Test innings, recording six catches and two stumpings against South Africa in Johannesburg.",
+"link": "https://en.wikipedia.org/wiki/Test_cricket"
 },
 {
 "d": "2026-11-17",
@@ -262,11 +292,18 @@
 "link": "https://en.wikipedia.org/wiki/Science_and_technology_in_the_United_States"
 },
 {
+"d": "2026-11-17",
+"cat": "sports",
+"topic": "2026 Melbourne Cup",
+"text": "Racing NSW launches an investigation after the body of losing horse So You Are is found in a skip bin in Sydney, Australia.",
+"link": "https://en.wikipedia.org/wiki/Racing_NSW"
+},
+{
 "d": "2026-11-16",
 "cat": "culture",
 "topic": "",
 "text": "English actor Robert Pattinson is cast as James Bond in the ongoing film series starring the character.",
-"link": "https://en.wikipedia.org/wiki/Robert_Pattinson"
+"link": "https://en.wikipedia.org/wiki/England"
 },
 {
 "d": "2026-11-16",
@@ -611,27 +648,6 @@
 "topic": "2026 Breeders' Cup",
 "text": "In thoroughbred horse racing, race horse Sun Goddess dominates the Juvenile Fillies Turf at the Keeneland racetrack in Lexington, Kentucky, United States, during the Breeders' Cup. Additionally, Emphatic wins the Juvenile Fillies.",
 "link": "https://en.wikipedia.org/wiki/Thoroughbred_racing"
-},
-{
-"d": "2026-10-29",
-"cat": "culture",
-"topic": "",
-"text": "Non-profit fanfiction repository website Archive of Our Own is targeted in a cybersecurity incident, going offline. The Organization of Transformative Works states user information and submissions have not been compromised, and projects restoring the website in 2 to 4 weeks.",
-"link": "https://en.wikipedia.org/wiki/Fanfiction"
-},
-{
-"d": "2026-10-29",
-"cat": "business",
-"topic": "",
-"text": "American food delivery company DoorDash announces an intent to acquire grocery delivery company Instacart for $17 billion in late 2027.",
-"link": "https://en.wikipedia.org/wiki/United_States"
-},
-{
-"d": "2026-10-29",
-"cat": "science",
-"topic": "",
-"text": "Teghaza 001, a Martian meteorite discovered in 2022 in the Sahara in Mali, is reported to be 4.1 billion years old.",
-"link": "https://en.wikipedia.org/wiki/Martian_meteorite"
 },
 {
 "d": "2026-10-01",
