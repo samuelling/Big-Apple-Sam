@@ -1,6 +1,6 @@
 {
 "scene": {
-"day": "2026-11-19",
+"day": "2026-11-20",
 "history": [
 {
 "d": "2026-10-31",
@@ -181,6 +181,15 @@
 "posts": 3,
 "bytes": 1026604175,
 "lines": 5
+},
+{
+"d": "2026-11-20",
+"users": 6,
+"callers": 44,
+"files": 146,
+"posts": 3,
+"bytes": 1026604175,
+"lines": 5
 }
 ],
 "milestones": [],
@@ -202,15 +211,15 @@
 "link": "https://megazine.org/?issue=02"
 },
 {
-"d": "2026-11-19",
+"d": "2026-11-20",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 39 visits in the past week.",
+"text": "megaZINE's website had 37 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-19",
+"d": "2026-11-20",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -218,7 +227,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-19",
+"d": "2026-11-20",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -233,15 +242,15 @@
 "portal": "https://en.wikipedia.org/wiki/Portal:Current_events",
 "items": [
 {
-"d": "2026-11-19",
+"d": "2026-11-20",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE readership",
-"text": "megaZINE's website had 39 visits in the past week.",
+"text": "megaZINE's website had 37 visits in the past week.",
 "link": "https://megazine.org/"
 },
 {
-"d": "2026-11-19",
+"d": "2026-11-20",
 "cat": "local",
 "src": "zine",
 "topic": "megaZINE's most popular piece",
@@ -249,7 +258,7 @@
 "link": "https://megazine.org/?go=worldbuilder"
 },
 {
-"d": "2026-11-19",
+"d": "2026-11-20",
 "cat": "local",
 "src": "bbs",
 "topic": "MEGAzine BBS",
@@ -641,13 +650,6 @@
 "topic": "",
 "text": "2027 WBSC Premier12 qualification",
 "link": "https://en.wikipedia.org/wiki/2027_WBSC_Premier12_qualification"
-},
-{
-"d": "2026-10-30",
-"cat": "sports",
-"topic": "2026 Breeders' Cup",
-"text": "In thoroughbred horse racing, race horse Sun Goddess dominates the Juvenile Fillies Turf at the Keeneland racetrack in Lexington, Kentucky, United States, during the Breeders' Cup. Additionally, Emphatic wins the Juvenile Fillies.",
-"link": "https://en.wikipedia.org/wiki/Thoroughbred_racing"
 },
 {
 "d": "2026-10-01",
